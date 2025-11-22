@@ -3,7 +3,7 @@
 # # Create your tests here.
 
 from django.test import TestCase
-from .models import Certyfikat, Entity, Partia_produktow
+from ProjektSystemCertyfikacji.models import Certyfikat, Entity, Partia_produktow
 from datetime import date
 
 class ModelsVerboseTestCase(TestCase):

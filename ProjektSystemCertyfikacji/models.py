@@ -1,15 +1,16 @@
 from django.db import models
 
+
 class Certyfikat(models.Model):
     certificate_id = models.CharField(max_length=20, primary_key=True)
-    certificate_number = models.CharField(max_length=20) # to trzeba sprawdzic ile mam makysmalnie znakow
+    certificate_number = models.CharField(max_length=20)  # to trzeba sprawdzic ile mam makysmalnie znakow
     TYPE = [
-        ('inne','Inne'),
-        ('produkcja','Produkcja')
+        ('inne', 'Inne'),
+        ('produkcja', 'Produkcja')
     ]
     certificate_type = models.CharField(max_length=20, choices=TYPE, default='inne')
-    #nie ma id_jednostki poniewaz jeżeli mamy miec (tak jak jest na diagramie) tabele pomocniczą to umieszczenie tutaj tego id nie ma sensu 
-    holder_entity_id = models.IntegerField()    #?
+    # nie ma id_jednostki poniewaz jeżeli mamy miec (tak jak jest na diagramie) tabele pomocniczą to umieszczenie tutaj tego id nie ma sensu
+    holder_entity_id = models.IntegerField()  # ?
     STATE = [
         ('none', 'None'),
         ('wazny', 'Wazny'),
@@ -21,16 +22,18 @@ class Certyfikat(models.Model):
     valid_from = models.DateField()
     valid_to = models.DateField()
     # certificate_publisher ?
-    qr_code_data = models.TextField(blank=True, null=True) # Placeholder
+    qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
     certificate_hash = models.CharField(max_length=100)
     blockchain_address = models.CharField(max_length=100)
 
+
 class Jednostka_certyfikujaca(models.Model):
-    authority_id = models.AutoField(primary_key=True) 
+    authority_id = models.AutoField(primary_key=True)
     authority_name = models.CharField(max_length=30)
     authority_address = models.TextField()
-    authority_ODU = models.CharField(max_length=30) # ODU - Organizational Unit Number
+    authority_ODU = models.CharField(max_length=30)  # ODU - Organizational Unit Number
     establishment_date = models.DateField()
+
 
 class Jednostka_certyfikat(models.Model):
     authority_id = models.ForeignKey(
@@ -44,9 +47,6 @@ class Jednostka_certyfikat(models.Model):
 
     class Meta:
         unique_together = ('authority_id', 'certificate_id')
-
-
-
 
 
 class Entity(models.Model):
@@ -68,7 +68,6 @@ class Entity(models.Model):
 
     ]
     area_of_activity = models.TextField(max_length=30, choices=AREA)
-    
 
 
 class Partia_produktow(models.Model):
@@ -102,12 +101,11 @@ class Partia_produktow(models.Model):
         ('szt', 'Sztuki')
     ]
     unit = models.CharField(max_length=10, choices=UNIT, default='szt')
-    qr_code_data = models.TextField(blank=True, null=True) # Placeholder
-    blockchain_hash = models.CharField(max_length=64, unique=True) #?
+    qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
+    blockchain_hash = models.CharField(max_length=64, unique=True)  # ?
 
 
-
-class Weryfikacja_konsumenta(models.Model): 
+class Weryfikacja_konsumenta(models.Model):
     verification_id = models.CharField(max_length=20, primary_key=True)
     batch_id = models.ForeignKey(
         Partia_produktow,
@@ -127,9 +125,6 @@ class Ocena_konsumenta(models.Model):
     rating = models.IntegerField()
     comment = models.TextField(blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
-
-
-
 
 
 class Alert(models.Model):
@@ -158,7 +153,7 @@ class Alert(models.Model):
         Partia_produktow,
         on_delete=models.CASCADE
     )
-    event_id = models.TextField(blank=True, null=True) # Placeholder
+    event_id = models.TextField(blank=True, null=True)  # Placeholder
     description = models.TextField(max_length=255)
 
 
