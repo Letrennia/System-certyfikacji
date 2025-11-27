@@ -145,7 +145,7 @@ class Alert(models.Model):
         ('wykonane', 'Wykonane')
     ]
     alert_state = models.CharField(max_length=10, choices=STATE, default='none')
-    certicate_id = models.ForeignKey(
+    certificate_id = models.ForeignKey(
         Certyfikat,
         on_delete=models.CASCADE
     )
