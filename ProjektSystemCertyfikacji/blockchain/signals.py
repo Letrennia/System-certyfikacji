@@ -1,0 +1,51 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from ..models import Certyfikat, Partia_produktow
+from .core import get_blockchain
+
+
+@receiver(post_save, sender=Certyfikat)
+def register_certificate_to_blockchain(sender, instance, created, **kwargs):
+    if created:
+        blockchain = get_blockchain()
+
+        certificate_data = {
+            "certificate_number": instance.certificate_number,
+            "certificate_type": instance.certificate_type,
+            "holder_entity_id": instance.holder_entity_id,
+            "valid_from": instance.valid_from,
+            "valid_to": instance.valid_to,
+            "state": instance.state
+        }
+
+        blockchain_hash = blockchain.register_certificate(
+            instance.certificate_id,
+            certificate_data
+        )
+
+        instance.blockchain_address = blockchain_hash
+        instance.save(update_fields=['blockchain_address'])
+
+
+@receiver(post_save, sender=Partia_produktow)
+def register_batch_to_blockchain(sender, instance, created, **kwargs):
+    if created:
+        blockchain = get_blockchain()
+
+        batch_data = {
+            "certificate_id": instance.certificate_id.certificate_id,
+            "name": instance.name,
+            "category": instance.category,
+            "production_date": instance.production_date,
+            "producer_id": instance.producer_id.entity_id,
+            "amount": instance.amount,
+            "unit": instance.unit
+        }
+
+        blockchain_hash = blockchain.register_batch(
+            instance.batch_id,
+            batch_data
+        )
+
+        instance.blockchain_hash = blockchain_hash
+        instance.save(update_fields=['blockchain_hash'])
