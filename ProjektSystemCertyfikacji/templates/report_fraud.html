@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zgłoś oszustwo - {{ certificate.certificate_number }}</title>
+</head>
+<body>
+    <h1>Zgłoś podejrzenie oszustwa</h1>
+    <p>Certyfikat: <strong>{{ certificate.certificate_number }}</strong></p>
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <p>
+            <label>Twoje imię i nazwisko:</label><br>
+            {{ form.reporter_main }}
+            {% if form.reporter_main.errors %}
+                <span style="color: red;">{{ form.reporter_main.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <p>
+            <label>Twój email:</label><br>
+            {{ form.reporter_email }}
+            {% if form.reporter_email.errors %}
+                <span style="color: red;">{{ form.reporter_email.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <p>
+            <label>Typ oszustwa:</label><br>
+            {{ form.fraud_type }}
+            {% if form.fraud_type.errors %}
+                <span style="color: red;">{{ form.fraud_type.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <p>
+            <label>Opis (max 1000 znaków):</label><br>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <span style="color: red;">{{ form.description.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <button type="submit">Wyślij zgłoszenie</button>
+        <a href="{% url 'certificate_view' token %}">Anuluj</a>
+    </form>
+    
+    <p><small>Uwaga: Z jednego adresu email można zgłosić dany certyfikat tylko raz.</small></p>
+</body>
+</html>

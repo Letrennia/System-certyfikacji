@@ -17,5 +17,10 @@
         <p>QR Code:</p>
         <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
     {% endif %}
+
+    <hr>
+    <h3>Zgłoś problem</h3>
+    <a href="{% url 'report_fraud' token %}">Zgłoś podejrzenie oszustwa</a>
+    
 </body>
 </html>

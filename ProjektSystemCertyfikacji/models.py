@@ -192,7 +192,9 @@ class Fraud_report(models.Model):
     report_id = models.AutoField(primary_key=True)
     batch_id = models.ForeignKey(
         Partia_produktow,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True, 
+        blank=True   
     )
     certificate_id = models.ForeignKey(
         Certyfikat,
@@ -200,17 +202,20 @@ class Fraud_report(models.Model):
     )
     TYPE = [
         ('fake_id', "Fake ID"),
-        ('fake_cert_id', "Fake certification ID")
+        ('fake_cert_id', "Fake certification ID"),
+        ('inne', 'Inne')
     ]
-    fraud_type = models.CharField(max_length=20, choices=TYPE)
-    reporter_main = models.CharField(max_length=100, blank=False, null=False)
-    description = models.TextField(blank=False, null=False)
-    STATE = [
+    fraud_type = models.CharField(max_length=100, choices=TYPE) 
+    reporter_main = models.CharField(max_length=100, blank=True, null=True)
+    reporter_email = models.EmailField(max_length=100)  
+    description = models.TextField(max_length=1000) 
+    STATUS = [  
         ('new', 'Nowy'),
         ('investigating', 'W toku'),
         ('rejected', 'Odrzucony')
     ]
-    report_state = models.CharField(max_length=20, choices=STATE)
+    status = models.CharField(max_length=50, choices=STATUS, default='new')  
+    investigation_notes = models.TextField(max_length=1000, blank=True, null=True) 
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     

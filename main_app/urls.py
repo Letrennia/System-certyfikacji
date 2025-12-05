@@ -11,9 +11,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('ProjektSystemCertyfikacji.urls')),
     path('certificate/<path:token>/', views_certificate.certificate_view, name='certificate_view'), 
+    path('report_fraud/<path:token>/', views_certificate.report_fraud, name='report_fraud'),
     # path('certificate/<str:certificate_id>/', views_certificate.certificate_detail, name='certificate_detail'),
 ]
 
-# 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
