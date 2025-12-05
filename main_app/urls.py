@@ -10,7 +10,8 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/api/', permanent=False)),
     path('admin/', admin.site.urls),
     path('api/', include('ProjektSystemCertyfikacji.urls')),
-    path('certificate/<str:certificate_id>/', views_certificate.certificate_detail, name='certificate_detail'),
+    path('certificate/<path:token>/', views_certificate.certificate_view, name='certificate_view'), 
+    # path('certificate/<str:certificate_id>/', views_certificate.certificate_detail, name='certificate_detail'),
 ]
 
 # 

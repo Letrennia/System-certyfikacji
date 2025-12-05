@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+# Do szyfrowania url
+from cryptography.fernet import Fernet 
+from pathlib import Path
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,3 +136,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #przechowywanie qr code
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# ścieżka do pliku z kluczem szyfrowania
+FERNET_KEY_FILE = Path(BASE_DIR) / "fernet_key.txt"
+
+if FERNET_KEY_FILE.exists():
+    with open(FERNET_KEY_FILE, "rb") as f:
+        FERNET_KEY = f.read().strip()
+else:
+    FERNET_KEY = Fernet.generate_key()
+    with open(FERNET_KEY_FILE, "wb") as f:
+        f.write(FERNET_KEY)
+    print(f"Utworzono nowy klucz Fernet i zapisano w {FERNET_KEY_FILE}")

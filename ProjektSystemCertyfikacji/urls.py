@@ -21,3 +21,4 @@ router.register(r'fraud-reports', FraudReportViewSet)
 urlpatterns = [
     path('', include(router.urls)),
 ]
+

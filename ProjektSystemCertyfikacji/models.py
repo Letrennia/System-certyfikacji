@@ -1,9 +1,17 @@
 import os
 from django.db import models
 
+from cryptography.fernet import Fernet
+import base64
+from django.conf import settings
+
 from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
 from main_app import settings
 
+def encrypt_certificate_id(certificate_id):
+    f = Fernet(settings.FERNET_KEY)
+    token = f.encrypt(certificate_id.encode())
+    return base64.urlsafe_b64encode(token).decode().rstrip('=')
 
 class Certyfikat(models.Model):
     certificate_id = models.CharField(max_length=20, primary_key=True)
@@ -39,14 +47,15 @@ class Certyfikat(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        #poxniej do zmiany
-        self.certificate_url = f"http://127.0.0.1:8000{self.get_certificate_url()}"
+        encrypt_id = encrypt_certificate_id(self.certificate_id)
+        self.certificate_url = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
+
         qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
         os.makedirs(os.path.dirname(qr_path), exist_ok=True)
         generate_qr_code(self.certificate_url, qr_path)
 
         self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
-        super().save(update_fields=['certificate_url','qr_code_img'])     
+        super().save(update_fields=['certificate_url','qr_code_img'])   
 
 
 class Jednostka_certyfikujaca(models.Model):
@@ -203,3 +212,5 @@ class Fraud_report(models.Model):
     ]
     report_state = models.CharField(max_length=20, choices=STATE)
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    
