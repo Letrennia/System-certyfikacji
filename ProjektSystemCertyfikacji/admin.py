@@ -11,7 +11,7 @@ from .models import (
     Fraud_report
 )
 
-admin.site.register(Certyfikat)
+# admin.site.register(Certyfikat)
 admin.site.register(Jednostka_certyfikujaca)
 admin.site.register(Jednostka_certyfikat)
 admin.site.register(Entity)
@@ -20,3 +20,11 @@ admin.site.register(Weryfikacja_konsumenta)
 admin.site.register(Ocena_konsumenta)
 admin.site.register(Alert)
 admin.site.register(Fraud_report)
+
+
+@admin.register(Certyfikat)
+class CertyfikatAdmin(admin.ModelAdmin):
+    readonly_files = ('certificate_url', 'qr_code_img')
+    fields = ('certificate_id', 'certificate_number', 'certificate_type', 'holder_entity_id',
+              'state', 'valid_from', 'valid_to', 'certificate_hash', 'blockchain_address')
+    list_display = ('certificate_id', 'certificate_type', 'certificate_url', 'qr_code_img')

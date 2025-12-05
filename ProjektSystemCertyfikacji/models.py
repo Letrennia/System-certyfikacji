@@ -1,4 +1,8 @@
+import os
 from django.db import models
+
+from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
+from main_app import settings
 
 
 class Certyfikat(models.Model):
@@ -22,9 +26,27 @@ class Certyfikat(models.Model):
     valid_from = models.DateField()
     valid_to = models.DateField()
     # certificate_publisher ?
-    qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
+    # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
     certificate_hash = models.CharField(max_length=100)
     blockchain_address = models.CharField(max_length=100)
+    certificate_url = models.URLField(blank=True, null=True)
+    qr_code_img = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
+
+    def get_certificate_url(self):
+        from django.urls import reverse
+        return reverse('certificate_detail', args=[self.certificate_id])
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        #poxniej do zmiany
+        self.certificate_url = f"http://127.0.0.1:8000{self.get_certificate_url()}"
+        qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
+        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+        generate_qr_code(self.certificate_url, qr_path)
+
+        self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
+        super().save(update_fields=['certificate_url','qr_code_img'])     
 
 
 class Jednostka_certyfikujaca(models.Model):
@@ -101,7 +123,7 @@ class Partia_produktow(models.Model):
         ('szt', 'Sztuki')
     ]
     unit = models.CharField(max_length=10, choices=UNIT, default='szt')
-    qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
+    # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
     blockchain_hash = models.CharField(max_length=64, unique=True)  # ?
 
 

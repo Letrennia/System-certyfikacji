@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certyfikat {{ certificate.certificate_number }}</title>
+</head>
+<body>
+    <h1>Certyfikat: {{ certificate.certificate_number }}</h1>
+    <p>Typ certyfikatu: {{ certificate.certificate_type }}</p>
+    <p>Podmiot posiadacza: {{ certificate.holder_entity_id }}</p>
+    <p>Stan: {{ certificate.state }}</p>
+    <p>Ważny od: {{ certificate.valid_from }}</p>
+    <p>Ważny do: {{ certificate.valid_to }}</p>
+    <p>Hash certyfikatu: {{ certificate.certificate_hash }}</p>
+    <p>Adres blockchain: {{ certificate.blockchain_address }}</p>
+
+    {% if certificate.qr_code_img %}
+        <p>QR Code:</p>
+        <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
+    {% endif %}
+</body>
+</html>
