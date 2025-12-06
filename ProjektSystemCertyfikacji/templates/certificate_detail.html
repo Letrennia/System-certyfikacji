@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certyfikat {{ certificate.certificate_number }}</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/certificate_detail.css' %}">
+
+</head>
+<body>
+    <h1>Certyfikat: {{ certificate.certificate_number }}</h1>
+    <p>Typ certyfikatu: {{ certificate.certificate_type }}</p>
+    <p>Stan: {{ certificate.state }}</p>
+    <p>Ważny od: {{ certificate.valid_from }}</p>
+    <p>Ważny do: {{ certificate.valid_to }}</p>
+    <p>Adres blockchain: {{ certificate.blockchain_address }}</p>
+
+    {% if certificate.qr_code_img %}
+        <p>QR Code:</p>
+        <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
+    {% endif %}
+
+    <hr>
+    <h3>Zgłoś problem</h3>
+    <a href="{% url 'report_fraud' token %}">Zgłoś podejrzenie oszustwa</a>
+    
+</body>
+</html>

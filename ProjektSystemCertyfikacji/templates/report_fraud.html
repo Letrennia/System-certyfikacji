@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zgłoś oszustwo - {{ certificate.certificate_number }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/report_fraud.css' %}">
+
+</head>
+<body>
+    <h1>Zgłoś podejrzenie oszustwa</h1>
+    <p class="certificate-no">Certyfikat: <strong>{{ certificate.certificate_number }}</strong></p>
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    
+    <form method="post" class="fraud-form">
+        {% csrf_token %}
+        
+        <p>
+            <label>Imię i nazwisko:</label><br>
+            {{ form.reporter_main }}
+            {% if form.reporter_main.errors %}
+                <span style="color: red;">{{ form.reporter_main.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <p>
+            <label>Adres email:</label><br>
+            {{ form.reporter_email }}
+            {% if form.reporter_email.errors %}
+                <span style="color: red;">{{ form.reporter_email.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <p>
+            <label>Typ oszustwa:</label><br>
+            {{ form.fraud_type }}
+            {% if form.fraud_type.errors %}
+                <span style="color: red;">{{ form.fraud_type.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <p>
+            <label>Opis:</label><br>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <span style="color: red;">{{ form.description.errors }}</span>
+            {% endif %}
+        </p>
+        
+        <div class="form-buttons">
+            <button type="submit">Wyślij zgłoszenie</button>
+            <a href="{% url 'certificate_view' token %}" class="button-link">Anuluj</a>
+        </div>
+
+    </form>
+    
+    <p class="small-text-bottom"><small>Uwaga: Z jednego adresu email można zgłosić dany certyfikat tylko raz.</small></p>
+</body>
+</html>

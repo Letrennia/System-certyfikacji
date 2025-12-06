@@ -1,5 +1,17 @@
+import os
 from django.db import models
 
+from cryptography.fernet import Fernet
+import base64
+from django.conf import settings
+
+from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
+from main_app import settings
+
+def encrypt_certificate_id(certificate_id):
+    f = Fernet(settings.FERNET_KEY)
+    token = f.encrypt(certificate_id.encode())
+    return base64.urlsafe_b64encode(token).decode().rstrip('=')
 
 class Certyfikat(models.Model):
     certificate_id = models.CharField(max_length=20, primary_key=True)
@@ -22,9 +34,28 @@ class Certyfikat(models.Model):
     valid_from = models.DateField()
     valid_to = models.DateField()
     # certificate_publisher ?
-    qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
+    # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
     certificate_hash = models.CharField(max_length=100)
     blockchain_address = models.CharField(max_length=100)
+    certificate_url = models.URLField(blank=True, null=True)
+    qr_code_img = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
+
+    def get_certificate_url(self):
+        from django.urls import reverse
+        return reverse('certificate_detail', args=[self.certificate_id])
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        encrypt_id = encrypt_certificate_id(self.certificate_id)
+        self.certificate_url = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
+
+        qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
+        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+        generate_qr_code(self.certificate_url, qr_path)
+
+        self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
+        super().save(update_fields=['certificate_url','qr_code_img'])   
 
 
 class Jednostka_certyfikujaca(models.Model):
@@ -101,7 +132,7 @@ class Partia_produktow(models.Model):
         ('szt', 'Sztuki')
     ]
     unit = models.CharField(max_length=10, choices=UNIT, default='szt')
-    qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
+    # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
     blockchain_hash = models.CharField(max_length=64, unique=True)  # ?
 
 
@@ -145,7 +176,7 @@ class Alert(models.Model):
         ('wykonane', 'Wykonane')
     ]
     alert_state = models.CharField(max_length=10, choices=STATE, default='none')
-    certicate_id = models.ForeignKey(
+    certificate_id = models.ForeignKey(
         Certyfikat,
         on_delete=models.CASCADE
     )
@@ -161,7 +192,9 @@ class Fraud_report(models.Model):
     report_id = models.AutoField(primary_key=True)
     batch_id = models.ForeignKey(
         Partia_produktow,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True, 
+        blank=True   
     )
     certificate_id = models.ForeignKey(
         Certyfikat,
@@ -169,15 +202,20 @@ class Fraud_report(models.Model):
     )
     TYPE = [
         ('fake_id', "Fake ID"),
-        ('fake_cert_id', "Fake certification ID")
+        ('fake_cert_id', "Fake certification ID"),
+        ('inne', 'Inne')
     ]
-    fraud_type = models.CharField(max_length=20, choices=TYPE)
-    reporter_main = models.CharField(max_length=100, blank=False, null=False)
-    description = models.TextField(blank=False, null=False)
-    STATE = [
+    fraud_type = models.CharField(max_length=100, choices=TYPE) 
+    reporter_main = models.CharField(max_length=100, blank=True, null=True)
+    reporter_email = models.EmailField(max_length=100)  
+    description = models.TextField(max_length=1000) 
+    STATUS = [  
         ('new', 'Nowy'),
         ('investigating', 'W toku'),
         ('rejected', 'Odrzucony')
     ]
-    report_state = models.CharField(max_length=20, choices=STATE)
+    status = models.CharField(max_length=50, choices=STATUS, default='new')  
+    investigation_notes = models.TextField(max_length=1000, blank=True, null=True) 
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    
