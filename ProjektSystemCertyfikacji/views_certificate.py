@@ -25,7 +25,7 @@ def decrypt_token(token):
 def certificate_view(request, token):
     try:
         certificate_id = decrypt_token(token)
-        certificate = get_object_or_404(Certyfikat, certificate_id=certificate_id)
+        certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
         
         return render(request, 'certificate_detail.html', {
             'certificate': certificate,
@@ -46,7 +46,7 @@ def certificate_view(request, token):
 def report_fraud(request, token):
     try:
         certificate_id = decrypt_token(token)
-        certificate = get_object_or_404(Certyfikat, certificate_id=certificate_id)
+        certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
         
     except Exception as e:
         return render(request, 'certificate_error.html', {
@@ -58,7 +58,7 @@ def report_fraud(request, token):
         
         if form.is_valid():
             email = form.cleaned_data['reporter_email']
-            reporter_main = form.cleaned_data['reporter_main'] 
+            # reporter_main = form.cleaned_data['reporter_main'] 
             fraud_type = form.cleaned_data['fraud_type']
             description = form.cleaned_data['description']
             
@@ -75,25 +75,25 @@ def report_fraud(request, token):
                     'token': token
                 })
             
-            partie = Partia_produktow.objects.filter(certificate_id=certificate)
+            partie = Product_batch.objects.filter(certificate_id=certificate)
             
             if partie.exists():
                 for partia in partie:
-                    Fraud_report.objects.create(
-                        certificate_id=certificate,
-                        batch_id=partia,  
-                        fraud_type=fraud_type,
-                        reporter_main=reporter_main,  
-                        reporter_email=email,
-                        description=description,
-                        status='new'
-                    )
+                    fraud_report = Fraud_report.objects.create(
+                    certificate_id=certificate,
+                    batch_id=partia,  
+                    fraud_type=fraud_type,
+                    reporter_email=email,
+                    description=description,
+                    status='new'
+                )
+                fraud_report.check_and_reject_spam()
             else:
                 Fraud_report.objects.create(
                     certificate_id=certificate,
                     batch_id=None,
                     fraud_type=fraud_type,
-                    reporter_main=reporter_main,  
+                    # reporter_main=reporter_main,  
                     reporter_email=email,
                     description=description,
                     status='new'

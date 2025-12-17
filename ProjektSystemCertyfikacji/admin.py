@@ -14,7 +14,12 @@ from .models import (
     Alert,
     Fraud_report as FraudReportModel,
     Chain_event,
-    Activity_area
+    Activity_area,
+    Company_activity_area,
+    Batch_certificate,
+    Notification_cert,
+    Certificate_status_history,
+    Company_certifying_unit
 )
 
 admin.site.register(Certifying_unit)
@@ -26,14 +31,19 @@ admin.site.register(Consumer_rating)
 admin.site.register(Alert)
 admin.site.register(Chain_event)
 admin.site.register(Activity_area)
+admin.site.register(Company_activity_area)
+admin.site.register(Batch_certificate)
+admin.site.register(Notification_cert)
+admin.site.register(Certificate_status_history)
+admin.site.register(Company_certifying_unit)
+admin.site.register(Certificate)
 
-
-@admin.register(Certificate)
-class CertificateAdmin(admin.ModelAdmin):
-    readonly_fields = ('qr_code_data', 'qr_code_img')
-    fields = ('certificate_number', 'certificate_type', 'holder_company_id','issued_by_certifying_unit_id',
-              'status', 'valid_from', 'valid_to')
-    list_display = ('certificate_id', 'certificate_type', 'qr_code_data', 'qr_code_img')
+# @admin.register(Certificate)
+# class CertificateAdmin(admin.ModelAdmin):
+#     readonly_fields = ('qr_code_data', 'qr_code_img')
+#     fields = ('certificate_number', 'certificate_type', 'holder_company_id','issued_by_certifying_unit_id',
+#               'status', 'valid_from', 'valid_to')
+#     list_display = ('certificate_id', 'certificate_type', 'qr_code_data', 'qr_code_img')
 
 
 @admin.register(FraudReportModel)
@@ -129,15 +139,18 @@ class FraudReportAdmin(admin.ModelAdmin):
             self._check_and_reject_spam(obj, request)
 
     def _check_and_reject_spam(self, current_report, request):
+        one_hour_ago = timezone.now() - timedelta(hours=1)
         recent_reports = FraudReportModel.objects.filter(
-            reporter_email=current_report.reporter_email
+            reporter_email=current_report.reporter_email,
+            status='new',
+            created_at__gte=one_hour_ago
         )
         unique_certificates = recent_reports.values('certificate_id').distinct().count()
         if unique_certificates >= 3:
             spam_reports = recent_reports.filter(status='new')
             spam_reports.update(
                 status='rejected',
-                investigation_notes='WYKRYTO SPAM (3+ zgłoszenia z różnych certyfikatów)'
+                investigation_notes='WYKRYTO SPAM (3+ zgłoszenia z różnych certyfikatów w ciągu godziny)'
             )
             self.message_user(
                 request,

@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 import os
 from django.db import models
 
@@ -269,6 +271,24 @@ class Fraud_report(models.Model):
 
     batch_id = models.ForeignKey('Product_batch', on_delete=models.DO_NOTHING, db_column='batch_id')
     certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def check_and_reject_spam(self):
+        one_hour_ago = timezone.now() - timedelta(hours=1)
+        recent_reports = Fraud_report.objects.filter(
+            reporter_email=self.reporter_email,
+            status='new',
+            created_at__gte=one_hour_ago
+        )
+        unique_certificates = recent_reports.values('certificate_id').distinct().count()
+        if unique_certificates >= 3:
+            spam_reports = recent_reports.filter(status='new')
+            spam_reports.update(
+                status='rejected',
+                investigation_notes='WYKRYTO SPAM (3+ zgłoszenia z różnych certyfikatów w ciągu godziny)'
+            )
+            return True
+        return False
 
     class Meta:
         db_table = 'fraud_reports'
