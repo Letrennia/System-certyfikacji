@@ -4,32 +4,36 @@ from datetime import timedelta
 from django.db.models import Count
 from django.utils.html import format_html
 from .models import (
-    Certyfikat,
-    Jednostka_certyfikujaca,
-    Jednostka_certyfikat,
-    Entity,
-    Partia_produktow,
-    Weryfikacja_konsumenta,
-    Ocena_konsumenta,
+    Certificate,
+    Certifying_unit,
+    Certifying_unit_certificates,
+    Company,
+    Product_batch,
+    Consumer_verification,
+    Consumer_rating,
     Alert,
-    Fraud_report as FraudReportModel
+    Fraud_report as FraudReportModel,
+    Chain_event,
+    Activity_area
 )
 
-admin.site.register(Jednostka_certyfikujaca)
-admin.site.register(Jednostka_certyfikat)
-admin.site.register(Entity)
-admin.site.register(Partia_produktow)
-admin.site.register(Weryfikacja_konsumenta)
-admin.site.register(Ocena_konsumenta)
+admin.site.register(Certifying_unit)
+admin.site.register(Certifying_unit_certificates)
+admin.site.register(Company)
+admin.site.register(Product_batch)
+admin.site.register(Consumer_verification)
+admin.site.register(Consumer_rating)
 admin.site.register(Alert)
+admin.site.register(Chain_event)
+admin.site.register(Activity_area)
 
 
-@admin.register(Certyfikat)
-class CertyfikatAdmin(admin.ModelAdmin):
-    readonly_fields = ('certificate_url', 'qr_code_img')
-    fields = ('certificate_id', 'certificate_number', 'certificate_type', 'holder_entity_id',
-              'state', 'valid_from', 'valid_to', 'certificate_hash', 'blockchain_address')
-    list_display = ('certificate_id', 'certificate_type', 'certificate_url', 'qr_code_img')
+@admin.register(Certificate)
+class CertificateAdmin(admin.ModelAdmin):
+    readonly_fields = ('qr_code_data', 'qr_code_img')
+    fields = ('certificate_number', 'certificate_type', 'holder_company_id','issued_by_certifying_unit_id',
+              'status', 'valid_from', 'valid_to')
+    list_display = ('certificate_id', 'certificate_type', 'qr_code_data', 'qr_code_img')
 
 
 @admin.register(FraudReportModel)
@@ -41,13 +45,13 @@ class FraudReportAdmin(admin.ModelAdmin):
         'spam@mail.com',
     ]
 
-    fields = ('batch_id', 'certificate_id', 'fraud_type', 'reporter_main',
+    fields = ('batch_id', 'certificate_id', 'fraud_type',
               'reporter_email', 'description', 'status', 'investigation_notes')
-    list_display = ('report_id', 'certificate_id', 'colored_status', 'submitted_at',
+    list_display = ('report_id', 'certificate_id', 'colored_status',
                     'reporter_email_with_count', 'fraud_type')
-    list_filter = ('status', 'fraud_type', 'submitted_at')
-    search_fields = ('reporter_email', 'reporter_main', 'description')
-    ordering = ('status', '-submitted_at')
+    list_filter = ('status', 'fraud_type')
+    search_fields = ('reporter_email', 'description')
+    ordering = ('status',)
     actions = ['mark_as_investigating', 'mark_as_rejected', 'mark_as_new']
 
     @admin.action(description='Oznacz jako "W toku"')
@@ -125,22 +129,20 @@ class FraudReportAdmin(admin.ModelAdmin):
             self._check_and_reject_spam(obj, request)
 
     def _check_and_reject_spam(self, current_report, request):
-        time_threshold = timezone.now() - timedelta(hours=1)
         recent_reports = FraudReportModel.objects.filter(
-            reporter_email=current_report.reporter_email,
-            submitted_at__gte=time_threshold
+            reporter_email=current_report.reporter_email
         )
         unique_certificates = recent_reports.values('certificate_id').distinct().count()
         if unique_certificates >= 3:
             spam_reports = recent_reports.filter(status='new')
             spam_reports.update(
                 status='rejected',
-                investigation_notes='WYKRYTO SPAM(3+ zgłoszenia z różnych certyfikatów w ciągu godziny)'
+                investigation_notes='WYKRYTO SPAM (3+ zgłoszenia z różnych certyfikatów)'
             )
             self.message_user(
                 request,
                 f'Wykryto spam od {current_report.reporter_email}. '
-                f'Automatycznie odrzucono {spam_reports.count()} zgłoszeń. ',
+                f'Automatycznie odrzucono {spam_reports.count()} zgłoszeń.',
                 level='warning'
             )
 

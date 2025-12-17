@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from .core import get_blockchain
-from ..models import Certyfikat, Partia_produktow
+from ..models import Certificate, Product_batch
 import json
 
 
@@ -36,7 +36,7 @@ def verify_certificate_blockchain(request, certificate_id):
 
     if exists:
         try:
-            cert = Certyfikat.objects.get(certificate_id=certificate_id)
+            cert = Certificate.objects.get(certificate_id=certificate_id)
             return JsonResponse({
                 "success": True,
                 "verified": True,
@@ -49,7 +49,7 @@ def verify_certificate_blockchain(request, certificate_id):
                     "blockchain_address": cert.blockchain_address
                 }
             })
-        except Certyfikat.DoesNotExist:
+        except Certificate.DoesNotExist:
             return JsonResponse({
                 "success": False,
                 "verified": False,
@@ -105,8 +105,8 @@ def register_transfer(request):
             }, status=400)
 
         try:
-            batch = Partia_produktow.objects.get(batch_id=batch_id)
-        except Partia_produktow.DoesNotExist:
+            batch = Product_batch.objects.get(batch_id=batch_id)
+        except Product_batch.DoesNotExist:
             return JsonResponse({
                 "success": False,
                 "error": "Batch not found"

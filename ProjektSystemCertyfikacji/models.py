@@ -8,239 +8,297 @@ from django.conf import settings
 from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
 from main_app import settings
 
+
 def encrypt_certificate_id(certificate_id):
     f = Fernet(settings.FERNET_KEY)
-    token = f.encrypt(certificate_id.encode())
+    token = f.encrypt(str(certificate_id).encode())
     return base64.urlsafe_b64encode(token).decode().rstrip('=')
 
-class Certyfikat(models.Model):
-    certificate_id = models.CharField(max_length=20, primary_key=True)
-    certificate_number = models.CharField(max_length=20)  # to trzeba sprawdzic ile mam makysmalnie znakow
-    TYPE = [
-        ('inne', 'Inne'),
-        ('produkcja', 'Produkcja')
-    ]
-    certificate_type = models.CharField(max_length=20, choices=TYPE, default='inne')
-    # nie ma id_jednostki poniewaz jeżeli mamy miec (tak jak jest na diagramie) tabele pomocniczą to umieszczenie tutaj tego id nie ma sensu
-    holder_entity_id = models.IntegerField()  # ?
-    STATE = [
+
+class Company(models.Model):
+    company_id = models.AutoField(primary_key=True, db_column='company_id')
+    company_type = models.CharField(max_length=50, null=False, db_column='company_type')
+    name = models.CharField(max_length=200, null=False, db_column='name')
+    email = models.CharField(max_length=100, db_column='email')
+    address = models.CharField(max_length=500, db_column='address')
+    country = models.CharField(max_length=100, default='Poland', db_column='country')
+    registration_number = models.CharField(max_length=50, db_column='registration_number')
+    phone = models.CharField(max_length=20, db_column='phone')
+    website = models.CharField(max_length=255, db_column='website')
+    blockchain_address = models.CharField(max_length=255, db_column='blockchain_address')
+
+    class Meta:
+        db_table = 'company'
+        # managed = False
+
+
+class Activity_area(models.Model):
+    area_id = models.AutoField(primary_key=True, db_column='area_id')
+    name = models.CharField(max_length=100, unique=True, null=False, db_column='name')
+    description = models.CharField(max_length=1000, db_column='description')
+
+    class Meta:
+        db_table = 'activity_area'
+        # managed = False
+
+
+class Certifying_unit(models.Model):
+    certifying_unit_id = models.AutoField(primary_key=True, db_column='certifying_unit_id')
+    name = models.CharField(max_length=200, null=False, db_column='name')
+    address = models.CharField(max_length=500, db_column='address')
+    certifying_unit_code = models.CharField(max_length=50, unique=True, null=False, db_column='certifying_unit_code')
+
+    username = models.CharField(max_length=100, unique=True, null=False, db_column='username')
+    password = models.CharField(max_length=255, null=False, db_column='password')
+    email = models.CharField(max_length=100, unique=True, null=False)
+
+    class Meta:
+        db_table = 'certifying_unit'
+        # manage = False
+
+
+class Company_activity_area(models.Model):
+    cod_id = models.AutoField(primary_key=True, db_column='cod_id')
+
+    company_id = models.ForeignKey('Company', on_delete=models.DO_NOTHING, db_column='company_id')
+    area_id = models.ForeignKey('Activity_area', on_delete=models.DO_NOTHING, db_column='area_id')
+
+    class Meta:
+        db_table = 'company_activity_area'
+        # manage = False
+
+
+class Certificate(models.Model):
+    certificate_id = models.AutoField(primary_key=True, db_column='certificate_id')
+    certificate_number = models.CharField(max_length=50, unique=True, null=False, db_column='certificate_number')
+    certificate_type = models.CharField(max_length=50, null=False, db_column='certificate_type')
+    certificate_publisher = models.CharField(max_length=200, db_column='certificate_publisher')
+    STATUS = [
         ('none', 'None'),
-        ('wazny', 'Wazny'),
-        ('wygasly', 'Wygasly'),
-        ('uniewazniony', 'Uniewazniony'),
-        ('oczekujacy', 'Oczekujacy')
+        ('valid', 'Valid'),
+        ('expired', 'Expired'),
+        ('revoked', 'Revoked'),
+        ('pending', 'Pending')
     ]
-    state = models.CharField(max_length=15, choices=STATE, default='none')
-    valid_from = models.DateField()
-    valid_to = models.DateField()
-    # certificate_publisher ?
-    # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
-    certificate_hash = models.CharField(max_length=100)
-    blockchain_address = models.CharField(max_length=100)
-    certificate_url = models.URLField(blank=True, null=True)
-    qr_code_img = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
+    status = models.CharField(max_length=50, choices=STATUS, default='valid', db_column='status')
+    qr_code_data = models.CharField(max_length=500, db_column='qr_code_data')  # Podmieniono z certificate_url
+    valid_from = models.DateField(null=False, db_column='valid_from')
+    valid_to = models.DateField(null=False, db_column='valid_to')
+    blockchain_address = models.CharField(max_length=255, blank=True, null=True)
+    holder_company_id = models.ForeignKey('Company', on_delete=models.DO_NOTHING, db_column='holder_company_id')
+    issued_by_certifying_unit_id = models.ForeignKey('Certifying_unit', on_delete=models.DO_NOTHING,
+                                                     db_column='issued_by_certifying_unit_id')
+
+    qr_code_img = models.ImageField(upload_to='qr_codes/', blank=True,
+                                    null=True)  # Dodane w celu przetrzymywania img qr kodów
 
     class Meta:
         db_table = 'certificate'
+        # manage = False
 
     def get_certificate_url(self):
         from django.urls import reverse
         return reverse('certificate_detail', args=[self.certificate_id])
-    
+
     def save(self, *args, **kwargs):
+        created = self.pk is None
         super().save(*args, **kwargs)
+        if created or not self.qr_code_data:
+            encrypt_id = encrypt_certificate_id(self.certificate_id)
+            self.qr_code_data = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
 
-        encrypt_id = encrypt_certificate_id(self.certificate_id)
-        self.certificate_url = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
+            qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
+            os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+            generate_qr_code(self.qr_code_data, qr_path)
 
-        qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
-        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
-        generate_qr_code(self.certificate_url, qr_path)
-
-        self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
-        super().save(update_fields=['certificate_url','qr_code_img'])   
-
-
-class Jednostka_certyfikujaca(models.Model):
-    authority_id = models.AutoField(primary_key=True)
-    authority_name = models.CharField(max_length=30)
-    authority_address = models.TextField()
-    authority_ODU = models.CharField(max_length=30)  # ODU - Organizational Unit Number
-    establishment_date = models.DateField()
-
-    class Meta:
-        db_table = 'certifying_authority'
+            self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
+            super().save(update_fields=['qr_code_data', 'qr_code_img'])
 
 
-class Jednostka_certyfikat(models.Model):
-    authority_id = models.ForeignKey(
-        Jednostka_certyfikujaca,
-        on_delete=models.CASCADE
-    )
-    certificate_id = models.ForeignKey(
-        Certyfikat,
-        on_delete=models.CASCADE
-    )
+class Certifying_unit_certificates(models.Model):
+    jcc_id = models.AutoField(primary_key=True, db_column='jcc_id')
+
+    certifying_unit_id = models.ForeignKey('Certifying_unit', on_delete=models.DO_NOTHING,
+                                           db_column='certifying_unit_id')
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
 
     class Meta:
-        db_table = 'authority_certificate'
-        unique_together = ('authority_id', 'certificate_id')
+        db_table = 'certifying_unit_certificates'
+        # manage = False
 
 
-class Entity(models.Model):
-    entity_id = models.AutoField(primary_key=True)
-    entity_type = models.CharField(max_length=20)
-    name = models.CharField(max_length=30)
-    email = models.EmailField(max_length=100, unique=True)
-    address = models.CharField(max_length=50)
-    country = models.CharField(max_length=50)
-    registration_number = models.CharField(max_length=15)
-    blockchain_address = models.CharField(max_length=40)
-    is_active = models.BooleanField(default=False)
-    AREA = [
-        ('prodction', "Produkcja"),
-        ('storage', "Przechowywanie"),
-        ('distribution', "Dystrybucja"),
-        ('import', "Import"),
-        ('export', "Eksport")
-
-    ]
-    area_of_activity = models.TextField(max_length=30, choices=AREA)
-
-    class Meta:
-        db_table = 'entity'
-
-
-class Partia_produktow(models.Model):
-    batch_id = models.AutoField(primary_key=True)
-    certificate_id = models.ForeignKey(
-        Certyfikat,
-        on_delete=models.CASCADE
-    )
-    name = models.CharField(max_length=20)
-    CATEGORY = [
-        ('inne', 'Inne'),
-        ('warzywa', 'Warzywa'),
-        ('owoce', 'Owoce'),
-        ('nabial', 'Nabial'),
-        ('mieso', 'Mieso')
-    ]
-    category = models.CharField(max_length=20, choices=CATEGORY, default='inne')
-    codeCN = models.CharField(max_length=8)
-    production_date = models.DateField()
-    producer_id = models.ForeignKey(
-        Entity,
-        on_delete=models.CASCADE
-    )
-    expiration_date = models.DateField()
-    amount = models.IntegerField()
+class Product_batch(models.Model):
+    batch_id = models.AutoField(primary_key=True, db_column='batch_id')
+    category = models.CharField(max_length=100, db_column='category')
+    name = models.CharField(max_length=200, null=False, db_column='name')
+    cn_code = models.CharField(max_length=20, db_column='cn_code')
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=False, db_column='quantity')
     UNIT = [
         ('kg', 'Kilogram'),
         ('g', 'Gram'),
-        ('l', 'Litr'),
+        ('l', 'Liter'),
         ('ml', 'Miligram'),
-        ('szt', 'Sztuki')
+        ('p', 'Pieces')
     ]
-    unit = models.CharField(max_length=10, choices=UNIT, default='szt')
-    # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
-    blockchain_hash = models.CharField(max_length=64, unique=True)  # ?
+    unit_of_measure = models.CharField(max_length=20, choices=UNIT, db_column='unit_of_measure')
+    blockchain_hash = models.CharField(max_length=255, db_column='blockchain_hash')
+    status = models.CharField(max_length=50, default='waiting', db_column='status')
+    storage_conditions = models.CharField(max_length=500, null=False, db_column='storage_conditions')
+    transport_temperature = models.DecimalField(max_digits=6, decimal_places=2, null=False,
+                                                db_column='transport_temperature')
+    harvest_date = models.DateField(null=True, blank=True, db_column='harvest_date')
+    production_date = models.DateField(null=False, db_column='production_date')
+    expiration_date = models.DateField(null=False, db_column='expiration_date')
+
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
+    certifying_unit_id = models.ForeignKey('Certifying_unit', on_delete=models.DO_NOTHING,
+                                           db_column='certifying_unit_id')
 
     class Meta:
         db_table = 'product_batch'
+        # manage = False
 
 
-class Weryfikacja_konsumenta(models.Model):
-    verification_id = models.CharField(max_length=20, primary_key=True)
-    batch_id = models.ForeignKey(
-        Partia_produktow,
-        on_delete=models.CASCADE,
-    )
-    qr_code_scanned = models.CharField(max_length=255)
-    verification_result = models.BooleanField()
-    scanned_at = models.DateTimeField(auto_now_add=True)
+class Chain_event(models.Model):
+    event_id = models.AutoField(primary_key=True, db_column='event_id')
+    event_timestamp = models.DateTimeField(auto_now_add=True, db_column='event_timestamp')
+    location = models.CharField(max_length=255, db_column='location')
+    blockchain_hash = models.CharField(max_length=255, db_column='blockchain_hash')
+    blockchain_tx_id = models.CharField(max_length=255, db_column='blockchain_tx_id')
 
-    class Meta:
-        db_table = 'consumer_verification'
-
-
-class Ocena_konsumenta(models.Model):
-    rating_id = models.CharField(max_length=20, primary_key=True)
-    batch_id = models.ForeignKey(
-        Partia_produktow,
-        on_delete=models.CASCADE,
-    )
-    rating = models.IntegerField()
-    comment = models.TextField(blank=True, null=True)
-    submitted_at = models.DateTimeField(auto_now_add=True)
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.DO_NOTHING, db_column='batch_id')
+    area_id = models.ForeignKey('Activity_area', on_delete=models.DO_NOTHING, db_column='area_id')
+    company_id = models.ForeignKey('Company', on_delete=models.DO_NOTHING, db_column='company_id')
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
 
     class Meta:
-        db_table = 'consumer_rating'
+        db_table = 'chain_event'
+        # manage = False
+
+
+class Batch_certificate(models.Model):
+    cp_id = models.AutoField(primary_key=True, db_column='cp_id')
+
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.DO_NOTHING, db_column='batch_id')
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
+
+    class Meta:
+        db_table = 'batch_certificate'
+        # manage = False
 
 
 class Alert(models.Model):
-    alert_id = models.AutoField(primary_key=True)
-    TYPE = [
-        ('none', "None"),
-        ('error', 'Blad'),
-        ('warning', 'Ostrzezenie')
+    alert_id = models.AutoField(primary_key=True, db_column='alert_id')
+    alert_type = models.CharField(max_length=100, db_column='alert_type')
+    description = models.CharField(max_length=1000, db_column='description')
+    severity = models.CharField(max_length=50, db_column='severity')
+    STATUS = [
+        ('done', 'Done'),
+        ('new', 'New')
     ]
-    alert_type = models.CharField(max_length=10, choices=TYPE, default='none')
-    SEVERITY = [
-        ('niski', 'Niski'),
-        ('krytyczny', 'Krytyczny')
-    ]
-    alert_severity = models.CharField(max_length=10, choices=SEVERITY, default='niski')
-    STATE = [
-        ('none', 'None'),
-        ('wykonane', 'Wykonane')
-    ]
-    alert_state = models.CharField(max_length=10, choices=STATE, default='none')
-    certificate_id = models.ForeignKey(
-        Certyfikat,
-        on_delete=models.CASCADE
-    )
-    batch_id = models.ForeignKey(
-        Partia_produktow,
-        on_delete=models.CASCADE
-    )
-    event_id = models.TextField(blank=True, null=True)  # Placeholder
-    description = models.TextField(max_length=255)
+    status = models.CharField(max_length=50, choices=STATUS, default='new', db_column='status')
+
+    event_id = models.ForeignKey('Chain_event', on_delete=models.DO_NOTHING, db_column='event_id', default=1)
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.DO_NOTHING, db_column='batch_id')
 
     class Meta:
         db_table = 'alert'
+        # manage = False
+
+
+class Consumer_verification(models.Model):
+    verification_id = models.AutoField(primary_key=True, db_column='verification_id')
+    qr_code_scanned = models.CharField(max_length=500, db_column='qr_code_scanned')
+    verification_result = models.CharField(max_length=50, db_column='verification_result')
+    consumer_email = models.CharField(max_length=100, db_column='consumer_email')
+    consumer_ip = models.CharField(max_length=45, db_column='consumer_ip')
+    device_info = models.CharField(max_length=255, db_column='device_info')
+
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.DO_NOTHING, db_column='batch_id')
+
+    class Meta:
+        db_table = 'consumer_verification'
+        # managed = False
+
+
+class Consumer_rating(models.Model):
+    rating_id = models.AutoField(primary_key=True, db_column='rating_id')
+    rating = models.IntegerField(null=True, db_column='rating')
+    comment = models.CharField(max_length=1000, db_column='comment')
+    consumer_email = models.CharField(max_length=100, db_column='consumer_email')
+    is_verified = models.IntegerField(default=0, null=False, db_column='is_verified')
+
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
+
+    class Meta:
+        db_table = 'consumer_rating'
+        # managed = False
+
+
+class Notification_cert(models.Model):
+    notification_id = models.AutoField(primary_key=True, db_column='notification_id')
+    notification_type = models.CharField(max_length=50, db_column='notification_type')
+    expiry_date = models.DateField(null=True, blank=True, db_column='expiry_date')
+    sent_to = models.CharField(max_length=100, db_column='sent_to')
+    status = models.CharField(max_length=50, default='unsent', db_column='status')
+
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
+
+    class Meta:
+        db_table = 'notification_cert'
+        # managed = False
 
 
 class Fraud_report(models.Model):
-    report_id = models.AutoField(primary_key=True)
-    batch_id = models.ForeignKey(
-        Partia_produktow,
-        on_delete=models.CASCADE,
-        null=True, 
-        blank=True   
-    )
-    certificate_id = models.ForeignKey(
-        Certyfikat,
-        on_delete=models.CASCADE
-    )
+    report_id = models.AutoField(primary_key=True, db_column='report_id')
     TYPE = [
         ('fake_id', "Fake ID"),
         ('fake_cert_id', "Fake certification ID"),
-        ('inne', 'Inne')
+        ('other', 'Other')
     ]
-    fraud_type = models.CharField(max_length=100, choices=TYPE) 
-    reporter_main = models.CharField(max_length=100, blank=True, null=True)
-    reporter_email = models.EmailField(max_length=100)  
-    description = models.TextField(max_length=1000) 
-    STATUS = [  
-        ('new', 'Nowy'),
-        ('investigating', 'W toku'),
-        ('rejected', 'Odrzucony')
+    fraud_type = models.CharField(max_length=100, choices=TYPE, db_column='fraud_type')
+    reporter_email = models.CharField(max_length=100, db_column='reporter_email')
+    description = models.CharField(max_length=1000, db_column='description')
+    STATUS = [
+        ('new', 'New'),
+        ('investigating', 'Investigation'),
+        ('rejected', 'Rejected')
     ]
-    status = models.CharField(max_length=50, choices=STATUS, default='new')  
-    investigation_notes = models.TextField(max_length=1000, blank=True, null=True) 
-    submitted_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, choices=STATUS, default='new', db_column='status')
+    investigation_notes = models.CharField(max_length=1000, db_column='investigation_notes')
+
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.DO_NOTHING, db_column='batch_id')
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
 
     class Meta:
-        db_table = 'fraud_report'
+        db_table = 'fraud_reports'
+        # managed = False
 
-    
+
+class Certificate_status_history(models.Model):
+    history_id = models.AutoField(primary_key=True, db_column='history_id')
+    old_status = models.CharField(max_length=50, db_column='old_status')
+    new_status = models.CharField(max_length=50, null=False, db_column='new_status')
+    changed_by_user_id = models.IntegerField(null=False, db_column='changed_by_user_id')
+    changed_date = models.DateTimeField(auto_now_add=True, db_column='changed_date')
+
+    reason = models.CharField(max_length=1000, db_column='reason')
+
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.DO_NOTHING, db_column='certificate_id')
+
+    class Meta:
+        db_table = 'certificate_status_history'
+        # managed = False
+
+
+class Company_certifying_unit(models.Model):
+    ccu_id = models.AutoField(primary_key=True, db_column='ccu_id')
+
+    company_id = models.ForeignKey('Company', on_delete=models.DO_NOTHING, db_column='company_id')
+    certifying_unit_id = models.ForeignKey('Certifying_unit', on_delete=models.DO_NOTHING,
+                                           db_column='certifying_unit_id')
+
+    class Meta:
+        db_table = 'company_certifying_unit'
+        # managed = False
+        unique_together = ('company_id', 'certifying_unit_id')

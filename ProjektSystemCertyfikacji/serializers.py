@@ -1,43 +1,43 @@
 from rest_framework import serializers
 from .models import (
-    Certyfikat, Jednostka_certyfikujaca, Jednostka_certyfikat,
-    Entity, Partia_produktow, Weryfikacja_konsumenta,
-    Ocena_konsumenta, Alert, Fraud_report
+    Certificate, Certifying_unit, Certifying_unit_certificates,
+    Company, Product_batch, Consumer_verification,
+    Consumer_rating, Alert, Fraud_report
 )
 
-class CertyfikatSerializer(serializers.ModelSerializer):
+class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Certyfikat
+        model = Certificate
         fields = '__all__'
 
-class JednostkaCertyfikujacaSerializer(serializers.ModelSerializer):
+class CertifyingUnitSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Jednostka_certyfikujaca
+        model = Certifying_unit
         fields = '__all__'
 
-class JednostkaCertyfikatSerializer(serializers.ModelSerializer):
+class CertifyingUnitCertificatesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Jednostka_certyfikat
+        model = Certifying_unit_certificates
         fields = '__all__'
 
-class EntitySerializer(serializers.ModelSerializer):
+class CompanySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Entity
+        model = Company
         fields = '__all__'
 
-class PartiaProduktowSerializer(serializers.ModelSerializer):
+class ProductBatchSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Partia_produktow
+        model = Product_batch
         fields = '__all__'
 
-class WeryfikacjaKonsumentaSerializer(serializers.ModelSerializer):
+class ConsumerVerificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Weryfikacja_konsumenta
+        model = Consumer_verification
         fields = '__all__'
 
-class OcenaKonsumentaSerializer(serializers.ModelSerializer):
+class ConsumerRatingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Ocena_konsumenta
+        model = Consumer_rating
         fields = '__all__'
 
 class AlertSerializer(serializers.ModelSerializer):

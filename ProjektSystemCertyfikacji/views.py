@@ -1,43 +1,43 @@
 from rest_framework import viewsets
 from .models import (
-    Certyfikat, Jednostka_certyfikujaca, Jednostka_certyfikat,
-    Entity, Partia_produktow, Weryfikacja_konsumenta,
-    Ocena_konsumenta, Alert, Fraud_report
+    Certificate, Certifying_unit, Certifying_unit_certificates,
+    Company, Product_batch, Consumer_verification,
+    Consumer_rating, Alert, Fraud_report
 )
 from .serializers import (
-    CertyfikatSerializer, JednostkaCertyfikujacaSerializer,
-    JednostkaCertyfikatSerializer, EntitySerializer,
-    PartiaProduktowSerializer, WeryfikacjaKonsumentaSerializer,
-    OcenaKonsumentaSerializer, AlertSerializer, FraudReportSerializer
+    CertificateSerializer, CertifyingUnitSerializer,
+    CertifyingUnitCertificatesSerializer, CompanySerializer,
+    ProductBatchSerializer, ConsumerVerificationSerializer,
+    ConsumerRatingSerializer, AlertSerializer, FraudReportSerializer
 )
 
-class CertyfikatViewSet(viewsets.ModelViewSet):
-    queryset = Certyfikat.objects.all()
-    serializer_class = CertyfikatSerializer
+class CertificateViewSet(viewsets.ModelViewSet):
+    queryset = Certificate.objects.all()
+    serializer_class = CertificateSerializer
 
-class JednostkaCertyfikujacaViewSet(viewsets.ModelViewSet):
-    queryset = Jednostka_certyfikujaca.objects.all()
-    serializer_class = JednostkaCertyfikujacaSerializer
+class CertifyingUnitViewSet(viewsets.ModelViewSet):
+    queryset = Certifying_unit.objects.all()
+    serializer_class = CertifyingUnitSerializer
 
-class JednostkaCertyfikatViewSet(viewsets.ModelViewSet):
-    queryset = Jednostka_certyfikat.objects.all()
-    serializer_class = JednostkaCertyfikatSerializer
+class CertifyingUnitCertificatesViewSet(viewsets.ModelViewSet):
+    queryset = Certifying_unit_certificates.objects.all()
+    serializer_class = CertifyingUnitCertificatesSerializer
 
-class EntityViewSet(viewsets.ModelViewSet):
-    queryset = Entity.objects.all()
-    serializer_class = EntitySerializer
+class CompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
 
-class PartiaProduktowViewSet(viewsets.ModelViewSet):
-    queryset = Partia_produktow.objects.all()
-    serializer_class = PartiaProduktowSerializer
+class ProductBatchViewSet(viewsets.ModelViewSet):
+    queryset = Product_batch.objects.all()
+    serializer_class = ProductBatchSerializer
 
-class WeryfikacjaKonsumentaViewSet(viewsets.ModelViewSet):
-    queryset = Weryfikacja_konsumenta.objects.all()
-    serializer_class = WeryfikacjaKonsumentaSerializer
+class ConsumerVerificationViewSet(viewsets.ModelViewSet):
+    queryset = Consumer_verification.objects.all()
+    serializer_class = ConsumerVerificationSerializer
 
-class OcenaKonsumentaViewSet(viewsets.ModelViewSet):
-    queryset = Ocena_konsumenta.objects.all()
-    serializer_class = OcenaKonsumentaSerializer
+class ConsumerRatingViewSet(viewsets.ModelViewSet):
+    queryset = Consumer_rating.objects.all()
+    serializer_class = ConsumerRatingSerializer
 
 class AlertViewSet(viewsets.ModelViewSet):
     queryset = Alert.objects.all()

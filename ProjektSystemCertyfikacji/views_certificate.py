@@ -3,7 +3,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
 import base64
 import logging
-from .models import Certyfikat, Fraud_report, Partia_produktow
+from .models import Certificate, Fraud_report, Product_batch
 from django.contrib import messages
 from .forms import FraudReportForm
 

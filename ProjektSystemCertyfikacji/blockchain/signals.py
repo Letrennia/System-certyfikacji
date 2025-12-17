@@ -1,10 +1,10 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from ..models import Certyfikat, Partia_produktow
+from ..models import Certificate, Product_batch
 from .core import get_blockchain
 
 
-@receiver(post_save, sender=Certyfikat)
+@receiver(post_save, sender=Certificate)
 def register_certificate_to_blockchain(sender, instance, created, **kwargs):
     if created:
         blockchain = get_blockchain()
@@ -12,10 +12,10 @@ def register_certificate_to_blockchain(sender, instance, created, **kwargs):
         certificate_data = {
             "certificate_number": instance.certificate_number,
             "certificate_type": instance.certificate_type,
-            "holder_entity_id": instance.holder_entity_id,
-            "valid_from": instance.valid_from,
-            "valid_to": instance.valid_to,
-            "state": instance.state
+            "holder_company_id": instance.holder_company_id_id,
+            "valid_from": instance.valid_from.isoformat(),
+            "valid_to": instance.valid_to.isoformat(),
+            "status": instance.status
         }
 
         blockchain_hash = blockchain.register_certificate(
@@ -27,7 +27,7 @@ def register_certificate_to_blockchain(sender, instance, created, **kwargs):
         instance.save(update_fields=['blockchain_address'])
 
 
-@receiver(post_save, sender=Partia_produktow)
+@receiver(post_save, sender=Product_batch)
 def register_batch_to_blockchain(sender, instance, created, **kwargs):
     if created:
         blockchain = get_blockchain()
@@ -36,10 +36,10 @@ def register_batch_to_blockchain(sender, instance, created, **kwargs):
             "certificate_id": instance.certificate_id.certificate_id,
             "name": instance.name,
             "category": instance.category,
-            "production_date": instance.production_date,
-            "producer_id": instance.producer_id.entity_id,
-            "amount": instance.amount,
-            "unit": instance.unit
+            "production_date": instance.production_date.isoformat(),
+            "producer_id": instance.certifying_unit_id_id,
+            "amount": float(instance.quantity),
+            "unit": instance.unit_of_measure
         }
 
         blockchain_hash = blockchain.register_batch(
