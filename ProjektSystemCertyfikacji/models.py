@@ -40,6 +40,9 @@ class Certyfikat(models.Model):
     certificate_url = models.URLField(blank=True, null=True)
     qr_code_img = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
 
+    class Meta:
+        db_table = 'certificate'
+
     def get_certificate_url(self):
         from django.urls import reverse
         return reverse('certificate_detail', args=[self.certificate_id])
@@ -65,6 +68,9 @@ class Jednostka_certyfikujaca(models.Model):
     authority_ODU = models.CharField(max_length=30)  # ODU - Organizational Unit Number
     establishment_date = models.DateField()
 
+    class Meta:
+        db_table = 'certifying_authority'
+
 
 class Jednostka_certyfikat(models.Model):
     authority_id = models.ForeignKey(
@@ -77,6 +83,7 @@ class Jednostka_certyfikat(models.Model):
     )
 
     class Meta:
+        db_table = 'authority_certificate'
         unique_together = ('authority_id', 'certificate_id')
 
 
@@ -99,6 +106,9 @@ class Entity(models.Model):
 
     ]
     area_of_activity = models.TextField(max_length=30, choices=AREA)
+
+    class Meta:
+        db_table = 'entity'
 
 
 class Partia_produktow(models.Model):
@@ -135,6 +145,9 @@ class Partia_produktow(models.Model):
     # qr_code_data = models.TextField(blank=True, null=True)  # Placeholder
     blockchain_hash = models.CharField(max_length=64, unique=True)  # ?
 
+    class Meta:
+        db_table = 'product_batch'
+
 
 class Weryfikacja_konsumenta(models.Model):
     verification_id = models.CharField(max_length=20, primary_key=True)
@@ -146,6 +159,9 @@ class Weryfikacja_konsumenta(models.Model):
     verification_result = models.BooleanField()
     scanned_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'consumer_verification'
+
 
 class Ocena_konsumenta(models.Model):
     rating_id = models.CharField(max_length=20, primary_key=True)
@@ -156,6 +172,9 @@ class Ocena_konsumenta(models.Model):
     rating = models.IntegerField()
     comment = models.TextField(blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'consumer_rating'
 
 
 class Alert(models.Model):
@@ -187,6 +206,9 @@ class Alert(models.Model):
     event_id = models.TextField(blank=True, null=True)  # Placeholder
     description = models.TextField(max_length=255)
 
+    class Meta:
+        db_table = 'alert'
+
 
 class Fraud_report(models.Model):
     report_id = models.AutoField(primary_key=True)
@@ -217,5 +239,8 @@ class Fraud_report(models.Model):
     status = models.CharField(max_length=50, choices=STATUS, default='new')  
     investigation_notes = models.TextField(max_length=1000, blank=True, null=True) 
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'fraud_report'
 
     
