@@ -36,14 +36,15 @@ admin.site.register(Batch_certificate)
 admin.site.register(Notification_cert)
 admin.site.register(Certificate_status_history)
 admin.site.register(Company_certifying_unit)
-admin.site.register(Certificate)
+# admin.site.register(Certificate)
 
-# @admin.register(Certificate)
-# class CertificateAdmin(admin.ModelAdmin):
-#     readonly_fields = ('qr_code_data', 'qr_code_img')
-#     fields = ('certificate_number', 'certificate_type', 'holder_company_id','issued_by_certifying_unit_id',
-#               'status', 'valid_from', 'valid_to')
-#     list_display = ('certificate_id', 'certificate_type', 'qr_code_data', 'qr_code_img')
+@admin.register(Certificate)
+class CertificateAdmin(admin.ModelAdmin):
+    readonly_fields = ('qr_code_data', 'qr_code_img')
+    list_display = ('certificate_id','status', 'qr_code_data', 'qr_code_img')
+    fields = ('certificate_id', 'certificate_type', 'qr_code_data', 'qr_code_img', 'status', 
+                    'valid_from', 'valid_to', 'blockchain_address', 'holder_company_id', 
+                    'issued_by_certifying_unit_id')
 
 
 @admin.register(FraudReportModel)
@@ -139,19 +140,23 @@ class FraudReportAdmin(admin.ModelAdmin):
             self._check_and_reject_spam(obj, request)
 
     def _check_and_reject_spam(self, current_report, request):
-        one_hour_ago = timezone.now() - timedelta(hours=1)
+        three_minutes_ago = timezone.now() - timedelta(minutes=3)
         recent_reports = FraudReportModel.objects.filter(
             reporter_email=current_report.reporter_email,
             status='new',
-            created_at__gte=one_hour_ago
+            created_at__gte=three_minutes_ago
         )
         unique_certificates = recent_reports.values('certificate_id').distinct().count()
         if unique_certificates >= 3:
             spam_reports = recent_reports.filter(status='new')
             spam_reports.update(
                 status='rejected',
-                investigation_notes='WYKRYTO SPAM (3+ zgłoszenia z różnych certyfikatów w ciągu godziny)'
+                investigation_notes='WYKRYTO SPAM (3+ zgłoszenia z różnych certyfikatów w ciągu 3 minut)'
             )
+
+            if current_report.reporter_email not in self.BLACKLIST:
+                self.BLACKLIST.append(current_report.reporter_email)
+
             self.message_user(
                 request,
                 f'Wykryto spam od {current_report.reporter_email}. '

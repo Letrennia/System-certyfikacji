@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
+from .all_views.views import (
     CertificateViewSet, CertifyingUnitViewSet,
     CertifyingUnitCertificatesViewSet, CompanyViewSet,
     ProductBatchViewSet, ConsumerVerificationViewSet,
