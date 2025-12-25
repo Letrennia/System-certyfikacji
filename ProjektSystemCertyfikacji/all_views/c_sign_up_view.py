@@ -11,11 +11,11 @@ def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.username = user.username.lower()
+            user = form.save()
+            # user.username = user.username.lower()
             user.save()
             messages.success(request, 'poprawna rejestracja')
             login(request, user)
-            return redirect('posts')
+            return redirect('login')
         else:
             return render(request, 'company/register.html', {'form': form})

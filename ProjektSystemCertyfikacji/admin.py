@@ -19,10 +19,11 @@ from .models import (
     Batch_certificate,
     Notification_cert,
     Certificate_status_history,
-    Company_certifying_unit
+    Company_certifying_unit,
+    RegistrationCode
 )
 
-admin.site.register(Certifying_unit)
+# admin.site.register(Certifying_unit)
 admin.site.register(Certifying_unit_certificates)
 admin.site.register(Company)
 admin.site.register(Product_batch)
@@ -36,16 +37,31 @@ admin.site.register(Batch_certificate)
 admin.site.register(Notification_cert)
 admin.site.register(Certificate_status_history)
 admin.site.register(Company_certifying_unit)
+admin.site.register(RegistrationCode)
 # admin.site.register(Certificate)
 
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     readonly_fields = ('qr_code_data', 'qr_code_img')
-    list_display = ('certificate_id','status', 'qr_code_data', 'qr_code_img')
-    fields = ('certificate_id', 'certificate_type', 'qr_code_data', 'qr_code_img', 'status', 
+    list_display = ('status', 'qr_code_data', 'qr_code_img')
+    fields = ('certificate_type', 'qr_code_data', 'qr_code_img', 'status', 
                     'valid_from', 'valid_to', 'blockchain_address', 'holder_company_id', 
                     'issued_by_certifying_unit_id')
 
+
+
+@admin.register(Certifying_unit)
+class Certifying_unitAdmin(admin.ModelAdmin):
+    readonly_fields = ('user', 'name', 'address', 'certifying_unit_code')
+    list_display = ('user', 'name', 'address', 'certifying_unit_code', 'is_approved')
+    fields = ('user', 'name', 'address', 'certifying_unit_code', 'is_approved')
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_approved and not obj.user.is_active:
+            obj.user.is_active = True
+            obj.user.save()
+            
+        super().save_model(request, obj, form, change)
 
 @admin.register(FraudReportModel)
 class FraudReportAdmin(admin.ModelAdmin):

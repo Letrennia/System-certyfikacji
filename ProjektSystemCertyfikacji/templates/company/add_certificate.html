@@ -1,0 +1,9 @@
+<!-- <p>
+    jakiś text
+</p> -->
+
+{% if request.user.is_authenticated %}
+<span>Witamy {{ request.user.username}}</span>
+<br>
+<a href="{% url 'logout' %}">Wyloguj się</a>
+{% endif %}

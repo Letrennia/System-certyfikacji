@@ -2,6 +2,7 @@ from datetime import timedelta
 from django.utils import timezone
 import os
 from django.db import models
+from django.contrib.auth.models import User
 
 from cryptography.fernet import Fernet
 import base64
@@ -45,18 +46,22 @@ class Activity_area(models.Model):
 
 
 class Certifying_unit(models.Model):
-    certifying_unit_id = models.AutoField(primary_key=True, db_column='certifying_unit_id')
+    certifying_unit_id = models.AutoField(primary_key=True, db_column='certifying_unit_id')    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='certifying_unit')
     name = models.CharField(max_length=200, null=False, db_column='name')
     address = models.CharField(max_length=500, db_column='address')
     certifying_unit_code = models.CharField(max_length=50, unique=True, null=False, db_column='certifying_unit_code')
-
-    username = models.CharField(max_length=100, unique=True, null=False, db_column='username')
-    password = models.CharField(max_length=255, null=False, db_column='password')
-    email = models.CharField(max_length=100, unique=True, null=False)
+    is_approved = models.BooleanField(default=False, db_column='is_approved')
+    # username = models.CharField(max_length=100, unique=True, null=False, db_column='username')
+    # password = models.CharField(max_length=255, null=False, db_column='password')
+    # email = models.CharField(max_length=100, unique=True, null=False)
 
     class Meta:
         db_table = 'certifying_unit'
         # manage = False
+
+    def __str__(self):
+        return self.name
 
 
 class Company_activity_area(models.Model):
@@ -322,3 +327,18 @@ class Company_certifying_unit(models.Model):
         db_table = 'company_certifying_unit'
         # managed = False
         unique_together = ('company_id', 'certifying_unit_id')
+
+
+
+# do generowania kodu walidacji jednostki certyfikujacej
+
+class RegistrationCode(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'registration_code'
+
+    def __str__(self):
+        return self.code

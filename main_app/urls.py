@@ -4,8 +4,7 @@ from django.contrib import admin
 from ProjektSystemCertyfikacji.all_views import views_certificate
 from django.urls import path, include
 from django.views.generic import RedirectView
-from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view
-
+from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, add_certificate_view
 
 from main_app import settings
 
@@ -18,7 +17,9 @@ urlpatterns = [
     # path('certificate/<str:certificate_id>/', views_certificate.certificate_detail, name='certificate_detail'),
     path('login/', c_sign_in_view.sign_in, name='login'),
     path('logout/', c_sign_out_view.sign_out, name='logout'),
-    path('register/', c_sign_up_view.sign_up, name='register')
+    path('register/', c_sign_up_view.sign_up, name='register'),
+    path('main_page/', main_page_view.main_page, name='main'),
+    path('add_certificate/', add_certificate_view.add_certificate, name='add_certificate')
 ]
 
 if settings.DEBUG:
