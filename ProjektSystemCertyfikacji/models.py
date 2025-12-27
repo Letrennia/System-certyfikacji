@@ -1,4 +1,6 @@
 from datetime import timedelta
+from urllib import request
+from django.urls import reverse
 from django.utils import timezone
 import os
 from django.db import models
@@ -16,6 +18,16 @@ def encrypt_certificate_id(certificate_id):
     f = Fernet(settings.FERNET_KEY)
     token = f.encrypt(str(certificate_id).encode())
     return base64.urlsafe_b64encode(token).decode().rstrip('=')
+
+
+def decrypt_certificate_id(token_str):
+    f = Fernet(settings.FERNET_KEY)
+
+    padding = '=' * (-len(token_str) % 4)
+    token_bytes = base64.urlsafe_b64decode(token_str + padding)
+
+    decrypted_bytes = f.decrypt(token_bytes)
+    return int(decrypted_bytes.decode())
 
 
 class Company(models.Model):
@@ -108,18 +120,20 @@ class Certificate(models.Model):
         return reverse('certificate_detail', args=[self.certificate_id])
 
     def save(self, *args, **kwargs):
-        created = self.pk is None
+        # created = self.pk is None
         super().save(*args, **kwargs)
-        if created or not self.qr_code_data:
-            encrypt_id = encrypt_certificate_id(self.certificate_id)
-            self.qr_code_data = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
+        if self.qr_code_data and not self.qr_code_img:
+            # encrypt_id = encrypt_certificate_id(self.certificate_id)
+            # self.qr_code_data = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
+            # full_url = request.build_absolute_uri(reverse('certificare_detail', args=[encrypt_id]))
+            # self.qr_code_data = full_url
 
             qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
             os.makedirs(os.path.dirname(qr_path), exist_ok=True)
             generate_qr_code(self.qr_code_data, qr_path)
 
             self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
-            super().save(update_fields=['qr_code_data', 'qr_code_img'])
+            super().save(update_fields=['qr_code_img'])
 
 
 class Certifying_unit_certificates(models.Model):
