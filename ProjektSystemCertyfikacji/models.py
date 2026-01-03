@@ -294,12 +294,11 @@ class Consumer_verification(models.Model):
 
 class Consumer_rating(models.Model):
     rating_id = models.AutoField(primary_key=True, db_column='rating_id')
-    rating = models.IntegerField(null=True, db_column='rating', validators=[MinValueValidator(1),
-                                                                            MaxValueValidator(5)]
+    rating = models.IntegerField(null=True, db_column='rating', validators=[MinValueValidator(1), MaxValueValidator(5)]
         )
     comment = models.CharField(max_length=1000, db_column='comment')
     consumer_email = models.CharField(max_length=100, db_column='consumer_email')
-    is_verified = models.BooleanField(default=False, db_column='is_verified')
+    is_verified = models.IntegerField(default=0, db_column='is_verified')
 
     certificate_id = models.ForeignKey('Certificate', on_delete=models.CASCADE, db_column='certificate_id')
 

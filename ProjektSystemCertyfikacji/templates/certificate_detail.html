@@ -26,5 +26,37 @@
     <h3>Zgłoś problem</h3>
     <a href="{% url 'report_fraud' token %}">Zgłoś podejrzenie oszustwa</a>
     
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        <h3>Dodaj swoją opinię</h3>
+
+        <label for="id_consumer_email">Adres email:</label>
+        {{ rating_form.consumer_email }}
+
+        <label for="id_rating">Ocena:</label>
+        {{ rating_form.rating }}
+
+        <label for="id_comment">Komentarz:</label>
+        {{ rating_form.comment }}
+
+        <button type="submit" name="submit_rating">Dodaj ocenę</button>
+    </form>
+
+    <h2>Opinie konsumentów</h2>
+
+    {% if ratings %}
+        <ul>
+        {% for rating in ratings %}
+            <li>
+                <strong>{{ rating.consumer_email }}</strong> - {{ rating.rating }}/5<br>
+                {{ rating.comment }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Brak ocen dla tego certyfikatu.</p>
+    {% endif %}
+
 </body>
 </html>

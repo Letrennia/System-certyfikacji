@@ -3,10 +3,10 @@ from cryptography.fernet import Fernet, InvalidToken
 from django.conf import settings
 import base64
 import logging
-from ..models import Certificate, Fraud_report, Product_batch
+from ..models import Certificate, Fraud_report, Product_batch, Consumer_verification 
 from django.contrib import messages
 from ..forms.report_form import FraudReportForm
-
+from ..forms.rating_form import ConsumerRatingForm
 
 
 logger = logging.getLogger(__name__)
@@ -28,12 +28,31 @@ def certificate_view(request, token):
     try:
         certificate_id = decrypt_token(token)
         certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
+        ratings = certificate.consumer_rating_set.filter(is_verified=1).order_by('-rating_id') 
+
+        if request.method == 'POST' and 'submit_rating' in request.POST:
+            rating_form = ConsumerRatingForm(request.POST)
+            if rating_form.is_valid():
+                rating = rating_form.save(commit=False)
+                rating.certificate_id = certificate
+                consumer_email = rating.consumer_email
+                exists_in_verification = Consumer_verification.objects.filter(
+                    consumer_email=consumer_email
+                ).exists()
+                rating.is_verified = 1 if exists_in_verification else 0
+                rating.save()
+                messages.success(request, "Twoja opinia została dodana i oczekuje na weryfikację.")
+                return redirect('certificate_view', token=token)
+        else:
+            rating_form = ConsumerRatingForm()
         
         return render(request, 'certificate_detail.html', {
             'certificate': certificate,
-            'token': token
+            'token': token,
+            'ratings': ratings,
+            'rating_form': rating_form
         })
-        
+
     except ValueError as e:
         logger.error(f"Błąd tokenu: {str(e)}")
         return render(request, 'certificate_error.html', {

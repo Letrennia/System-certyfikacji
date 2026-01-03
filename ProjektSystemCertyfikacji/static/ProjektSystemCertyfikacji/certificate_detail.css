@@ -65,4 +65,70 @@ a:hover {
     color: var(--dark-dark);
 }
 
+ul {
+    list-style-type: none;
+    padding: 0;
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+}
+
+li {
+    background-color: #f5f5f5;
+    border: 2px solid var(--medium);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+li strong {
+    color: var(--dark-dark);
+}
+
+form {
+    max-width: 300px;
+    margin: 0 auto 30px auto;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 2px solid var(--medium);
+    border-radius: 10px;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--medium);
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box; 
+}
+
+form textarea {
+    min-height: 120px;
+    resize: vertical;  
+}
+
+form button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--medium);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: var(--light);
+    color: var(--dark-dark);
+}
+
+h2 {
+    text-align: center;
+    color: var(--dark-dark);
+    margin-bottom: 15px;
+}
 
