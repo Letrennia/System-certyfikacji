@@ -55,6 +55,13 @@ class Company(models.Model):
     class Meta:
         db_table = 'company'
         # managed = False
+        verbose_name = 'Company'
+        verbose_name_plural = 'Companies'
+
+
+
+    def __str__(self):
+        return self.name
 
 
 class Activity_area(models.Model):
@@ -74,6 +81,11 @@ class Activity_area(models.Model):
     class Meta:
         db_table = 'activity_area'
         # managed = False
+        verbose_name = 'Activity area'
+        verbose_name_plural = 'Activity areas'
+
+    def __str__(self):
+        return f"Activity area no {self.area_id} - {self.name}"
 
 
 class Certifying_unit(models.Model):
@@ -90,6 +102,8 @@ class Certifying_unit(models.Model):
     class Meta:
         db_table = 'certifying_unit'
         # manage = False
+        verbose_name = 'Certifying unit'
+        verbose_name_plural = 'Certifying units'
 
     def __str__(self):
         return self.name
@@ -104,6 +118,11 @@ class Company_activity_area(models.Model):
     class Meta:
         db_table = 'company_activity_area'
         # manage = False
+        verbose_name = 'Company activity area'
+        verbose_name_plural = 'Company activity areas'
+
+    def __str__(self):
+        return f"{self.cod_id} | {self.company_id} | {self.area_id}"
 
 
 class Certificate(models.Model):
@@ -154,6 +173,9 @@ class Certificate(models.Model):
             self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
             super().save(update_fields=['qr_code_img'])
 
+    def __str__(self):
+        return self.certificate_number
+
 
 class Certifying_unit_certificates(models.Model):
     jcc_id = models.AutoField(primary_key=True, db_column='jcc_id')
@@ -165,6 +187,13 @@ class Certifying_unit_certificates(models.Model):
     class Meta:
         db_table = 'certifying_unit_certificates'
         # manage = False
+
+        verbose_name = 'Certifying unit certificate'
+        verbose_name_plural = 'Certifying unit certificates'
+
+
+    # def __str__(self):
+    #     return f"{self.certifying_unit_id} → {self.certificate_id}"
 
 
 class Product_batch(models.Model):
@@ -204,6 +233,11 @@ class Product_batch(models.Model):
     class Meta:
         db_table = 'product_batch'
         # manage = False
+        verbose_name = 'Product batch'
+        verbose_name_plural = 'Product batches'
+
+    def __str__(self):
+        return self.name
 
 
 class Chain_event(models.Model):
@@ -221,6 +255,11 @@ class Chain_event(models.Model):
     class Meta:
         db_table = 'chain_event'
         # manage = False
+        verbose_name = 'Chain event'
+        verbose_name_plural = 'Chain events'
+
+    def __str__(self):
+        return f"Event {self.event_id} | {self.area_id} | {self.location}"
 
 
 class Batch_certificate(models.Model):
@@ -233,6 +272,11 @@ class Batch_certificate(models.Model):
         db_table = 'batch_certificate'
         
         # manage = False
+        verbose_name ='Batch certificate'
+        verbose_name_plural ='Batches certificate'
+
+    def __str__(self):
+        return f"Batch id {self.batch_id} | Certificate id {self.certificate_id}"
 
 
 class Alert(models.Model):
@@ -269,6 +313,11 @@ class Alert(models.Model):
     class Meta:
         db_table = 'alert'
         # manage = False
+        verbose_name = 'Alert'
+        verbose_name_plural = 'Alerts'
+
+    def __str__(self):
+        return f"{self.alert_id} - {self.alert_type}"
 
 
 class Consumer_verification(models.Model):
@@ -290,6 +339,11 @@ class Consumer_verification(models.Model):
     class Meta:
         db_table = 'consumer_verification'
         # managed = False
+        verbose_name = 'Consumer verification'
+        verbose_name_plural = 'Consumers verification'
+
+    def __str__(self):
+        return self.qr_code_scanned
 
 
 class Consumer_rating(models.Model):
@@ -305,6 +359,11 @@ class Consumer_rating(models.Model):
     class Meta:
         db_table = 'consumer_rating'
         # managed = False
+        verbose_name = 'Consumer rating'
+        verbose_name_plural = 'Consumer ratings'
+
+    def __str__(self):
+        return f"{self.consumer_email} - {self.rating}"
 
 
 class Notification_cert(models.Model):
@@ -333,6 +392,11 @@ class Notification_cert(models.Model):
     class Meta:
         db_table = 'notification_cert'
         # managed = False
+        verbose_name = 'Notification cert'
+        verbose_name_plural = 'Notifications cert'
+
+    def __str__(self):
+        return f"Certificate id: {self.certificate_id} - {self.notification_type}"
 
 
 class Fraud_report(models.Model):
@@ -358,11 +422,11 @@ class Fraud_report(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def check_and_reject_spam(self):
-        one_hour_ago = timezone.now() - timedelta(hours=1)
+        three_minutes_ago = timezone.now() - timedelta(minutes=3)
         recent_reports = Fraud_report.objects.filter(
             reporter_email=self.reporter_email,
             status='new',
-            created_at__gte=one_hour_ago
+            created_at__gte=three_minutes_ago
         )
         unique_certificates = recent_reports.values('certificate_id').distinct().count()
         if unique_certificates >= 3:
@@ -377,6 +441,11 @@ class Fraud_report(models.Model):
     class Meta:
         db_table = 'fraud_reports'
         # managed = False
+        verbose_name = 'Fraud report'
+        verbose_name_plural = 'Fraud reports'
+
+    def __str__(self):
+        return f"Fraud {self.fraud_type} reported by {self.reporter_email}"
 
 
 class Certificate_status_history(models.Model):
@@ -402,6 +471,11 @@ class Certificate_status_history(models.Model):
     class Meta:
         db_table = 'certificate_status_history'
         # managed = False
+        verbose_name = 'Certificate status history'
+        verbose_name_plural = 'Certificates status history'
+
+    def __str__(self):
+        return f"Id: {self.history_id} | changed: {self.changed_date}"
 
 
 class Company_certifying_unit(models.Model):
@@ -415,6 +489,11 @@ class Company_certifying_unit(models.Model):
         db_table = 'company_certifying_unit'
         # managed = False
         unique_together = ('company_id', 'certifying_unit_id')
+        verbose_name = 'Company certifying unit'
+        verbose_name_plural = 'Company certifying units'
+
+    def __str__(self):
+        return f"Company id: {self.company_id} | Certifying unit id: {self.certifying_unit_id}"
 
 
 

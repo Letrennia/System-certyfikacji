@@ -31,20 +31,20 @@ from .models import (
 )
 
 # admin.site.register(Certifying_unit)
-admin.site.register(Certifying_unit_certificates)
-admin.site.register(Company)
-admin.site.register(Product_batch)
-admin.site.register(Consumer_verification)
-admin.site.register(Consumer_rating)
-admin.site.register(Alert)
-admin.site.register(Chain_event)
-admin.site.register(Activity_area)
-admin.site.register(Company_activity_area)
-admin.site.register(Batch_certificate)
-admin.site.register(Notification_cert)
-admin.site.register(Certificate_status_history)
-admin.site.register(Company_certifying_unit)
-admin.site.register(RegistrationCode)
+# admin.site.register(Certifying_unit_certificates)
+# admin.site.register(Company)
+# admin.site.register(Product_batch)
+# admin.site.register(Consumer_verification)
+# admin.site.register(Consumer_rating)
+# admin.site.register(Alert)
+# admin.site.register(Chain_event)
+# admin.site.register(Activity_area)
+# admin.site.register(Company_activity_area)
+# admin.site.register(Batch_certificate)
+# admin.site.register(Notification_cert)
+# admin.site.register(Certificate_status_history)
+# admin.site.register(Company_certifying_unit)
+# admin.site.register(RegistrationCode)
 # admin.site.register(Certificate)
 
 
@@ -59,6 +59,79 @@ def get_local_ip():
         s.close()
     return ip
 
+
+
+@admin.register(Certifying_unit_certificates)
+class Certifying_unit_certificates_Admin(admin.ModelAdmin):
+    list_display = ('jcc_id', 'certifying_unit_id', 'certificate_id')
+
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'company_type', 'country', 'address', 'registration_number')   
+
+
+@admin.register(Product_batch)
+class Product_batch_Admin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'cn_code', 'status')
+
+
+@admin.register(Consumer_verification)
+class Consumer_verification_Admin(admin.ModelAdmin):
+    list_display = ('qr_code_scanned', 'consumer_email', 'consumer_ip', 'verification_result', 'batch_id')
+
+    readonly_fields = ('qr_code_scanned', 'consumer_email', 'consumer_ip', 'device_info', 'batch_id')
+
+
+@admin.register(Consumer_rating)
+class Consumer_rating_Admin(admin.ModelAdmin):
+    list_display = ('consumer_email', 'rating', 'certificate_id', 'is_verified')
+
+    readonly_fields = ('rating', 'comment', 'consumer_email', 'certificate_id')
+
+
+@admin.register(Alert)
+class Alert_Admin(admin.ModelAdmin):
+    list_display = ('alert_id', 'alert_type', 'severity', 'status', 'event_id', 'batch_id')
+
+@admin.register(Chain_event)
+class Chain_event(admin.ModelAdmin):
+    list_display = ('event_timestamp', 'location', 'batch_id', )
+
+
+@admin.register(Activity_area)
+class Activity_area_Admin(admin.ModelAdmin):
+    list_display = ('area_id', 'name')
+
+
+@admin.register(Company_activity_area)
+class Company_activity_area(admin.ModelAdmin):
+    list_display = ('cod_id', 'company_id', 'area_id')
+
+
+@admin.register(Batch_certificate)
+class Batch_certificate(admin.ModelAdmin):
+    list_display = ('cp_id', 'batch_id', 'certificate_id')
+
+
+@admin.register(Notification_cert)
+class Notification_cert_Admin(admin.ModelAdmin):
+    list_display = ('certificate_id', 'notification_type', 'expiry_date', 'sent_to', 'status')
+
+
+@admin.register(Certificate_status_history)
+class Certificate_status_history_Admin(admin.ModelAdmin):
+    list_display = ('certificate_id', 'old_status', 'new_status', 'changed_by_user_id', 'changed_date')
+
+
+@admin.register(Company_certifying_unit)
+class Company_certifying_unit_Admin(admin.ModelAdmin):
+    list_display = ('ccu_id', 'company_id', 'certifying_unit_id')
+
+
+@admin.register(RegistrationCode)
+class RegistrationCode_Admin(admin.ModelAdmin):
+    list_display = ('code', 'is_used', 'created_at')
 
 
 @admin.register(Certificate)
