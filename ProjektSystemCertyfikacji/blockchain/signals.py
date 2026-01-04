@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from ..models import Certificate, Product_batch
-from .core import get_blockchain
+from .core import get_blockchain, save_blockchain
 
 
 @receiver(post_save, sender=Certificate)
@@ -49,3 +49,29 @@ def register_batch_to_blockchain(sender, instance, created, **kwargs):
 
         instance.blockchain_hash = blockchain_hash
         instance.save(update_fields=['blockchain_hash'])
+        
+        # Automatyczne utworzenie podłańcucha i rejestracja etapu produkcji
+        subchain = blockchain.get_subchain(instance.batch_id)
+        if subchain:
+            # Pobranie lokalizacji z firmy producenta
+            producer_location = ""
+            try:
+                producer_company = instance.certificate_id.holder_company_id
+                producer_location = f"{producer_company.address}, {producer_company.country}"
+            except:
+                producer_location = "Unknown"
+            
+            # Rejestracja etapu produkcji w podłańcuchu
+            subchain.register_production(
+                harvest_date=instance.harvest_date.isoformat() if instance.harvest_date else None,
+                production_date=instance.production_date.isoformat(),
+                storage_conditions=instance.storage_conditions,
+                location=producer_location,
+                additional_data={
+                    "batch_name": instance.name,
+                    "category": instance.category,
+                    "quantity": float(instance.quantity),
+                    "unit": instance.unit_of_measure,
+                    "transport_temperature": float(instance.transport_temperature) if instance.transport_temperature else None
+                }
+            )

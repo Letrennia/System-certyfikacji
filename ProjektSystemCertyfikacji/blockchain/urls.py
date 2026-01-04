@@ -19,4 +19,37 @@ urlpatterns = [
          name='get_certificate_batches_blockchain'),
 
     path('api/blockchain/transfer/', views.register_transfer, name='register_transfer'),
+    
+    # Supply Chain Track & Trace API
+    path('api/blockchain/supply-chain/<int:batch_id>/history/',
+         views.get_supply_chain_history,
+         name='get_supply_chain_history'),
+    
+    path('api/blockchain/supply-chain/<int:batch_id>/map/',
+         views.get_supply_chain_map,
+         name='get_supply_chain_map'),
+    
+    path('api/blockchain/subchain/<int:batch_id>/address/',
+         views.get_subchain_address,
+         name='get_subchain_address'),
+    
+    path('api/blockchain/subchains/',
+         views.get_all_subchains,
+         name='get_all_subchains'),
+    
+    path('api/blockchain/supply-chain/production/',
+         views.register_production,
+         name='register_production'),
+    
+    path('api/blockchain/supply-chain/processing/',
+         views.register_processing,
+         name='register_processing'),
+    
+    path('api/blockchain/supply-chain/distribution/',
+         views.register_distribution,
+         name='register_distribution'),
+    
+    path('api/blockchain/supply-chain/retail/',
+         views.register_retail,
+         name='register_retail'),
 ]
