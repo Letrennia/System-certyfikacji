@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szczegóły Certyfikatu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">{{ cert.certificate_number }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="text-muted mb-1">Typ</p>
+                                <p class="fw-bold">{{ cert.certificate_type }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-muted mb-1">Wydawca</p>
+                                <p class="fw-bold">{{ cert.certificate_publisher }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="text-muted mb-1">Ważny Od</p>
+                                <p class="fw-bold">{{ cert.valid_from }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-muted mb-1">Ważny Do</p>
+                                <p class="fw-bold">{{ cert.valid_to }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="text-muted mb-1">Firma</p>
+                                <p class="fw-bold">{{ cert.holder_company_id.name }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-muted mb-1">Jednostka Wydająca</p>
+                                <p class="fw-bold">{{ cert.issued_by_certifying_unit_id.name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <p class="text-muted mb-1">Status</p>
+                                <p class="fw-bold">
+                                    <span class="badge bg-success">{{ cert.get_status_display }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'list_cert' %}" class="btn btn-secondary">Powrót</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
