@@ -1,62 +1,400 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certyfikat {{ certificate.certificate_number }}</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .certificate-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/certificate_detail.css' %}">
+        .detail-card {
+            background-color: white;
+            border: 1px solid #cac4d0;
+            border-radius: 8px;
+            padding: 16px;
+        }
 
+        .detail-card-label {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+
+        .detail-card-value {
+            font-size: 18px;
+            font-weight: 500;
+            color: #1e1e1e;
+            word-break: break-all;
+        }
+
+        .qr-code-container {
+            text-align: center;
+            background-color: white;
+            border: 1px solid #cac4d0;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .qr-code-container img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+        }
+
+        .qr-code-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1e1e1e;
+            margin-bottom: 16px;
+        }
+
+        .alert-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        .alert-section h3 {
+            font-size: 20px;
+            color: #1e1e1e;
+            margin-bottom: 12px;
+        }
+
+        .alert-link {
+            display: inline-block;
+            padding: 10px 24px;
+            background-color: #ffc107;
+            color: #1e1e1e;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .alert-link:hover {
+            opacity: 0.9;
+        }
+
+        .rating-form {
+            background-color: #f5f5f5;
+            padding: 32px;
+            border-radius: 12px;
+            margin: 32px 0;
+        }
+
+        .rating-form h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1e1e1e;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2c2c2c;
+        }
+
+        .submit-rating-btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background-color: #2c2c2c;
+            color: #f5f5f5;
+            transition: opacity 0.2s;
+            width: 100%;
+        }
+
+        .submit-rating-btn:hover {
+            opacity: 0.9;
+        }
+
+        .reviews-section {
+            margin-top: 48px;
+        }
+
+        .reviews-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .reviews-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .review-item {
+            background-color: white;
+            border: 1px solid #cac4d0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .review-email {
+            font-weight: 600;
+            color: #1e1e1e;
+            font-size: 16px;
+        }
+
+        .review-rating {
+            background-color: #77c320;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .review-comment {
+            color: #1e1e1e;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .no-reviews {
+            text-align: center;
+            color: #757575;
+            font-size: 16px;
+            padding: 40px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .certificate-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body>
-    <h1>Certyfikat: {{ certificate.certificate_number }}</h1>
-    <p>Typ certyfikatu: {{ certificate.certificate_type }}</p>
-    <p>Stan: {{ certificate.state }}</p>
-    <p>Ważny od: {{ certificate.valid_from }}</p>
-    <p>Ważny do: {{ certificate.valid_to }}</p>
-    <p>Adres blockchain: {{ certificate.blockchain_address }}</p>
+<body class="white-bg">
+    <header class="header">
+        <div class="logo">
+            <img src="images/logo-2-166.svg" alt="Logo">
+        </div>
 
-    {% if certificate.qr_code_img %}
-        <p>QR Code:</p>
-        <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
-    {% endif %}
+        <nav class="nav-menu">
+            <div class="nav-item">Produkty</div>
+            <div class="nav-item active">Certyfikaty</div>
+            <div class="nav-item">Track & Trace</div>
+            <div class="nav-item">Historia</div>
+            <div class="nav-item">Mapa</div>
+            <div class="nav-item">Oceny</div>
+            <div class="nav-item">Zgłoś</div>
+        </nav>
 
-    <hr>
-    <h3>Zgłoś problem</h3>
-    <a href="{% url 'report_fraud' token %}">Zgłoś podejrzenie oszustwa</a>
-    
-    <hr>
-    <form method="post">
-        {% csrf_token %}
-        <h3>Dodaj swoją opinię</h3>
+        <div class="auth-buttons">
+            <button class="btn btn-secondary">Logowanie</button>
+            <button class="btn btn-primary">Rejestracja</button>
+        </div>
+    </header>
 
-        <label for="id_consumer_email">Adres email:</label>
-        {{ rating_form.consumer_email }}
+    <main class="main-content">
+        <div class="product-header">
+            <h1 class="page-title">{{ certificate.certificate_number }}</h1>
+            <p class="page-subtitle">Szczegóły certyfikatu produktu ekologicznego</p>
+        </div>
 
-        <label for="id_rating">Ocena:</label>
-        {{ rating_form.rating }}
+        <section class="certificate-section">
+            <div class="certificate-details-grid">
+                <div class="detail-card">
+                    <div class="detail-card-label">Typ certyfikatu</div>
+                    <div class="detail-card-value">{{ certificate.certificate_type }}</div>
+                </div>
 
-        <label for="id_comment">Komentarz:</label>
-        {{ rating_form.comment }}
+                <div class="detail-card">
+                    <div class="detail-card-label">Stan</div>
+                    <div class="detail-card-value">
+                        <span class="status-badge status-active">{{ certificate.state }}</span>
+                    </div>
+                </div>
 
-        <button type="submit" name="submit_rating">Dodaj ocenę</button>
-    </form>
+                <div class="detail-card">
+                    <div class="detail-card-label">Ważny od</div>
+                    <div class="detail-card-value">{{ certificate.valid_from }}</div>
+                </div>
 
-    <h2>Opinie konsumentów</h2>
+                <div class="detail-card">
+                    <div class="detail-card-label">Ważny do</div>
+                    <div class="detail-card-value">{{ certificate.valid_to }}</div>
+                </div>
 
-    {% if ratings %}
-        <ul>
-        {% for rating in ratings %}
-            <li>
-                <strong>{{ rating.consumer_email }}</strong> - {{ rating.rating }}/5<br>
-                {{ rating.comment }}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>Brak ocen dla tego certyfikatu.</p>
-    {% endif %}
+                <div class="detail-card" style="grid-column: 1 / -1;">
+                    <div class="detail-card-label">Adres blockchain</div>
+                    <div class="detail-card-value" style="font-size: 14px;">{{ certificate.blockchain_address }}</div>
+                </div>
+            </div>
 
+            {% if certificate.qr_code_img %}
+            <div class="qr-code-container">
+                <div class="qr-code-title">Kod QR certyfikatu</div>
+                <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
+            </div>
+            {% endif %}
+        </section>
+
+        <div class="alert-section">
+            <h3>Zauważyłeś problem z tym certyfikatem?</h3>
+            <a href="{% url 'report_fraud' token %}" class="alert-link">Zgłoś podejrzenie oszustwa</a>
+        </div>
+
+        <section class="rating-form">
+            <form method="post">
+                {% csrf_token %}
+                <h3>Dodaj swoją opinię</h3>
+
+                <div class="form-group">
+                    <label for="id_consumer_email">Adres email:</label>
+                    {{ rating_form.consumer_email }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_rating">Ocena (1-5):</label>
+                    {{ rating_form.rating }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_comment">Komentarz:</label>
+                    {{ rating_form.comment }}
+                </div>
+
+                <button type="submit" name="submit_rating" class="submit-rating-btn">Dodaj ocenę</button>
+            </form>
+        </section>
+
+        <section class="reviews-section">
+            <h2 class="reviews-title">Opinie konsumentów</h2>
+
+            {% if ratings %}
+                <ul class="reviews-list">
+                {% for rating in ratings %}
+                    <li class="review-item">
+                        <div class="review-header">
+                            <span class="review-email">{{ rating.consumer_email }}</span>
+                            <span class="review-rating">{{ rating.rating }}/5</span>
+                        </div>
+                        <div class="review-comment">{{ rating.comment }}</div>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <div class="no-reviews">
+                    <p>Brak ocen dla tego certyfikatu.</p>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="index.html" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
+                    <a href="faq.html" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
