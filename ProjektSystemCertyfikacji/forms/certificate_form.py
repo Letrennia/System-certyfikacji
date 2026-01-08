@@ -3,8 +3,9 @@ from ..models import Certificate
 from ..models import Company
 from ..models import Certifying_unit
 
-
 class CertificateForm(forms.ModelForm):
+    
+    
     class Meta:
         model = Certificate
         fields = [
@@ -52,14 +53,19 @@ class CertificateForm(forms.ModelForm):
             })
         }
 
+    def __init__(self, *args, certifying_unit=None, is_admin=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if not is_admin and certifying_unit:
+            self.fields['issued_by_certifying_unit_id'].widget = forms.HiddenInput()
+            self.fields['issued_by_certifying_unit_id'].initial = certifying_unit
+    
     def clean(self):
         cln_data = super().clean()
-        
-        vld_from =cln_data.get('valid_from')
+        vld_from = cln_data.get('valid_from')
         vld_to = cln_data.get('valid_to')
-
+        
         if vld_from and vld_to and vld_from >= vld_to:
-            
             self.add_error('valid_to', 'Data końca musi być po dacie początkowej!')
-
+        
         return cln_data
