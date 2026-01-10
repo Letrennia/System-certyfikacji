@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zgłoś oszustwo - {{ certificate.certificate_number }}</title>
+    {% load static %}
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
         .fraud-form {
             max-width: 600px;
@@ -131,7 +132,7 @@
 <body class="white-bg">
     <header class="header">
         <div class="logo">
-            <img src="images/logo-2-166.svg" alt="Logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
         </div>
 
         <nav class="nav-menu">
@@ -145,8 +146,8 @@
         </nav>
 
         <div class="auth-buttons">
-            <button class="btn btn-secondary">Logowanie</button>
-            <button class="btn btn-primary">Rejestracja</button>
+            <a href="{% url 'login' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Rejestracja</a>
         </div>
     </header>
 
@@ -217,41 +218,41 @@
 
     <footer class="footer">
         <div class="footer-content">
-        <div class="footer-section">
-            <h3>Produkty i certyfikaty</h3>
-            <div class="footer-links">
-            <a href="index.html" class="footer-link">Wyszukaj produkt</a>
-            <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-            <a href="#" class="footer-link">Jednostki certyfikujące</a>
-            <a href="#" class="footer-link">Producenci i przetwórcy</a>
-            <a href="#" class="footer-link">Ścieżka produktu</a>
-            <a href="#" class="footer-link">Historia produktu</a>
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
             </div>
-        </div>
 
-        <div class="footer-section">
-            <h3>System</h3>
-            <div class="footer-links">
-            <a href="#" class="footer-link">Moduły systemu</a>
-            <a href="#" class="footer-link">Funkcje</a>
-            <a href="#" class="footer-link">Transparentność</a>
-            <a href="#" class="footer-link">Łańcuch dostaw</a>
-            <a href="#" class="footer-link">Zarządzanie</a>
-            <a href="#" class="footer-link">Platforma</a>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
             </div>
-        </div>
 
-        <div class="footer-section">
-            <h3>Dokumentacja</h3>
-            <div class="footer-links">
-            <a href="#" class="footer-link">Przepisy UE</a>
-            <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-            <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-            <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-            <a href="faq.html" class="footer-link">FAQ</a>
-            <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="#" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="#" class="footer-link">Standardy GIJHARS</a>
+                    <a href="#" class="footer-link">EU Organic Label</a>
+                    <a href="#" class="footer-link">FAQ</a>
+                    <a href="#" class="footer-link">Pomoc techniczna</a>
+                </div>
             </div>
-        </div>
         </div>
     </footer>
 </body>
