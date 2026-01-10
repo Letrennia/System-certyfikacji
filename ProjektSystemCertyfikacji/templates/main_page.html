@@ -1,3 +1,28 @@
+<!-- 
+INFORMACJE DLA FRONTENDU:
+
+DANE W SZABLONIE:
+- {{ total_certificates }}, {{ active_certificates }}, {{ total_batches }}, {{ active_alerts }}
+- {{ recent_certificates }} - lista certyfikatów, każdy ma:
+  * obiekt certyfikatu (.certificate_number, .certificate_type, .status)
+  * token, detail_url, report_url (gotowe linki)
+- {{ recent_alerts }} - lista alertów
+- {{ blockchain_status }} - status blockchain
+
+API ENDPOINTY (wszystkie pod /api/):
+1. GET    /system-stats/                     - statystyki systemu
+2. POST   /verify-qr-code/                   - weryfikacja QR 
+3. GET    /track-product/?batch_id=X         - śledzenie produktu
+4. POST   /submit-rating/                    - oceny 
+5. POST   /submit-fraud-report/              - zgłoszenia 
+6. GET    /certificate-details/?certificate_id=X - szczegóły certyfikatu
+
+WAŻNE:
+- POST wymaga CSRF token: headers: {'X-CSRFToken': csrftoken, 'Content-Type': 'application/json'}
+- Endpointy można testować w przeglądarce (np. /api/system-stats/)
+- Certyfikaty mają gotowe linki: detail_url, report_url
+-->
+
 <body>
     <header>
         <a href="{% url 'login' %}">Zaloguj się</a>

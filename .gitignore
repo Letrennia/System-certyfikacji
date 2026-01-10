@@ -113,4 +113,5 @@ media/
 # Only for Development only
 # **/migrations/**
 # !**/migrations
-# !**/migrations/__init__.py
+# !**/migrations/__init__.pyblockchain_data.json
+subchains_data.json

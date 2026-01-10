@@ -29,7 +29,7 @@ def sign_in(request):
             if user:
                 login(request, user)
                 messages.success(request, f'Poprawne zalogowanie {username.title()}')
-                return redirect('add_certificate') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
+                return redirect('list_cert') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
             else:
                 messages.error(request, 'Niepoprawne hasło')
 

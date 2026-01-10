@@ -1,0 +1,107 @@
+[
+    {
+        "index": 0,
+        "timestamp": "2026-01-08T10:36:19.356564",
+        "data": {
+            "message": "Genesis Block"
+        },
+        "previous_hash": "0",
+        "hash": "2e99dde0d1f3cc1291fbe010c18b2bd57e7a3cbf09967355684a1a927e3602b3"
+    },
+    {
+        "index": 1,
+        "timestamp": "2026-01-08T10:36:19.356751",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 33,
+            "certificate_number": "test123",
+            "holder_entity_id": null,
+            "valid_from": "1980-06-10",
+            "valid_to": "2022-11-30",
+            "certificate_type": "testt",
+            "authority_id": null
+        },
+        "previous_hash": "2e99dde0d1f3cc1291fbe010c18b2bd57e7a3cbf09967355684a1a927e3602b3",
+        "hash": "869c13a24e83e17f236e6b3124685700ae15dcbd3de5bb04c20972ed29a334a0"
+    },
+    {
+        "index": 2,
+        "timestamp": "2026-01-08T18:59:22.689868",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 35,
+            "certificate_number": "6767",
+            "holder_entity_id": null,
+            "valid_from": "2026-01-01",
+            "valid_to": "2026-01-31",
+            "certificate_type": "7676",
+            "authority_id": null
+        },
+        "previous_hash": "869c13a24e83e17f236e6b3124685700ae15dcbd3de5bb04c20972ed29a334a0",
+        "hash": "73e3ab44804d19879bd6854db28c3d792536649e6b01b0620547e96bb0064bea"
+    },
+    {
+        "index": 3,
+        "timestamp": "2026-01-08T20:36:20.319052",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 36,
+            "certificate_number": "997",
+            "holder_entity_id": null,
+            "valid_from": "2026-01-05",
+            "valid_to": "2026-01-18",
+            "certificate_type": "997",
+            "authority_id": null
+        },
+        "previous_hash": "73e3ab44804d19879bd6854db28c3d792536649e6b01b0620547e96bb0064bea",
+        "hash": "1093c181599f9b2ea9242f5c4121c17b0b79121c161526797ece2c78ec165bf1"
+    },
+    {
+        "index": 4,
+        "timestamp": "2026-01-08T20:46:52.102179",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 37,
+            "certificate_number": "6677",
+            "holder_entity_id": null,
+            "valid_from": "2026-01-07",
+            "valid_to": "2026-01-29",
+            "certificate_type": "7676",
+            "authority_id": null
+        },
+        "previous_hash": "1093c181599f9b2ea9242f5c4121c17b0b79121c161526797ece2c78ec165bf1",
+        "hash": "ec355dc1591b8e49734f362a81b142c33f74ec043792a2547ae865f2d42d8eee"
+    },
+    {
+        "index": 5,
+        "timestamp": "2026-01-08T20:47:44.504247",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 38,
+            "certificate_number": "9997",
+            "holder_entity_id": null,
+            "valid_from": "2026-01-05",
+            "valid_to": "2026-05-31",
+            "certificate_type": "9997",
+            "authority_id": null
+        },
+        "previous_hash": "ec355dc1591b8e49734f362a81b142c33f74ec043792a2547ae865f2d42d8eee",
+        "hash": "fb9afef9b9f8e3736f18eecc80ad5c382e26d2ca11c286b603435ece9284600e"
+    },
+    {
+        "index": 6,
+        "timestamp": "2026-01-08T22:08:05.538098",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 39,
+            "certificate_number": "PK11553498",
+            "holder_entity_id": null,
+            "valid_from": "2024-11-01",
+            "valid_to": "2028-02-16",
+            "certificate_type": "testowy",
+            "authority_id": null
+        },
+        "previous_hash": "fb9afef9b9f8e3736f18eecc80ad5c382e26d2ca11c286b603435ece9284600e",
+        "hash": "b6fa80bc79b6659a1e80e8d53b51b1ce5dc666221d727596cfd8c11277e8fd7d"
+    }
+]
