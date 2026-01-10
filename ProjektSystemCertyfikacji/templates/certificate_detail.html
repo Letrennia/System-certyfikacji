@@ -7,56 +7,112 @@
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/certificate_detail.css' %}">
-
 </head>
 <body>
-    <h1>Certyfikat: {{ certificate.certificate_number }}</h1>
-    <p>Typ certyfikatu: {{ certificate.certificate_type }}</p>
-    <p>Stan: {{ certificate.state }}</p>
-    <p>Ważny od: {{ certificate.valid_from }}</p>
-    <p>Ważny do: {{ certificate.valid_to }}</p>
-    <p>Adres blockchain: {{ certificate.blockchain_address }}</p>
 
-    {% if certificate.qr_code_img %}
-        <p>QR Code:</p>
-        <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
-    {% endif %}
+<div class="container">
 
-    <hr>
-    <h3>Zgłoś problem</h3>
-    <a href="{% url 'report_fraud' token %}">Zgłoś podejrzenie oszustwa</a>
-    
-    <hr>
-    <form method="post">
-        {% csrf_token %}
-        <h3>Dodaj swoją opinię</h3>
+    <div class="certificate-card">
+        <h1 class="certificate-title">Certyfikat</h1>
 
-        <label for="id_consumer_email">Adres email:</label>
-        {{ rating_form.consumer_email }}
+        <div class="certificate-content">
+            <div class="certificate-data">
+                <p><strong>Numer:</strong> {{ certificate.certificate_number }}</p>
+                <p><strong>Typ certyfikatu:</strong> {{ certificate.certificate_type }}</p>
+                <p><strong>Stan:</strong> {{ certificate.state }}</p>
+                <p><strong>Data wydania:</strong> {{ certificate.valid_from }}</p>
+                <p><strong>Data wygaśnięcia:</strong> {{ certificate.valid_to }}</p>
+                <p><strong>Jednostka certyfikująca:</strong> {{ certificate.issued_by_certifying_unit_id }}</p>
+                <p><strong>Adres blockchain:</strong> {{ certificate.blockchain_address }}</p>
+            </div>
 
-        <label for="id_rating">Ocena:</label>
-        {{ rating_form.rating }}
+            {% if certificate.qr_code_img %}
+                <div class="certificate-qr">
+                    <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu" class="qr-code">
+                </div>
+            {% endif %}
+        </div>
 
-        <label for="id_comment">Komentarz:</label>
-        {{ rating_form.comment }}
+        <a href="{% url 'report_fraud' token %}" class="report-button">Zgłoś podejrzenie oszustwa</a>
+    </div>
 
-        <button type="submit" name="submit_rating">Dodaj ocenę</button>
-    </form>
+    <div class="comments-section">
 
-    <h2>Opinie konsumentów</h2>
+        <div class="comment-form">
+            <h3>Dodaj swoją opinię</h3>
+            <form method="post">
+                {% csrf_token %}
+                <label for="id_consumer_email">Adres email:</label>
+                {{ rating_form.consumer_email }}
 
-    {% if ratings %}
-        <ul>
-        {% for rating in ratings %}
-            <li>
-                <strong>{{ rating.consumer_email }}</strong> - {{ rating.rating }}/5<br>
-                {{ rating.comment }}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>Brak ocen dla tego certyfikatu.</p>
-    {% endif %}
+                <label for="id_rating">Ocena:</label>
+                {{ rating_form.rating }}
+
+                <label for="id_comment">Komentarz:</label>
+                {{ rating_form.comment }}
+
+                <button type="submit" name="submit_rating" class="submit-button">Dodaj ocenę</button>
+            </form>
+        </div>
+
+        <div class="comment-list">
+
+            <div class="average-rating">
+                {% if average_rating %}
+                    <p><strong>Średnia ocena:</strong> {{ average_rating }}/5</p>
+                {% else %}
+                    <p>Brak ocen</p>
+                {% endif %}
+            </div>
+
+            <div class="rating_sort">
+                <p>Sortuj:</p>
+                <ul>
+                    <li>
+                        <a href="?sort=best" class="{% if current_sort == 'best' %}active{% endif %}">Najwyższe</a>
+                    </li>
+                    <li>
+                        <a href="?sort=worst" class="{% if current_sort == 'worst' %}active{% endif %}">Najniższe</a>
+                    </li>
+                    <li>
+                        <a href="?sort=latest" class="{% if current_sort == 'latest' %}active{% endif %}">Najnowszy</a>
+                    </li>
+                    <li>
+                        <a href="?sort=eldest" class="{% if current_sort == 'eldest' %}active{% endif %}">Najstarszy</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="ratings-container">
+                {% if ratings %}
+                    <ul>
+                        {% for rating in ratings %}
+                            <li class="rating-item">
+                                <strong>{{ rating.consumer_email }}</strong>
+                                <span class="leaf-rating">
+                                    <!-- w czarnym motywnie nie wyglada najlepiej -->
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= rating.rating %}
+                                            <img src="{% static 'ProjektSystemCertyfikacji/images/leaf_filled.png' %}" alt="lisc_pelny" class="leaf"> 
+                                        {% else %}
+                                            <img src="{% static 'ProjektSystemCertyfikacji/images/leaf_empty.jpg' %}" alt="lisc_pusty" class="leaf">
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <!-- <strong>{{ rating.consumer_email }}</strong> - {{ rating.rating }}/5 -->
+                                <p>{{ rating.comment }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Brak ocen dla tego certyfikatu.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</div>
 
 </body>
 </html>

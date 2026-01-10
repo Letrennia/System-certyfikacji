@@ -1,134 +1,186 @@
-:root {
-    --dark-dark: #2e3d2b;
-    --medium: #78bd49;
-    --light: #9add6e;
-    --light-background: #E6E5CC;
-    --text-color: #1b211a;
-}
-
 body {
-    background-color: var(--light-background);
+    background-color: #ffffff;
+    font-family: Verdana, sans-serif;
     margin: 0;
-    padding: 20px;
-    color: var(--text-color);
-}
-
-h1 {
-    text-align: center;
-    font-size: 2.5em;
-    margin-bottom: 15px;
-    color: var(--dark-dark);
-}
-
-p {
-    font-size: 1.1em;
-    margin: 8px 0;
-    text-align: center;
-}
-
-img {
-    display: block;
-    margin: 15px auto;
-    max-width: 200px;
-    border: 2px solid var(--medium);
-    border-radius: 10px;
-}
-
-hr {
-    margin: 30px 0;
-    border: none;
-    height: 1px;
-    background-color: var(--medium);
-}
-
-h3 {
-    text-align: center;
-    margin-bottom: 15px;
-    color: var(--dark-dark);
-}
-
-a {
-    display: block;
-    text-decoration: none;
-    text-align: center;
-    padding: 12px 25px;
-    border-radius: 8px;
-    background-color: var(--medium);
-    color: #fff;
-    font-size: 1.1em;
-    margin: 20px auto 0 auto;
-    width: 250px;
-}
-
-a:hover {
-    background-color: var(--light);
-    color: var(--dark-dark);
-}
-
-ul {
-    list-style-type: none;
     padding: 0;
-    max-width: 600px;
-    margin: 0 auto 20px auto;
 }
 
-li {
-    background-color: #f5f5f5;
-    border: 2px solid var(--medium);
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    font-size: 1em;
-}
-
-li strong {
-    color: var(--dark-dark);
-}
-
-form {
-    max-width: 300px;
-    margin: 0 auto 30px auto;
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
     padding: 10px;
-    background-color: #f9f9f9;
-    border: 2px solid var(--medium);
-    border-radius: 10px;
 }
 
-form input, form textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid var(--medium);
-    border-radius: 8px;
-    font-size: 1em;
-    box-sizing: border-box; 
+.certificate-card {
+    background-color: #f6f6f6;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-form textarea {
-    min-height: 120px;
-    resize: vertical;  
+.certificate-title {
+    text-align: center;
+    margin-bottom: 25px;
 }
 
-form button {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background-color: var(--medium);
-    color: #fff;
+.certificate-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.certificate-data {
+    flex: 2;
+    min-width: 250px;
+}
+
+.certificate-qr {
+    flex: 1;
+    text-align: center;
+    min-width: 150px;
+}
+
+.qr-code {
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+}
+
+.report-button {
+    display: inline-block;
+    background-color: rgb(76, 175, 80); /* kolor tego liscia z logo */
+    color: white;
+    padding: 10px 15px;
     border: none;
     border-radius: 8px;
-    font-size: 1.1em;
+    text-decoration: none;
+    margin-top: 15px;
+    transition: background-color 0.3s;
+}
+.report-button:hover {
+    background-color: #45a049;
+}
+
+.comments-section {
+    display: flex;
+    gap: 20px;
+}
+
+.comment-form {
+    flex: 1;
+    max-width: 33%;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comment-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px; 
+}
+
+.comment-form input,
+.comment-form select,
+.comment-form textarea {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comment-form textarea {
+    resize: vertical;
+    min-height: 100px;
+    max-height: 200px;
+}
+
+.submit-button {
+    background-color: #2196F3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+    font-family: inherit;
+    font-size: 1em;
 }
 
-form button:hover {
-    background-color: var(--light);
-    color: var(--dark-dark);
+.submit-button:hover {
+    background-color: #1976D2;
 }
 
-h2 {
-    text-align: center;
-    color: var(--dark-dark);
+.comment-list {
+    flex: 2;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.ratings-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.rating-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.average-rating {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.rating_sort ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 10px;
     margin-bottom: 15px;
 }
 
+.rating_sort li a {
+    text-decoration: none;
+    color: #555;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.rating_sort li a:hover {
+    border: 1px solid #555;
+}
+
+.rating_sort li a.active {
+    background-color: #2196F3;
+    color: white;
+}
+
+.leaf-rating {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px; 
+}
+
+.leaf-rating .leaf {
+    width: 24px;
+    height: 24px;
+    margin-right: 2px
+}
