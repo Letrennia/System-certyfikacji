@@ -11,7 +11,8 @@ from main_app import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('ProjektSystemCertyfikacji.blockchain.urls')),
+    path('', main_page_view.main_page, name='home'),  
+    path('blockchain/', include('ProjektSystemCertyfikacji.blockchain.urls')),
     path('api/', include('ProjektSystemCertyfikacji.urls')),
     path('redirect/<str:token>/', redirect_certificate_url.redirect_certificate, name='redirect_certificate'),
     path('certificate/<path:token>/', views_certificate.certificate_view, name='certificate_view'), 
@@ -27,8 +28,6 @@ urlpatterns = [
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),
     path('certificates/list/', list_cert, name='list_cert'),
     path('certificates/<int:cert_id>/', cert_detail, name='cert_detail'),
-
-
 ]
 
 if settings.DEBUG:
