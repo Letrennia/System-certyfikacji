@@ -14,6 +14,8 @@ from django.conf import settings
 
 from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
 from main_app import settings
+import qrcode
+from ProjektSystemCertyfikacji.utils.local_ip import get_local_ip
 
 
 def encrypt_certificate_id(certificate_id):
@@ -153,25 +155,38 @@ class Certificate(models.Model):
         db_table = 'certificate'
         # manage = False
 
-    def get_certificate_url(self):
-        from django.urls import reverse
-        return reverse('certificate_detail', args=[self.certificate_id])
+    def get_app_host(self):
+        if hasattr(settings, 'APP_HOST'):
+            return settings, 'APP_HOST'
+        ip = get_local_ip()
+        return f"http://{ip}:8000"
+    
+
+    def generate_qr(self):
+        encrypt_id = encrypt_certificate_id(self.certificate_id)
+        self.qr_code_data = encrypt_id
+
+        qr_url = f"/redirect/{encrypt_id}/"
+
+        qr_path = os.path.join(
+            settings.MEDIA_ROOT,
+            f'qr_codes/certificate_{self.certificate_id}.png'
+        )
+        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+
+        generate_qr_code(qr_url, qr_path)
+
+        self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
+
+
 
     def save(self, *args, **kwargs):
-        # created = self.pk is None
+        is_new = self.pk is None
         super().save(*args, **kwargs)
-        if self.qr_code_data and not self.qr_code_img:
-            # encrypt_id = encrypt_certificate_id(self.certificate_id)
-            # self.qr_code_data = f"http://127.0.0.1:8000/certificate/{encrypt_id}/"
-            # full_url = request.build_absolute_uri(reverse('certificare_detail', args=[encrypt_id]))
-            # self.qr_code_data = full_url
 
-            qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{self.certificate_id}.png')
-            os.makedirs(os.path.dirname(qr_path), exist_ok=True)
-            generate_qr_code(self.qr_code_data, qr_path)
-
-            self.qr_code_img.name = f'qr_codes/certificate_{self.certificate_id}.png'
-            super().save(update_fields=['qr_code_img'])
+        if is_new:
+            self.generate_qr()
+            super().save(update_fields=['qr_code_data', 'qr_code_img'])
 
     def __str__(self):
         return self.certificate_number

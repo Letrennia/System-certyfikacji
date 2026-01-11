@@ -1,5 +1,4 @@
 import os
-import socket
 from django.contrib import admin
 from django.urls import reverse
 from django.utils import timezone
@@ -46,18 +45,6 @@ from .models import (
 # admin.site.register(Company_certifying_unit)
 # admin.site.register(RegistrationCode)
 # admin.site.register(Certificate)
-
-
-def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-    except Exception:
-        ip = '127.0.0.1'
-    finally:
-        s.close()
-    return ip
 
 
 
@@ -141,25 +128,6 @@ class CertificateAdmin(admin.ModelAdmin):
     fields = ('certificate_type', 'certificate_number', 'qr_code_data', 'qr_code_img', 'status', 
                     'valid_from', 'valid_to', 'blockchain_address', 'holder_company_id', 
                     'issued_by_certifying_unit_id')
-    
-    def save_model(self, request, obj, form, change):
-        is_new = obj.pk is None
-        super().save_model(request, obj, form, change)
-
-        if is_new:
-            encrypt_id = encrypt_certificate_id(obj.certificate_id)
-
-            obj.qr_code_data = encrypt_id
-            obj.save(update_fields=['qr_code_data'])
-
-            local_ip = get_local_ip()
-            qr_url = f'http://{local_ip}:8000/redirect/{encrypt_id}/'
-            qr_path = os.path.join(settings.MEDIA_ROOT, f'qr_codes/certificate_{obj.certificate_id}.png')
-            os.makedirs(os.path.dirname(qr_path), exist_ok=True)
-            generate_qr_code(qr_url, qr_path)
-
-            obj.qr_code_img.name = f'qr_codes/certificate_{obj.certificate_id}.png'
-            obj.save(update_fields=['qr_code_img'])
 
 
 

@@ -30,3 +30,68 @@ WAŻNE:
         <a href="{% url 'register' %}">Zarejestruj się</a>
     </header>
 </body>
+
+
+<h2>Wyszukaj certyfikat</h2>
+
+<input
+    type="text"
+    id="certificate_number"
+    placeholder="Wpisz numer certyfikatu"
+>
+
+<button onclick="searchCertificate()">Szukaj</button>
+
+<hr>
+
+<div id="result"></div>
+
+
+
+<script>
+function searchCertificate() {
+    const number = document.getElementById('certificate_number').value.trim();
+
+    if (!number) {
+        alert('Podaj numer certyfikatu');
+        return;
+    }
+
+    fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                document.getElementById('result').innerHTML =
+                    `<p style="color:red">${data.error}</p>`;
+                return;
+            }
+
+            const c = data.certificate;
+
+            document.getElementById('result').innerHTML = `
+                <h3>Certyfikat ${c.number}</h3>
+                <p><b>Status:</b> ${c.status}</p>
+                <p><b>Typ:</b> ${c.type}</p>
+                <p><b>Wydawca:</b> ${c.publisher}</p>
+                <p><b>Ważny od:</b> ${c.valid_from}</p>
+                <p><b>Ważny do:</b> ${c.valid_to}</p>
+                <p><b>Blockchain:</b> ${c.blockchain_verified ? ' zweryfikowany' : ' brak'}</p>
+
+                <h4>Oceny (${data.ratings.total})</h4>
+                <p>Średnia: ${data.ratings.average.toFixed(1)}</p>
+
+                <h4>Partie produktu (${data.batches.total})</h4>
+                <ul>
+                    ${data.batches.list.map(b =>
+                        `<li>${b.name} (${b.category}) – ${b.status}</li>`
+                    ).join('')}
+                </ul>
+            `;
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('result').innerHTML =
+                `<p>Błąd połączenia</p>`;
+        });
+}
+</script>
