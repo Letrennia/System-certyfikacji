@@ -33,11 +33,11 @@ def add_cert(request):
             if not is_admin:
                 cert.issued_by_certifying_unit_id = certifying_unit
             
-            cert_num = cert.certificate_number
-            cert.qr_code_data = f"https://example.com/cert/{cert_num}/"
+            # cert_num = cert.certificate_number
+            # cert.qr_code_data = f"https://example.com/cert/{cert_num}/"
             cert.save()
             
-            messages.success(request, f'Certyfikat {cert_num} został poprawnie dodany')
+            messages.success(request, f'Certyfikat {cert.certificate_number} został poprawnie dodany')
             return redirect('cert_succes', cert_id=cert.certificate_id)
         else:
             return render(request, 'certificates/add_cert.html', {

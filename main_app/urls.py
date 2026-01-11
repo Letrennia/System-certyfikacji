@@ -21,7 +21,7 @@ urlpatterns = [
     path('login/', c_sign_in_view.sign_in, name='login'),
     path('logout/', c_sign_out_view.sign_out, name='logout'),
     path('register/', c_sign_up_view.sign_up, name='register'),
-    path('main_page/', main_page_view.main_page, name='main'),
+    # path('main_page/', main_page_view.main_page, name='main'),
 
 
     path('certificates/add/', add_cert, name='add_cert'),

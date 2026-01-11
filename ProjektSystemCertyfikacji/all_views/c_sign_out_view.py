@@ -5,5 +5,5 @@ from django.contrib import messages
 def sign_out(request):
     logout(request)
     messages.success(request, f'poprawne wylogowanie')
-    return redirect('main')
+    return redirect('home')
     
