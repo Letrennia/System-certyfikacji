@@ -67,94 +67,94 @@ def main_page(request):
     
     return render(request, 'main_page.html', context)
 
-     #API DO WERYFIKACJI QR
-def verify_qr_code_api(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            qr_data = data.get('qr_code_data')
+#      #API DO WERYFIKACJI QR
+# def verify_qr_code_api(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             qr_data = data.get('qr_code_data')
             
-            if not qr_data:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Brak danych QR kodu'
-                }, status=400)
+#             if not qr_data:
+#                 return JsonResponse({
+#                     'success': False,
+#                     'error': 'Brak danych QR kodu'
+#                 }, status=400)
             
-            # Sprawdzenie czy to token szyfrowany
-            try:
-                certificate_id = decrypt_certificate_id(qr_data)
-                certificate = Certificate.objects.get(certificate_id=certificate_id)
+#             # Sprawdzenie czy to token szyfrowany
+#             try:
+#                 certificate_id = decrypt_certificate_id(qr_data)
+#                 certificate = Certificate.objects.get(certificate_id=certificate_id)
                 
-                blockchain = get_blockchain()
-                blockchain_verified = blockchain.verify_certificate(str(certificate.certificate_id))
+#                 blockchain = get_blockchain()
+#                 blockchain_verified = blockchain.verify_certificate(str(certificate.certificate_id))
                 
-                product_history = None
-                batches = Product_batch.objects.filter(certificate_id=certificate)
-                if batches.exists():
-                    batch = batches.first()
-                    product_history = blockchain.get_batch_supply_chain_history(batch.batch_id)
+#                 product_history = None
+#                 batches = Product_batch.objects.filter(certificate_id=certificate)
+#                 if batches.exists():
+#                     batch = batches.first()
+#                     product_history = blockchain.get_batch_supply_chain_history(batch.batch_id)
                 
-                return JsonResponse({
-                    'success': True,
-                    'verified': True,
-                    'blockchain_verified': blockchain_verified,
-                    'certificate': {
-                        'id': certificate.certificate_id,
-                        'number': certificate.certificate_number,
-                        'type': certificate.certificate_type,
-                        'status': certificate.status,
-                        'valid_from': str(certificate.valid_from),
-                        'valid_to': str(certificate.valid_to),
-                        'publisher': certificate.certificate_publisher,
-                    },
-                    'product_history': product_history
-                })
+#                 return JsonResponse({
+#                     'success': True,
+#                     'verified': True,
+#                     'blockchain_verified': blockchain_verified,
+#                     'certificate': {
+#                         'id': certificate.certificate_id,
+#                         'number': certificate.certificate_number,
+#                         'type': certificate.certificate_type,
+#                         'status': certificate.status,
+#                         'valid_from': str(certificate.valid_from),
+#                         'valid_to': str(certificate.valid_to),
+#                         'publisher': certificate.certificate_publisher,
+#                     },
+#                     'product_history': product_history
+#                 })
                 
-            except (ValueError, Certificate.DoesNotExist):
-                # Jeśli to nie token, sprawdź czy to bezpośredni numer certyfikatu
-                try:
-                    certificate = Certificate.objects.get(certificate_number=qr_data)
+#             except (ValueError, Certificate.DoesNotExist):
+#                 # Jeśli to nie token, sprawdź czy to bezpośredni numer certyfikatu
+#                 try:
+#                     certificate = Certificate.objects.get(certificate_number=qr_data)
                     
-                    blockchain = get_blockchain()
-                    blockchain_verified = blockchain.verify_certificate(str(certificate.certificate_id))
+#                     blockchain = get_blockchain()
+#                     blockchain_verified = blockchain.verify_certificate(str(certificate.certificate_id))
                     
-                    return JsonResponse({
-                        'success': True,
-                        'verified': True,
-                        'blockchain_verified': blockchain_verified,
-                        'certificate': {
-                            'id': certificate.certificate_id,
-                            'number': certificate.certificate_number,
-                            'type': certificate.certificate_type,
-                            'status': certificate.status,
-                            'valid_from': str(certificate.valid_from),
-                            'valid_to': str(certificate.valid_to),
-                            'publisher': certificate.certificate_publisher,
-                        }
-                    })
+#                     return JsonResponse({
+#                         'success': True,
+#                         'verified': True,
+#                         'blockchain_verified': blockchain_verified,
+#                         'certificate': {
+#                             'id': certificate.certificate_id,
+#                             'number': certificate.certificate_number,
+#                             'type': certificate.certificate_type,
+#                             'status': certificate.status,
+#                             'valid_from': str(certificate.valid_from),
+#                             'valid_to': str(certificate.valid_to),
+#                             'publisher': certificate.certificate_publisher,
+#                         }
+#                     })
                     
-                except Certificate.DoesNotExist:
-                    return JsonResponse({
-                        'success': False,
-                        'verified': False,
-                        'error': 'Certyfikat nie znaleziony'
-                    }, status=404)
+#                 except Certificate.DoesNotExist:
+#                     return JsonResponse({
+#                         'success': False,
+#                         'verified': False,
+#                         'error': 'Certyfikat nie znaleziony'
+#                     }, status=404)
                     
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'success': False,
-                'error': 'Nieprawidłowy format JSON'
-            }, status=400)
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            }, status=500)
+#         except json.JSONDecodeError:
+#             return JsonResponse({
+#                 'success': False,
+#                 'error': 'Nieprawidłowy format JSON'
+#             }, status=400)
+#         except Exception as e:
+#             return JsonResponse({
+#                 'success': False,
+#                 'error': str(e)
+#             }, status=500)
     
-    return JsonResponse({
-        'success': False,
-        'error': 'Metoda nieobsługiwana'
-    }, status=405)
+#     return JsonResponse({
+#         'success': False,
+#         'error': 'Metoda nieobsługiwana'
+#     }, status=405)
 
 # API DO ŚLEDZENIA PRODUKTU
 def track_product_api(request):
@@ -318,86 +318,86 @@ def submit_rating_api(request):
     }, status=405)
 
 # API DO ZGŁASZANIA FRAUD REPORT
-def submit_fraud_report_api(request):
-    if request.method == 'POST':
+# def submit_fraud_report_api(request):
+#     if request.method == 'POST':
 
-        try:
-            data = json.loads(request.body)
+#         try:
+#             data = json.loads(request.body)
             
-            fraud_form = FraudReportForm(data)
-            if fraud_form.is_valid():
-                fraud_report = fraud_form.save(commit=False)
+#             fraud_form = FraudReportForm(data)
+#             if fraud_form.is_valid():
+#                 fraud_report = fraud_form.save(commit=False)
                 
-                certificate_id = data.get('certificate_id')
-                if not certificate_id:
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'Brak certificate_id'
-                    }, status=400)
+#                 certificate_id = data.get('certificate_id')
+#                 if not certificate_id:
+#                     return JsonResponse({
+#                         'success': False,
+#                         'error': 'Brak certificate_id'
+#                     }, status=400)
                 
-                try:
-                    certificate = Certificate.objects.get(certificate_id=certificate_id)
-                    fraud_report.certificate_id = certificate
+#                 try:
+#                     certificate = Certificate.objects.get(certificate_id=certificate_id)
+#                     fraud_report.certificate_id = certificate
                     
-                    email = fraud_report.reporter_email
-                    already_reported = Fraud_report.objects.filter(
-                        certificate_id=certificate,
-                        reporter_email=email
-                    ).exists()
+#                     email = fraud_report.reporter_email
+#                     already_reported = Fraud_report.objects.filter(
+#                         certificate_id=certificate,
+#                         reporter_email=email
+#                     ).exists()
                     
-                    if already_reported:
-                        return JsonResponse({
-                            'success': False,
-                            'error': 'Ten certyfikat został już zgłoszony z tego adresu email'
-                        }, status=400)
+#                     if already_reported:
+#                         return JsonResponse({
+#                             'success': False,
+#                             'error': 'Ten certyfikat został już zgłoszony z tego adresu email'
+#                         }, status=400)
                     
-                    # Znajdź partie związane z certyfikatem
-                    batches = Product_batch.objects.filter(certificate_id=certificate)
+#                     # Znajdź partie związane z certyfikatem
+#                     batches = Product_batch.objects.filter(certificate_id=certificate)
                     
-                    if batches.exists():
-                        for batch in batches:
-                            fraud_report.pk = None  # Reset primary key for each batch
-                            fraud_report.batch_id = batch
-                            fraud_report.save()
-                            fraud_report.check_and_reject_spam()
-                    else:
-                        fraud_report.batch_id = None
-                        fraud_report.save()
-                        fraud_report.check_and_reject_spam()
+#                     if batches.exists():
+#                         for batch in batches:
+#                             fraud_report.pk = None  # Reset primary key for each batch
+#                             fraud_report.batch_id = batch
+#                             fraud_report.save()
+#                             fraud_report.check_and_reject_spam()
+#                     else:
+#                         fraud_report.batch_id = None
+#                         fraud_report.save()
+#                         fraud_report.check_and_reject_spam()
                     
-                    return JsonResponse({
-                        'success': True,
-                        'message': 'Zgłoszenie fałszerstwa zostało przyjęte',
-                        'report_id': fraud_report.report_id
-                    })
+#                     return JsonResponse({
+#                         'success': True,
+#                         'message': 'Zgłoszenie fałszerstwa zostało przyjęte',
+#                         'report_id': fraud_report.report_id
+#                     })
                     
-                except Certificate.DoesNotExist:
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'Certyfikat nie znaleziony'
-                    }, status=404)
-            else:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Nieprawidłowe dane formularza',
-                    'errors': fraud_form.errors
-                }, status=400)
+#                 except Certificate.DoesNotExist:
+#                     return JsonResponse({
+#                         'success': False,
+#                         'error': 'Certyfikat nie znaleziony'
+#                     }, status=404)
+#             else:
+#                 return JsonResponse({
+#                     'success': False,
+#                     'error': 'Nieprawidłowe dane formularza',
+#                     'errors': fraud_form.errors
+#                 }, status=400)
                 
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'success': False,
-                'error': 'Nieprawidłowy format JSON'
-            }, status=400)
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            }, status=500)
+#         except json.JSONDecodeError:
+#             return JsonResponse({
+#                 'success': False,
+#                 'error': 'Nieprawidłowy format JSON'
+#             }, status=400)
+#         except Exception as e:
+#             return JsonResponse({
+#                 'success': False,
+#                 'error': str(e)
+#             }, status=500)
     
-    return JsonResponse({
-        'success': False,
-        'error': 'Metoda nieobsługiwana'
-    }, status=405)
+#     return JsonResponse({
+#         'success': False,
+#         'error': 'Metoda nieobsługiwana'
+#     }, status=405)
 
 # API Z STATYSTYKAMI SYSTEMU
 def get_system_stats_api(request):

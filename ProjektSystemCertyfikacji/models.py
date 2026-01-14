@@ -97,10 +97,7 @@ class Certifying_unit(models.Model):
     address = models.CharField(max_length=500, db_column='address')
     certifying_unit_code = models.CharField(max_length=50, unique=True, null=False, db_column='certifying_unit_code')
     is_approved = models.BooleanField(default=False, db_column='is_approved')
-    # username = models.CharField(max_length=100, unique=True, null=False, db_column='username')
-    # password = models.CharField(max_length=255, null=False, db_column='password')
-    # email = models.CharField(max_length=100, unique=True, null=False)
-
+    
     class Meta:
         db_table = 'certifying_unit'
         # manage = False
@@ -157,7 +154,7 @@ class Certificate(models.Model):
 
     def get_app_host(self):
         if hasattr(settings, 'APP_HOST'):
-            return settings, 'APP_HOST'
+            return settings.APP_HOST
         ip = get_local_ip()
         return f"http://{ip}:8000"
     

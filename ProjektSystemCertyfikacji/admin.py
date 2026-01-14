@@ -60,7 +60,7 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(Product_batch)
 class Product_batch_Admin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'cn_code', 'status')
+    list_display = ('batch_id', 'name', 'category', 'cn_code', 'status')
 
 
 @admin.register(Consumer_verification)
@@ -124,7 +124,7 @@ class RegistrationCode_Admin(admin.ModelAdmin):
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     readonly_fields = ('qr_code_data', 'qr_code_img')
-    list_display = ('certificate_type', 'status', 'qr_code_data', 'qr_code_img')
+    list_display = ('certificate_id', 'certificate_number', 'certificate_type', 'status', 'qr_code_data', 'qr_code_img')
     fields = ('certificate_type', 'certificate_number', 'qr_code_data', 'qr_code_img', 'status', 
                     'valid_from', 'valid_to', 'blockchain_address', 'holder_company_id', 
                     'issued_by_certifying_unit_id')
@@ -134,7 +134,7 @@ class CertificateAdmin(admin.ModelAdmin):
 @admin.register(Certifying_unit)
 class Certifying_unitAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'name', 'address', 'certifying_unit_code')
-    list_display = ('user', 'name', 'address', 'certifying_unit_code', 'is_approved')
+    list_display = ('certifying_unit_id','user', 'name', 'address', 'certifying_unit_code', 'is_approved')
     fields = ('user', 'name', 'address', 'certifying_unit_code', 'is_approved')
 
     def save_model(self, request, obj, form, change):
