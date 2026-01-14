@@ -23,75 +23,411 @@ WAŻNE:
 - Certyfikaty mają gotowe linki: detail_url, report_url
 -->
 
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wyszukaj produkt - System Certyfikacji</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .search-results {
+            max-width: 800px;
+            margin: 32px auto 0;
+        }
+
+        .result-card {
+            background-color: white;
+            border: 1px solid #cac4d0;
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 24px;
+        }
+
+        .result-header {
+            border-bottom: 2px solid #f5f5f5;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 8px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .result-item {
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1e1e1e;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-verified {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-unverified {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .section-divider {
+            border-top: 2px solid #f5f5f5;
+            margin: 24px 0;
+            padding-top: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 12px;
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .rating-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #77c320;
+        }
+
+        .rating-text {
+            color: #757575;
+            font-size: 14px;
+        }
+
+        .batch-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .batch-item {
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .batch-name {
+            font-weight: 500;
+            color: #1e1e1e;
+        }
+
+        .batch-category {
+            color: #757575;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+            color: #842029;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+
+        @media (max-width: 768px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
 <body>
-    <header>
-        <a href="{% url 'login' %}">Zaloguj się</a>
-        <br>
-        <a href="{% url 'register' %}">Zarejestruj się</a>
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item active">Produkty</div>
+            <div class="nav-item">Certyfikaty</div>
+            <div class="nav-item">Track & Trace</div>
+            <div class="nav-item">Historia</div>
+            <div class="nav-item">Mapa</div>
+            <div class="nav-item">Oceny</div>
+            <div class="nav-item">Zgłoś</div>
+        </nav>
+
+        <div class="auth-buttons">
+            <a href="/login" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
+            <a href="/register" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Rejestracja</a>
+        </div>
     </header>
-</body>
 
+    <main class="main-content centered">
+        <h1 class="main-title">Wyszukaj certyfikat</h1>
+        <p class="main-subtitle">Sprawdź autentyczność i szczegóły certyfikatu</p>
 
-<h2>Wyszukaj certyfikat</h2>
+        <div class="search-section">
+            <div class="search-label">Wpisz numer certyfikatu</div>
+            <input
+                type="text"
+                id="certificate_number"
+                class="search-input"
+                placeholder="np. PL-BIO-123456"
+                onkeypress="handleKeyPress(event)"
+            >
+            <button
+                class="btn btn-primary"
+                style="width: 100%; padding: 12px;"
+                onclick="searchCertificate()"
+            >
+                Szukaj
+            </button>
 
-<input
-    type="text"
-    id="certificate_number"
-    placeholder="Wpisz numer certyfikatu"
->
+            <div class="qr-code-section">
+                <span>lub</span>
+                <div class="qr-icon" onclick="alert('Funkcja skanowania QR będzie dostępna wkrótce')">
+                    <img src="{% static 'ProjektSystemCertyfikacji/images/icon-205.svg' %}" alt="Camera">
+                </div>
+            </div>
+        </div>
 
-<button onclick="searchCertificate()">Szukaj</button>
+        <div id="result" class="search-results"></div>
+    </main>
 
-<hr>
+    <footer class="footer top-margin-large">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
+                    <a href="faq.html" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-<div id="result"></div>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchCertificate();
+            }
+        }
 
+        function searchCertificate() {
+            const number = document.getElementById('certificate_number').value.trim();
+            const resultDiv = document.getElementById('result');
 
-<script>
-function searchCertificate() {
-    const number = document.getElementById('certificate_number').value.trim();
-
-    if (!number) {
-        alert('Podaj numer certyfikatu');
-        return;
-    }
-
-    fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                document.getElementById('result').innerHTML =
-                    `<p style="color:red">${data.error}</p>`;
+            if (!number) {
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        Proszę podać numer certyfikatu
+                    </div>
+                `;
                 return;
             }
 
-            const c = data.certificate;
-
-            document.getElementById('result').innerHTML = `
-                <h3>Certyfikat ${c.number}</h3>
-                <p><b>Status:</b> ${c.status}</p>
-                <p><b>Typ:</b> ${c.type}</p>
-                <p><b>Wydawca:</b> ${c.publisher}</p>
-                <p><b>Ważny od:</b> ${c.valid_from}</p>
-                <p><b>Ważny do:</b> ${c.valid_to}</p>
-                <p><b>Blockchain:</b> ${c.blockchain_verified ? ' zweryfikowany' : ' brak'}</p>
-
-                <h4>Oceny (${data.ratings.total})</h4>
-                <p>Średnia: ${data.ratings.average.toFixed(1)}</p>
-
-                <h4>Partie produktu (${data.batches.total})</h4>
-                <ul>
-                    ${data.batches.list.map(b =>
-                        `<li>${b.name} (${b.category}) – ${b.status}</li>`
-                    ).join('')}
-                </ul>
+            resultDiv.innerHTML = `
+                <div class="loading-spinner">
+                    <p>Wyszukiwanie certyfikatu...</p>
+                </div>
             `;
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById('result').innerHTML =
-                `<p>Błąd połączenia</p>`;
-        });
-}
-</script>
+
+            fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        resultDiv.innerHTML = `
+                            <div class="error-message">
+                                ${data.error || 'Nie znaleziono certyfikatu'}
+                            </div>
+                        `;
+                        return;
+                    }
+                    const c = data.certificate;
+                    const ratings = data.ratings || { total: 0, average: 0 };
+                    const batches = data.batches || { total: 0, list: [] };
+                    const qrCodeUrl = data.certificate.qr_code_url;
+
+                    resultDiv.innerHTML = `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h2 class="result-title">Certyfikat ${c.number}</h2>
+                                <span class="status-badge status-active">${c.status}</span>
+                            </div>
+
+                            <div class="result-grid">
+                                <div class="result-item">
+                                    <div class="result-label">Typ certyfikatu</div>
+                                    <div class="result-value">${c.type}</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-label">Wydawca</div>
+                                    <div class="result-value">${c.publisher}</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-label">Ważny od</div>
+                                    <div class="result-value">${c.valid_from}</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-label">Ważny do</div>
+                                    <div class="result-value">${c.valid_to}</div>
+                                </div>
+                                <div class="result-item" style="grid-column: 1 / -1;">
+                                    <div class="result-label">Weryfikacja blockchain</div>
+                                    <div class="result-value">
+                                        <span class="status-badge ${c.blockchain_verified ? 'status-verified' : 'status-unverified'}">
+                                            ${c.blockchain_verified ? '✓ Zweryfikowany' : '✗ Brak weryfikacji'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 24px; text-align: center;">
+                                <a href="/certificate/${encodeURIComponent(qrCodeUrl)}"
+                                   class="btn btn-primary"
+                                   style="text-decoration: none; display: inline-block; padding: 12px 32px; font-size: 16px;">
+                                    Szczegóły certyfikatu
+                                </a>
+                            </div>
+
+                            <div class="section-divider">
+                                <h3 class="section-title">Oceny konsumentów</h3>
+                                ${ratings.total > 0 ? `
+                                    <div class="rating-display">
+                                        <div class="rating-number">${ratings.average.toFixed(1)}</div>
+                                        <div>
+                                            <div style="color: #1e1e1e; font-weight: 500;">na 5.0</div>
+                                            <div class="rating-text">${ratings.total} ${ratings.total === 1 ? 'ocena' : 'ocen'}</div>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <p style="color: #757575; text-align: center; padding: 20px;">
+                                        Brak ocen dla tego certyfikatu
+                                    </p>
+                                `}
+                            </div>
+
+                            <div class="section-divider">
+                                <h3 class="section-title">Partie produktu (${batches.total})</h3>
+                                ${batches.total > 0 ? `
+                                    <ul class="batch-list">
+                                        ${batches.list.map(b => `
+                                            <li class="batch-item">
+                                                <div>
+                                                    <div class="batch-name">${b.name}</div>
+                                                    <div class="batch-category">${b.category}</div>
+                                                </div>
+                                                <span class="status-badge status-active">${b.status}</span>
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                ` : `
+                                    <p style="color: #757575; text-align: center; padding: 20px;">
+                                        Brak przypisanych partii produktu
+                                    </p>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(err => {
+                    console.error('Błąd wyszukiwania:', err);
+                    resultDiv.innerHTML = `
+                        <div class="error-message">
+                            Wystąpił błąd podczas wyszukiwania. Spróbuj ponownie później.
+                        </div>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
