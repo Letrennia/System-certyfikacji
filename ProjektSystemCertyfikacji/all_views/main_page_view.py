@@ -17,7 +17,6 @@ from ..forms.report_form import FraudReportForm
 
 
 def main_page(request):
-    """Główna strona z dashboardem i funkcjonalnościami"""
     
     # Statystyki dla dashboardu
     total_certificates = Certificate.objects.count()

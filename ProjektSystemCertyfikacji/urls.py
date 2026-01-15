@@ -10,9 +10,11 @@ from .all_views.views import (
 ) 
 from .all_views.certificates_views import add_cert, cert_succes, list_cert
 from .all_views.main_page_view import (
-    verify_qr_code_api, track_product_api, submit_rating_api,
-    submit_fraud_report_api, get_system_stats_api, get_certificate_details_api
+    # verify_qr_code_api, 
+    track_product_api, submit_rating_api, get_system_stats_api, get_certificate_details_api
+     # submit_fraud_report_api,
 )
+   
 
 
 router = DefaultRouter()
@@ -33,10 +35,10 @@ urlpatterns = [
     path('certificates/list/', list_cert, name='list_cert'),
 
     # API dla strony głównej
-    path('verify-qr-code/', verify_qr_code_api, name='verify_qr_code'),
+    # path('verify-qr-code/', verify_qr_code_api, name='verify_qr_code'),
     path('track-product/', track_product_api, name='track_product'),
     path('submit-rating/', submit_rating_api, name='submit_rating'),
-    path('submit-fraud-report/', submit_fraud_report_api, name='submit_fraud_report'),
+    # path('submit-fraud-report/', submit_fraud_report_api, name='submit_fraud_report'),
     path('system-stats/', get_system_stats_api, name='system_stats'),
     path('certificate-details/', get_certificate_details_api, name='certificate_details'),
 
