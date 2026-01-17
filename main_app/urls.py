@@ -8,6 +8,7 @@ from ProjektSystemCertyfikacji.all_views.certificates_views import add_cert, cer
 from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, p_sign_up_view, choose_account_view, producer_main_view
 from ProjektSystemCertyfikacji.utils import redirect_certificate_url
 from main_app import settings
+from ProjektSystemCertyfikacji.all_views import product_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,6 +33,13 @@ urlpatterns = [
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),
     path('certificates/list/', list_cert, name='list_cert'),
     path('certificates/<int:cert_id>/', cert_detail, name='cert_detail'),
+
+    path('product-batches/', product_views.list_product_batches, name='list_product_batches'),
+    path('product-batches/add/', product_views.add_product_batch, name='add_product_batch'),
+    path('product-batches/<int:batch_id>/', product_views.product_batch_detail, name='product_batch_detail'),
+    path('product-batches/<int:batch_id>/edit/', product_views.edit_product_batch, name='edit_product_batch'),
+    path('product-batches/<int:batch_id>/delete/', product_views.delete_product_batch,name='delete_product_batch'),
+    path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
 ]
 
 if settings.DEBUG:

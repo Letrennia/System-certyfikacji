@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuń partię - System Certyfikacji</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 0 24px;
+        }
+        .delete-card {
+            background-color: #fff;
+            border: 2px solid #dc3545;
+            border-radius: 12px;
+            padding: 48px 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 64px;
+            color: #dc3545;
+            margin-bottom: 24px;
+        }
+        .delete-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 16px;
+        }
+        .delete-message {
+            font-size: 16px;
+            color: #757575;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .batch-info {
+            background-color: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+        .batch-info strong {
+            color: #1e1e1e;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .action-buttons button,
+        .action-buttons a {
+            flex: 1;
+            max-width: 200px;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .btn-delete:hover {
+            background-color: #a02622;
+        }
+        .btn-cancel {
+            background-color: #e0e0e0;
+            color: #1e1e1e;
+        }
+        .btn-cancel:hover {
+            background-color: #bdbdbd;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item"><a href="/">Strona główna</a></div>
+            <div class="nav-item active"><a href="{% url 'list_product_batches' %}">Produkty</a></div>
+            <div class="nav-item"><a href="{% url 'list_cert' %}">Certyfikaty</a></div>
+        </nav>
+        <div class="auth-buttons">
+            <a href="{% url 'logout' %}" class="btn btn-secondary" style="text-decoration: none;">Wyloguj</a>
+        </div>
+    </header>
+
+    <main class="main-content centered">
+        <div class="container">
+            <div class="delete-card">
+                <div class="warning-icon">⚠️</div>
+                <h1 class="delete-title">Potwierdź usunięcie partii</h1>
+                <p class="delete-message">
+                    Czy na pewno chcesz trwale usunąć tę partię produktów? Ta operacja jest nieodwracalna.
+                </p>
+
+                <div class="batch-info">
+                    <div><strong>Nazwa:</strong> {{ product_batch.name }}</div>
+                    <div><strong>Kategoria:</strong> {{ product_batch.category }}</div>
+                    <div><strong>Ilość:</strong> {{ product_batch.quantity }} {{ product_batch.get_unit_of_measure_display }}</div>
+                    <div><strong>Status:</strong> {{ product_batch.get_status_display }}</div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="action-buttons">
+                        <button type="submit" class="btn-delete">Usuń partię</button>
+                        <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="btn-cancel">Anuluj</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer top-margin-large">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Błąd - System Certyfikacji</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 0 24px;
+            text-align: center;
+        }
+        .error-card {
+            background-color: #fff;
+            border: 1px solid #f5c2c7;
+            border-radius: 12px;
+            padding: 48px 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .error-icon {
+            font-size: 64px;
+            color: #dc3545;
+            margin-bottom: 24px;
+        }
+        .error-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #842029;
+            margin-bottom: 16px;
+        }
+        .error-message {
+            font-size: 16px;
+            color: #757575;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .btn-home {
+            padding: 14px 32px;
+            background-color: #77c320;
+            color: #fff;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .btn-home:hover {
+            background-color: #5aa000;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item"><a href="/">Strona główna</a></div>
+        </nav>
+        <div class="auth-buttons">
+            <a href="{% url 'logout' %}" class="btn btn-secondary" style="text-decoration: none;">Wyloguj</a>
+        </div>
+    </header>
+
+    <main class="main-content centered">
+        <div class="container">
+            <div class="error-card">
+                <div class="error-icon">⚠️</div>
+                <h1 class="error-title">Błąd dostępu</h1>
+                <p class="error-message">{{ msg }}</p>
+                <a href="/" class="btn-home">Powrót do strony głównej</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer top-margin-large">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

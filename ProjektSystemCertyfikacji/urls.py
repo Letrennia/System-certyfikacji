@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail
-
+from ProjektSystemCertyfikacji.all_views import product_views
 from .all_views.views import (
     CertificateViewSet, CertifyingUnitViewSet,
     CertifyingUnitCertificatesViewSet, CompanyViewSet,
@@ -44,5 +44,11 @@ urlpatterns = [
     path('system-stats/', get_system_stats_api, name='system_stats'),
     path('certificate-details/', get_certificate_details_api, name='certificate_details'),
 
+    path('product-batches/', product_views.list_product_batches, name='list_product_batches'),
+    path('product-batches/add/', product_views.add_product_batch, name='add_product_batch'),
+    path('product-batches/<int:batch_id>/', product_views.product_batch_detail, name='product_batch_detail'),
+    path('product-batches/<int:batch_id>/edit/', product_views.edit_product_batch, name='edit_product_batch'),
+    path('product-batches/<int:batch_id>/delete/', product_views.delete_product_batch,name='delete_product_batch'),
+path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
     path('api/', include(router.urls)),
 ]
