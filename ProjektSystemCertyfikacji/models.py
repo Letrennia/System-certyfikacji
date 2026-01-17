@@ -527,6 +527,26 @@ class Company_certifying_unit(models.Model):
         return f"Company id: {self.company_id} | Certifying unit id: {self.certifying_unit_id}"
 
 
+# konto producentów
+class Producer(models.Model):
+    producent_id = models.AutoField(primary_key=True, db_column='producer_id')    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='producer_user')
+    name = models.CharField(max_length=200, null=False, db_column='name')
+    address = models.CharField(max_length=500, db_column='address')
+    producer_code = models.CharField(max_length=50, unique=True, null=False, db_column='producer_code')
+    is_approved = models.BooleanField(default=False, db_column='is_approved')
+    
+    class Meta:
+        db_table = 'producer'
+        verbose_name = 'Producer'
+        verbose_name_plural = 'Producers'
+
+    def __str__(self):
+        return self.name
+
+
+
+
 
 # do generowania kodu walidacji jednostki certyfikujacej
 

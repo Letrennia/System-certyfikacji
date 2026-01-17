@@ -26,6 +26,7 @@ from .models import (
     Certificate_status_history,
     Company_certifying_unit,
     RegistrationCode,
+    Producer,
     encrypt_certificate_id
 )
 
@@ -47,6 +48,19 @@ from .models import (
 # admin.site.register(Certificate)
 
 
+
+@admin.register(Producer)
+class ProducerAdmin(admin.ModelAdmin):
+    readonly_fields = ('user', 'name', 'address', 'producer_code')
+    list_display = ('producent_id','user', 'name', 'address', 'producer_code', 'is_approved')
+    fields = ('user', 'name', 'address', 'producer_code', 'is_approved')
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_approved and not obj.user.is_active:
+            obj.user.is_active = True
+            obj.user.save()
+            
+        super().save_model(request, obj, form, change)
 
 @admin.register(Certifying_unit_certificates)
 class Certifying_unit_certificates_Admin(admin.ModelAdmin):

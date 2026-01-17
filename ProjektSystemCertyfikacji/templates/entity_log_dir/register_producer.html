@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Rejestracja producenta</title>
+</head>
+<body>
+
+<h1>Rejestracja producenta</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <ul>
+            {% for error in form.non_field_errors %}
+                <li style="color: red;">{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label><br>
+
+            {{ field }}
+
+            {% if field.errors %}
+                <ul>
+                    {% for error in field.errors %}
+                        <li style="color: red;">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <br>
+    {% endfor %}
+
+    <button type="submit">Zarejestruj się</button>
+</form>
+
+</body>
+</html>

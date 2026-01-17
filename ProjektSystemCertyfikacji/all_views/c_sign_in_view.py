@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 def sign_in(request):
     if request.method == 'GET':
         form = LoginForm()
-        return render(request, 'company/login.html', {'form': form})
+        return render(request, 'entity_log_dir/login.html', {'form': form})
     form = LoginForm(request.POST or None)
 
     if request.method == 'POST':
@@ -20,17 +20,20 @@ def sign_in(request):
             except User.DoesNotExist:
                 # user_obj = None
                 messages.error(request, 'Niepoprawna nazwa użytkownika')
-                return render(request, 'company/login.html', {'form': form})
+                return render(request, 'entity_log_dir/login.html', {'form': form})
             if not user_obj.is_active:
                 messages.error(request, 'Twoje konto nie jest jeszcze aktywne')
-                return render(request, 'company/login.html', {'form': form})
+                return render(request, 'entity_log_dir/login.html', {'form': form})
 
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
                 messages.success(request, f'Poprawne zalogowanie {username.title()}')
-                return redirect('list_cert') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
+                if hasattr(user, 'producer_user'):
+                    return redirect('producer_main')
+                else:
+                    return redirect('list_cert') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
             else:
                 messages.error(request, 'Niepoprawne hasło')
 
-        return render(request, 'company/login.html', {'form': form})
+        return render(request, 'entity_log_dir/login.html', {'form': form})
