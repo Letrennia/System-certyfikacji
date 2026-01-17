@@ -3,66 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista Certyfikatów</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <title>Lista Certyfikatów - System Certyfikacji</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .add-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background-color: #77c320;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+
+        .add-button:hover {
+            opacity: 0.9;
+        }
+
+        .logout-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background-color: #e3e3e3;
+            border: 1px solid #767676;
+            color: #1e1e1e;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+
+        .logout-button:hover {
+            opacity: 0.9;
+        }
+
+        .messages-container {
+            margin-bottom: 24px;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            padding-right: 48px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error,
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+            color: #842029;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 1;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        .table-container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .certificate-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .certificate-table thead {
+            background-color: #2c2c2c;
+            color: white;
+        }
+
+        .certificate-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .certificate-table tbody tr {
+            border-bottom: 1px solid #e5e5e5;
+            transition: background-color 0.2s;
+        }
+
+        .certificate-table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .certificate-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .certificate-table td {
+            padding: 16px;
+            color: #1e1e1e;
+            font-size: 15px;
+        }
+
+        .cert-number {
+            font-weight: 600;
+            color: #2c2c2c;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-valid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-other {
+            background-color: #e3e3e3;
+            color: #1e1e1e;
+        }
+
+        .details-button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background-color: #2c2c2c;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+            font-weight: 500;
+        }
+
+        .details-button:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            background: linear-gradient(135deg, #e7f3ff 0%, #f5f9ff 100%);
+            border: 2px dashed #2196F3;
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 12px;
+        }
+
+        .empty-message {
+            font-size: 16px;
+            color: #757575;
+            margin-bottom: 24px;
+        }
+
+        .empty-action {
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+
+        .empty-action:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-actions {
+                width: 100%;
+            }
+
+            .add-button,
+            .logout-button {
+                flex: 1;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .certificate-table {
+                min-width: 800px;
+            }
+
+            .empty-state {
+                padding: 40px 20px;
+            }
+
+            .empty-icon {
+                font-size: 48px;
+            }
+
+            .empty-title {
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
-<body>
-    <div class="container-fluid mt-5">
-        <div class="row mb-4">
-            <div class="col">
-                <h2>Lista Certyfikatów</h2>
+<body class="white-bg">
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item">Produkty</div>
+            <div class="nav-item active">Certyfikaty</div>
+            <div class="nav-item">Track & Trace</div>
+            <div class="nav-item">Historia</div>
+            <div class="nav-item">Mapa</div>
+            <div class="nav-item">Oceny</div>
+            <div class="nav-item">Zgłoś</div>
+        </nav>
+
+        <div class="auth-buttons">
+            <a href="/login" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
+            <a href="/register" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Rejestracja</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" style="margin-bottom: 8px;">Lista Certyfikatów</h1>
+                <p class="page-subtitle" style="margin-bottom: 0;">Zarządzaj certyfikatami w systemie</p>
             </div>
-            <div class="col text-end">
-                <a href="{% url 'add_cert' %}" class="btn btn-primary btn-lg">+ Dodaj Nowy Certyfikat</a>
-                <a href="{% url 'logout' %}" class="btn btn-primary btn-lg">Wyloguj</a>
+            <div class="page-actions">
+                <a href="{% url 'add_cert' %}" class="add-button">+ Dodaj Certyfikat</a>
+                <a href="{% url 'logout' %}" class="logout-button">Wyloguj</a>
             </div>
         </div>
 
         {% if messages %}
-            {% for msg in messages %}
-                <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
-                    {{ msg }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
+            <div class="messages-container">
+                {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }}">
+                        {{ msg }}
+                        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
 
         {% if certy %}
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
+            <div class="table-container">
+                <table class="certificate-table">
+                    <thead>
                         <tr>
                             <th>Numer</th>
                             <th>Firma</th>
                             <th>Status</th>
-                            <th>Od</th>
-                            <th>Do</th>
+                            <th>Ważny Od</th>
+                            <th>Ważny Do</th>
                             <th>Akcje</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for crt in certy %}
                             <tr>
-                                <td><strong>{{ crt.certificate_number }}</strong></td>
+                                <td class="cert-number">{{ crt.certificate_number }}</td>
                                 <td>{{ crt.certificate_type }}</td>
                                 <td>{{ crt.holder_company_id.name }}</td>
                                 <td>{{ crt.certificate_publisher }}</td>
                                 <td>
                                     {% if crt.status == 'valid' %}
-                                        <span class="badge bg-success">{{ crt.get_status_display }}</span>
+                                        <span class="status-badge status-valid">{{ crt.get_status_display }}</span>
                                     {% elif crt.status == 'expired' %}
-                                        <span class="badge bg-danger">{{ crt.get_status_display }}</span>
+                                        <span class="status-badge status-expired">{{ crt.get_status_display }}</span>
                                     {% elif crt.status == 'pending' %}
-                                        <span class="badge bg-warning">{{ crt.get_status_display }}</span>
+                                        <span class="status-badge status-pending">{{ crt.get_status_display }}</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">{{ crt.get_status_display }}</span>
+                                        <span class="status-badge status-other">{{ crt.get_status_display }}</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ crt.valid_from }}</td>
                                 <td>{{ crt.valid_to }}</td>
                                 <td>
-                                    <a href="{% url 'cert_detail' crt.certificate_id %}" class="btn btn-sm btn-info">Szczegóły</a>
-
+                                    <a href="{% url 'cert_detail' crt.certificate_id %}" class="details-button">Szczegóły</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -70,13 +386,51 @@
                 </table>
             </div>
         {% else %}
-            <div class="alert alert-info" role="alert">
-                <h4 class="alert-heading">Brak certyfikatów</h4>
-                <p>W systemie nie ma jeszcze żadnych certyfikatów. <a href="{% url 'add_cert' %}">Dodaj pierwszy certyfikat</a></p>
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h2 class="empty-title">Brak certyfikatów</h2>
+                <p class="empty-message">W systemie nie ma jeszcze żadnych certyfikatów. Dodaj pierwszy certyfikat, aby rozpocząć.</p>
+                <a href="{% url 'add_cert' %}" class="empty-action">+ Dodaj pierwszy certyfikat</a>
             </div>
         {% endif %}
-    </div>
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
+                    <a href="faq.html" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
