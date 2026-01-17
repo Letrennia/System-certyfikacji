@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail
 
 from .all_views.views import (
     CertificateViewSet, CertifyingUnitViewSet,
@@ -8,7 +9,6 @@ from .all_views.views import (
     ProductBatchViewSet, ConsumerVerificationViewSet,
     ConsumerRatingViewSet, AlertViewSet, FraudReportViewSet,
 ) 
-from .all_views.certificates_views import add_cert, cert_succes, list_cert
 from .all_views.main_page_view import (
     # verify_qr_code_api, 
     track_product_api, submit_rating_api, get_system_stats_api, get_certificate_details_api
@@ -33,6 +33,8 @@ urlpatterns = [
     path('certificates/add/', add_cert, name='add_cert'),
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),
     path('certificates/list/', list_cert, name='list_cert'),
+
+    path('certificates/<int:cert_id>/', cert_detail, name='cert_detail'),
 
     # API dla strony głównej
     # path('verify-qr-code/', verify_qr_code_api, name='verify_qr_code'),

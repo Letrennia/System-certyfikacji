@@ -357,7 +357,7 @@
                             {% endif %}
                         </div>
                     {% else %}
-                        {{ form.issued_by_certifying_unit_id }}
+                        <input type="hidden" name="issued_by_certifying_unit_id" value="{{ form.issued_by_certifying_unit_id.value }}">
                     {% endif %}
 
                     <div class="form-group">

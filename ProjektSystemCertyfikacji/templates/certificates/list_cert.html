@@ -192,6 +192,11 @@
             color: #856404;
         }
 
+        .status-revoked {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         .status-other {
             background-color: #e3e3e3;
             color: #1e1e1e;
@@ -262,6 +267,32 @@
             opacity: 0.9;
         }
 
+        .filter-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .active-filters span {
+            background: #e3e3e3;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
         @media (max-width: 768px) {
             .page-header {
                 flex-direction: column;
@@ -298,7 +329,35 @@
             }
         }
     </style>
-</head>
+</head><script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const statusSelect = document.getElementById('status-select');
+    const sortSelect = document.getElementById('sort-select');
+    const orderSelect = document.getElementById('order-select');
+    const companySearchInput = document.getElementById('company-search-input');
+    const issuedBySearchInput = document.getElementById('issued-by-search-input');
+    const filterForm = document.getElementById('filter-form');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    
+    function submitForm() {
+        filterForm.submit();
+    }
+    
+    if (searchInput) searchInput.addEventListener('input', submitForm);
+    if (statusSelect) statusSelect.addEventListener('change', submitForm);
+    if (sortSelect) sortSelect.addEventListener('change', submitForm);
+    if (orderSelect) orderSelect.addEventListener('change', submitForm);
+    if (companySearchInput) companySearchInput.addEventListener('input', submitForm);
+    if (issuedBySearchInput) issuedBySearchInput.addEventListener('input', submitForm);
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            window.location.href = window.location.pathname;
+        });
+    }
+});
+</script>
 <body class="white-bg">
     <header class="header">
         <div class="logo">
@@ -344,26 +403,174 @@
             </div>
         {% endif %}
 
+            <div class="filters-container" style="margin-bottom: 30px;">
+                <form method="get" id="filter-form" class="filter-form">
+                    <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="filter-group">
+                            <label for="search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Certyfikat:</label>
+                            <input type="text" 
+                                id="search-input" 
+                                name="search" 
+                                value="{{ current_search }}" 
+                                list="certificate-numbers"
+                                placeholder="Wpisz numer/nazwę..."
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
+                            <datalist id="certificate-numbers">
+                                {% for cert in certy %}
+                                <option value="{{ cert.certificate_number }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
+                            <select id="status-select" name="status" style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="">Wszystkie</option>
+                                {% for status_key, status_display in status_choices %}
+                                <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>
+                                    {{ status_display }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
+                            <select id="sort-select" name="sort_by" style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="valid_from" {% if current_sort == 'valid_from' %}selected{% endif %}>Data od</option>
+                                <option value="valid_to" {% if current_sort == 'valid_to' %}selected{% endif %}>Data do</option>
+                                <option value="certificate_number" {% if current_sort == 'certificate_number' %}selected{% endif %}>Numer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
+                            <select id="order-select" name="sort_order" style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Rosnąco</option>
+                                <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
+                            </select>
+                        </div>
+                        
+                        <!-- FILTR FIRMA - DLA WSZYSTKICH -->
+                        <div class="filter-group">
+                            <label for="company-search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Firma:</label>
+                            <input type="text" 
+                                id="company-search-input" 
+                                name="company_search" 
+                                value="{{ current_company_search }}" 
+                                list="company-names"
+                                placeholder="Wpisz nazwę firmy..."
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
+                            <datalist id="company-names">
+                                {% for company in companies %}
+                                <option value="{{ company.name }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        
+                        <!-- FILTR JEDNOSTKA WYDAJĄCA - TYLKO DLA ADMINA -->
+                        {% if is_admin %}
+                        <div class="filter-group">
+                            <label for="issued-by-search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Jednostka Wydająca:</label>
+                            <input type="text" 
+                                id="issued-by-search-input" 
+                                name="issued_by_search" 
+                                value="{{ current_issued_by_search }}" 
+                                list="certifying-unit-names"
+                                placeholder="Wpisz nazwę jednostki..."
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
+                            <datalist id="certifying-unit-names">
+                                {% for unit in certifying_units %}
+                                <option value="{{ unit.name }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="filter-group">
+                            <button type="button" id="clear-filters" style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer;">
+                                Wyczyść filtry
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- SEKCJA AKTYWNYCH FILTRÓW -->
+                {% if current_search or current_status or current_company_search or current_issued_by_search %}
+                <div class="active-filters" style="margin-top: 15px; font-size: 14px; color: #666;">
+                    <strong>Aktywne filtry:</strong>
+                    {% if current_search %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Certyfikat: "{{ current_search }}"</span>{% endif %}
+                    {% if current_status %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Status: {{ current_status }}</span>{% endif %}
+                    {% if current_company_search %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Firma: "{{ current_company_search }}"</span>{% endif %}
+                    {% if is_admin and current_issued_by_search %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Jednostka: "{{ current_issued_by_search }}"</span>{% endif %}
+                </div>
+                {% endif %}
+            </div>
+
         {% if certy %}
             <div class="table-container">
                 <table class="certificate-table">
                     <thead>
                         <tr>
-                            <th>Numer</th>
+                            <th>
+                                <a href="?sort_by=certificate_number&sort_order={% if current_sort == 'certificate_number' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}" 
+                                style="color: white; text-decoration: none;">
+                                    Certyfikat
+                                    {% if current_sort == 'certificate_number' %}
+                                        {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>Rodzaj podmiotu</th>
                             <th>Firma</th>
+                            <th>
+                                <a href="?sort_by=valid_from&sort_order={% if current_sort == 'valid_from' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}" 
+                                style="color: white; text-decoration: none;">
+                                    Ważny od
+                                    {% if current_sort == 'valid_from' %}
+                                        {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?sort_by=valid_to&sort_order={% if current_sort == 'valid_to' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}" 
+                                style="color: white; text-decoration: none;">
+                                    Ważny do
+                                    {% if current_sort == 'valid_to' %}
+                                        {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>Obszary Działalności</th>
+                            {% if is_admin %}
+                                <th>Jednostka Wydająca</th>
+                            {% endif %}
                             <th>Status</th>
-                            <th>Ważny Od</th>
-                            <th>Ważny Do</th>
                             <th>Akcje</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for crt in certy %}
                             <tr>
-                                <td class="cert-number">{{ crt.certificate_number }}</td>
-                                <td>{{ crt.certificate_type }}</td>
+                                <td class="cert-number">
+                                    <a href="{% url 'cert_detail' crt.certificate_id %}" style="color: #2c2c2c; text-decoration: none; font-weight: 600;">
+                                        {{ crt.certificate_number }}
+                                    </a>
+                                </td>
+                                <td>{{ crt.get_subject_type_display }}</td>
                                 <td>{{ crt.holder_company_id.name }}</td>
-                                <td>{{ crt.certificate_publisher }}</td>
+                                <td>{{ crt.valid_from }}</td>
+                                <td>{{ crt.valid_to }}</td>
+                                <td>
+                                    {% for area in crt.activity_areas.all %}
+                                        {{ area.get_name_display }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Brak
+                                    {% endfor %}
+                                </td>
+                                {% if is_admin %}
+                                    <td>{{ crt.issued_by_certifying_unit_id.name }}</td>
+                                {% endif %}
                                 <td>
                                     {% if crt.status == 'valid' %}
                                         <span class="status-badge status-valid">{{ crt.get_status_display }}</span>
@@ -371,12 +578,12 @@
                                         <span class="status-badge status-expired">{{ crt.get_status_display }}</span>
                                     {% elif crt.status == 'pending' %}
                                         <span class="status-badge status-pending">{{ crt.get_status_display }}</span>
+                                    {% elif crt.status == 'revoked' %}
+                                        <span class="status-badge status-revoked">{{ crt.get_status_display }}</span>
                                     {% else %}
                                         <span class="status-badge status-other">{{ crt.get_status_display }}</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ crt.valid_from }}</td>
-                                <td>{{ crt.valid_to }}</td>
                                 <td>
                                     <a href="{% url 'cert_detail' crt.certificate_id %}" class="details-button">Szczegóły</a>
                                 </td>
@@ -384,6 +591,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+
             </div>
         {% else %}
             <div class="empty-state">
