@@ -482,7 +482,7 @@ def get_system_stats_api(request):
         'error': 'Metoda nieobsługiwana'
     }, status=405)
 
-# API DO POBIERANIA SZCZEGÓŁÓW CERTYFIAKTU
+# API DO POBIERANIA SZCZEGÓŁÓW CERTYFIAKTU - w użyciu podczas wyszukiwania
 def get_certificate_details_api(request):
    
     if request.method == 'GET':
@@ -522,9 +522,9 @@ def get_certificate_details_api(request):
                 'certificate': {
                     'id': certificate.certificate_id,
                     'number': certificate.certificate_number,
-                    'type': certificate.certificate_type,
+                    # 'type': certificate.certificate_type, 
                     'status': certificate.status,
-                    'publisher': certificate.certificate_publisher,
+                    # 'publisher': certificate.certificate_publisher,
                     'valid_from': str(certificate.valid_from),
                     'valid_to': str(certificate.valid_to),
                     'holder_company': {

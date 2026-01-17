@@ -231,5 +231,21 @@
         },
         "previous_hash": "c2b1da0f82562b0b4b9393388a8cf8c3eceec7028a02a1b2ed4e107d28e1604a",
         "hash": "8ae6b9d45f96c487282fa6b1620c7b47703363fd5539fe9e38bf9adc06002b67"
+    },
+    {
+        "index": 15,
+        "timestamp": "2026-01-17T11:34:03.176139",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 67,
+            "certificate_number": "Test_098",
+            "holder_entity_id": null,
+            "valid_from": "2026-01-17",
+            "valid_to": "2026-01-30",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "8ae6b9d45f96c487282fa6b1620c7b47703363fd5539fe9e38bf9adc06002b67",
+        "hash": "7b4d9787ec08ad2036a6879984e9146883f6f4eaeee645e04d355a88fab72e17"
     }
 ]

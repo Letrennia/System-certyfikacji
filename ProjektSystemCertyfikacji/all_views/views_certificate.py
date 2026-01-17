@@ -8,7 +8,7 @@ from django.contrib import messages
 from ..forms.report_form import FraudReportForm
 from ..forms.rating_form import ConsumerRatingForm
 from django.db.models import Avg
-
+from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
@@ -29,20 +29,8 @@ def certificate_view(request, token):
     try:
         certificate_id = decrypt_token(token)
         certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
-        # ratings = certificate.consumer_rating_set.filter(is_verified=1).order_by('-rating_id') 
-        
-        sort = request.GET.get('sort', 'best')
-        ratings = certificate.consumer_rating_set.filter(is_verified=1) 
 
-        if sort == 'worst':
-            ratings_sorted = ratings.order_by('rating', '-rating_id')
-        elif sort == 'best':
-            ratings_sorted = ratings.order_by('-rating', '-rating_id')
-        elif sort == 'latest':
-            ratings_sorted = ratings.order_by('-rating_id') # Nie mamy daty wiec tak
-        elif sort == 'eldest':
-            ratings_sorted = ratings.order_by('rating_id')
-        
+        ratings = certificate.consumer_rating_set.filter(is_verified=1)
         average_rating = ratings.aggregate(avg=Avg('rating'))['avg']
         average_rating = round(average_rating, 2) if average_rating else None
 
@@ -51,20 +39,19 @@ def certificate_view(request, token):
             if rating_form.is_valid():
                 rating = rating_form.save(commit=False)
                 rating.certificate_id = certificate
-                rating.is_verified = 1 
+                rating.is_verified = 1
                 rating.save()
                 messages.success(request, "Twoja opinia została dodana.")
                 return redirect('certificate_view', token=token)
         else:
             rating_form = ConsumerRatingForm()
-        
+
         return render(request, 'certificate_detail.html', {
             'certificate': certificate,
             'token': token,
-            'ratings': ratings_sorted,
             'average_rating': average_rating,
-            'current_sort': sort,
-            'rating_form': rating_form
+            'rating_form': rating_form,
+            'ratings': ratings
         })
 
     except ValueError as e:
@@ -77,6 +64,33 @@ def certificate_view(request, token):
         return render(request, 'certificate_error.html', {
             'message': 'Wystąpił nieoczekiwany błąd.'
         })
+
+def fetch_ratings(request, token):
+    try:
+        certificate_id = decrypt_token(token)
+        certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
+    except Exception:
+        return JsonResponse({"ratings": []})
+    
+    sort = request.GET.get("sort", "latest")
+
+    ratings = certificate.consumer_rating_set.filter(is_verified=1)
+
+    if sort == "best":
+        ratings = ratings.order_by("-rating", "-rating_id")
+    elif sort == "worst":
+        ratings = ratings.order_by("rating", "-rating_id")
+    elif sort == "latest":
+        ratings = ratings.order_by("-rating_id")
+    elif sort == "eldest":
+        ratings = ratings.order_by("rating_id")
+
+    data = [
+        {"consumer_email": r.consumer_email, "rating": r.rating, "comment": r.comment}
+        for r in ratings
+    ]
+
+    return JsonResponse({"ratings": data})
 
 def report_fraud(request, token):
     try:

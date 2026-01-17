@@ -15,6 +15,7 @@ urlpatterns = [
     path('blockchain/', include('ProjektSystemCertyfikacji.blockchain.urls')),
     path('api/', include('ProjektSystemCertyfikacji.urls')),
     path('redirect/<str:token>/', redirect_certificate_url.redirect_certificate, name='redirect_certificate'),
+    path('certificate/<path:token>/ratings/', views_certificate.fetch_ratings, name='fetch_ratings'), 
     path('certificate/<path:token>/', views_certificate.certificate_view, name='certificate_view'), 
     path('report_fraud/<path:token>/', views_certificate.report_fraud, name='report_fraud'),
 

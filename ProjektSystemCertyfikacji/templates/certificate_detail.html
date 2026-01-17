@@ -237,6 +237,7 @@
             border: 1px solid #cac4d0;
             border-radius: 8px;
             padding: 20px;
+            margin-bottom: 16px;
         }
 
         .review-header {
@@ -347,7 +348,7 @@
                 <div class="detail-card">
                     <div class="detail-card-label">Stan</div>
                     <div class="detail-card-value">
-                        <span class="status-badge status-active">{{ certificate.state }}</span>
+                        <span class="status-badge status-active">{{ certificate.status }}</span>
                     </div>
                 </div>
 
@@ -416,43 +417,22 @@
                             Brak ocen
                         </div>
                     {% endif %}
-
-                    <div class="reviews-sort">
-                        <span>Sortuj według:</span>
-                        <a href="?sort=best" class="sort-btn {% if current_sort == 'best' %}active-sort{% endif %}">Najlepsze</a>
-                        <a href="?sort=worst" class="sort-btn {% if current_sort == 'worst' %}active-sort{% endif %}">Najgorsze</a>
-                        <a href="?sort=latest" class="sort-btn {% if current_sort == 'latest' %}active-sort{% endif %}">Najnowsze</a>
-                        <a href="?sort=eldest" class="sort-btn {% if current_sort == 'eldest' %}active-sort{% endif %}">Najstarsze</a>
+                    <div id="reviews-sort-container">
+                        <div class="reviews-sort">
+                            <span>Sortuj według:</span>
+                            <a href="#" class="sort-btn" data-sort="best">Najlepsze</a>
+                            <a href="#" class="sort-btn" data-sort="worst">Najgorsze</a>
+                            <a href="#" class="sort-btn" data-sort="latest">Najnowsze</a>
+                            <a href="#" class="sort-btn" data-sort="eldest">Najstarsze</a>
+                        </div>
                     </div>
                 </div>
-
-
-
-            {% if ratings %}
-                <ul class="reviews-list">
-                {% for rating in ratings %}
-                    <li class="review-item">
-                        <div class="review-header">
-                            <span class="review-email">{{ rating.consumer_email }}</span>
-                            <span class="review-rating">
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= rating.rating %}
-                                        <img src="{% static 'ProjektSystemCertyfikacji/images/leaf_filled.png' %}" alt="leaf_filled" class="leaf-icon">
-                                    {% else %}
-                                        <img src="{% static 'ProjektSystemCertyfikacji/images/leaf_empty.jpg' %}" alt="leaf_empty" class="leaf-icon">
-                                    {% endif %}
-                                {% endfor %}
-                            </span>
-                        </div>
-                        <div class="review-comment">{{ rating.comment }}</div>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <div class="no-reviews">
-                    <p>Brak ocen dla tego certyfikatu.</p>
+                <div id="reviews-container">  
+                    <div class="no-reviews">
+                        <p>Brak ocen dla tego certyfikatu.</p>
+                    </div>
                 </div>
-            {% endif %}
+          
         </section>
     </main>
 
@@ -493,5 +473,56 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const container = document.getElementById('reviews-container');
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            const defaultSort = 'best'; 
+
+            function loadRatings(sort='best') {
+                fetch(`/certificate/{{ token }}/ratings/?sort=${sort}`, {cache: 'no-store'})
+                    .then(res => res.json())
+                    .then(data => {
+                        container.innerHTML = '';
+                        if(data.ratings.length === 0) {
+                            container.innerHTML = `<div class="no-reviews"><p>Brak ocen dla tego certyfikatu.</p></div>`;
+                            return;
+                        }
+                        data.ratings.forEach(r => {
+                            const stars = Array.from({length: 5}, (_, i) => 
+                                i < r.rating ? '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_filled.png" %}" class="leaf-icon">' :
+                                '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_empty.jpg" %}" class="leaf-icon">').join('');
+                            const reviewHTML = `
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <span class="review-email">${r.consumer_email}</span>
+                                        <span class="review-rating">${stars}</span>
+                                    </div>
+                                    <div class="review-comment">${r.comment}</div>
+                                </div>`;
+                            container.insertAdjacentHTML('beforeend', reviewHTML);
+                        });
+                    });
+            }
+
+            sortButtons.forEach(btn => {
+                if(btn.dataset.sort === defaultSort) {
+                    btn.classList.add('active-sort');
+                }
+            });
+
+            loadRatings(defaultSort);
+
+            sortButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    sortButtons.forEach(b => b.classList.remove('active-sort'));
+                    this.classList.add('active-sort');
+                    loadRatings(this.dataset.sort);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
