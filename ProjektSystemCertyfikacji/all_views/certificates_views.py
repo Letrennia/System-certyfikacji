@@ -19,14 +19,14 @@ def add_cert(request):
             })
     
     if request.method == 'GET':
-        form = CertificateForm(certifying_unit=certifying_unit, is_admin=is_admin)
+        form = CertificateForm(certifying_unit=certifying_unit, user=request.user)
         return render(request, 'certificates/add_cert.html', {
             'form': form,
             'is_admin': is_admin
         })
     
     if request.method == 'POST':
-        form = CertificateForm(request.POST, certifying_unit=certifying_unit, is_admin=is_admin)
+        form = CertificateForm(request.POST, certifying_unit=certifying_unit, user=request.user)
         if form.is_valid():
             cert = form.save(commit=False)
             
@@ -36,6 +36,7 @@ def add_cert(request):
             # cert_num = cert.certificate_number
             # cert.qr_code_data = f"https://example.com/cert/{cert_num}/"
             cert.save()
+            form.save_m2m()
             
             messages.success(request, f'Certyfikat {cert.certificate_number} został poprawnie dodany')
             return redirect('cert_succes', cert_id=cert.certificate_id)

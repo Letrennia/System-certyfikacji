@@ -184,6 +184,40 @@
             margin-top: 4px;
         }
 
+        /* CheckboxSelectMultiple styling */
+        .form-check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-check input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #0d6efd;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 0;
+        }
+
+        .activities-container {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+
         @media (max-width: 768px) {
             .certificate-form {
                 padding: 24px;
@@ -265,23 +299,14 @@
                         {% endif %}
                     </div>
 
+                    <!-- Rodzaj podmiotu -->
                     <div class="form-group">
-                        <label for="{{ form.certificate_type.id_for_label }}" class="required-field">
-                            Typ Certyfikatu
-                        </label>
-                        {{ form.certificate_type }}
-                        {% if form.certificate_type.errors %}
-                            <div class="error-message">{{ form.certificate_type.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.certificate_publisher.id_for_label }}">
-                            Wydawca
-                        </label>
-                        {{ form.certificate_publisher }}
-                        {% if form.certificate_publisher.errors %}
-                            <div class="error-message">{{ form.certificate_publisher.errors.0 }}</div>
+                        <label for="id_subject_type">Rodzaj podmiotu *</label>
+                        {{ form.subject_type }}
+                        {% if form.subject_type.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.subject_type.errors }}
+                            </div>
                         {% endif %}
                     </div>
 
@@ -342,6 +367,33 @@
                         {{ form.status }}
                         {% if form.status.errors %}
                             <div class="error-message">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Działalność -->
+                    <div class="form-group">
+                        <label for="id_activity_areas">Działalność *</label>
+                        <div class="activities-container">
+                            <!-- Renderowanie CheckboxSelectMultiple -->
+                            {% if form.activity_areas %}
+                                <div class="form-check-group">
+                                    {% for checkbox in form.activity_areas %}
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                                {{ checkbox.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-danger">⚠️ Brak dostępnych obszarów działalności w bazie!</p>
+                            {% endif %}
+                        </div>
+                        {% if form.activity_areas.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.activity_areas.errors }}
+                            </div>
                         {% endif %}
                     </div>
 

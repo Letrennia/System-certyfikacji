@@ -124,10 +124,11 @@ class RegistrationCode_Admin(admin.ModelAdmin):
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     readonly_fields = ('qr_code_data', 'qr_code_img')
-    list_display = ('certificate_id', 'certificate_number', 'certificate_type', 'status', 'qr_code_data', 'qr_code_img')
-    fields = ('certificate_type', 'certificate_number', 'qr_code_data', 'qr_code_img', 'status', 
-                    'valid_from', 'valid_to', 'blockchain_address', 'holder_company_id', 
-                    'issued_by_certifying_unit_id')
+    list_display = ('certificate_id', 'certificate_number', 'valid_from', 'status', 'qr_code_data', 'qr_code_img')
+    fields = ('certificate_number', 'qr_code_data', 'qr_code_img', 'status',
+        'valid_from', 'valid_to', 'blockchain_address', 'holder_company_id',
+        'issued_by_certifying_unit_id')
+
 
 
 

@@ -77,17 +77,17 @@ class Activity_area(models.Model):
         ('import', 'Import'),
         ('export', 'Eksport'),
     ]
+    
     name = models.CharField(max_length=100, unique=True, null=False, choices=ACTIVITY_CHOICES, db_column='name')
     description = models.CharField(max_length=1000, db_column='description')
-
+    
     class Meta:
         db_table = 'activity_area'
-        # managed = False
         verbose_name = 'Activity area'
         verbose_name_plural = 'Activity areas'
-
+    
     def __str__(self):
-        return f"Activity area no {self.area_id} - {self.name}"
+        return self.get_name_display()
 
 
 class Certifying_unit(models.Model):
@@ -127,8 +127,21 @@ class Company_activity_area(models.Model):
 class Certificate(models.Model):
     certificate_id = models.AutoField(primary_key=True, db_column='certificate_id')
     certificate_number = models.CharField(max_length=50, unique=True, null=False, db_column='certificate_number')
-    certificate_type = models.CharField(max_length=50, null=False, db_column='certificate_type')
-    certificate_publisher = models.CharField(max_length=200, db_column='certificate_publisher')
+    SUBJECT_TYPE_CHOICES = [
+        ('group_of_subjects', 'Grupa podmiotów'),
+        ('subject', 'Podmiot'),
+        ]
+    #certificate_type = models.CharField(max_length=50, null=False, db_column='certificate_type')
+    subject_type = models.CharField(
+        max_length=50,
+        choices=SUBJECT_TYPE_CHOICES,
+        default='subject',
+        null=False,
+        db_column='subject_type'
+        )
+
+
+    #certificate_publisher = models.CharField(max_length=200, db_column='certificate_publisher')
     STATUS = [
         #('none', 'None'),
         ('valid', 'Valid'),
@@ -140,6 +153,12 @@ class Certificate(models.Model):
     qr_code_data = models.CharField(max_length=500, db_column='qr_code_data')  # Podmieniono z certificate_url
     valid_from = models.DateField(null=False, db_column='valid_from')
     valid_to = models.DateField(null=False, db_column='valid_to')
+    activity_areas = models.ManyToManyField(
+        Activity_area,
+        related_name='certificates',
+        blank=True,
+        help_text="Wybierz obszary działalności"
+    )
     blockchain_address = models.CharField(max_length=255, blank=True, null=True)
     holder_company_id = models.ForeignKey('Company', on_delete=models.CASCADE, db_column='holder_company_id')
     issued_by_certifying_unit_id = models.ForeignKey('Certifying_unit', on_delete=models.PROTECT,

@@ -11,7 +11,7 @@ def register_certificate_to_blockchain(sender, instance, created, **kwargs):
 
         certificate_data = {
             "certificate_number": instance.certificate_number,
-            "certificate_type": instance.certificate_type,
+            "subject_type": instance.subject_type,  # ✅ ZMIENIONE z certificate_type
             "holder_company_id": instance.holder_company_id_id,
             "valid_from": instance.valid_from.isoformat(),
             "valid_to": instance.valid_to.isoformat(),

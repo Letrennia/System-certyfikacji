@@ -17,12 +17,14 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <p class="text-muted mb-1">Typ</p>
-                                <p class="fw-bold">{{ cert.certificate_type }}</p>
+                                <p class="text-muted mb-1">Rodzaj Podmiotu</p>
+                                <p class="fw-bold">{{ cert.get_subject_type_display }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p class="text-muted mb-1">Wydawca</p>
-                                <p class="fw-bold">{{ cert.certificate_publisher }}</p>
+                                <p class="text-muted mb-1">Status</p>
+                                <p class="fw-bold">
+                                    <span class="badge bg-success">{{ cert.get_status_display }}</span>
+                                </p>
                             </div>
                         </div>
 
@@ -50,10 +52,14 @@
 
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <p class="text-muted mb-1">Status</p>
-                                <p class="fw-bold">
-                                    <span class="badge bg-success">{{ cert.get_status_display }}</span>
-                                </p>
+                                <p class="text-muted mb-1">Działalność</p>
+                                <ul class="list-unstyled">
+                                    {% for activity in cert.activity_areas.all %}
+                                        <li class="fw-bold">• {{ activity.get_name_display }}</li>
+                                    {% empty %}
+                                        <li class="text-muted">Brak przypisanych działalności</li>
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -64,7 +70,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

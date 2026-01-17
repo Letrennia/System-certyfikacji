@@ -11,7 +11,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">✓ Sukces</h4>
+                    <h4 class="alert-heading">✔ Sukces</h4>
                     <p>Certyfikat pomyślnie został dodany do systemu.</p>
                 </div>
 
@@ -26,43 +26,52 @@
                                 <p class="fw-bold">{{ cert.certificate_number }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p class="text-muted mb-1">Typ</p>
-                                <p class="fw-bold">{{ cert.certificate_type }}</p>
+                                <p class="text-muted mb-1">Rodzaj Podmiotu</p>
+                                <p class="fw-bold">{{ cert.get_subject_type_display }}</p>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <p class="text-muted mb-1">Wydawca</p>
-                                <p class="fw-bold">{{ cert.certificate_publisher }}</p>
-                            </div>
                             <div class="col-md-6">
                                 <p class="text-muted mb-1">Status</p>
                                 <p class="fw-bold">
                                     <span class="badge bg-success">{{ cert.get_status_display }}</span>
                                 </p>
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
                             <div class="col-md-6">
                                 <p class="text-muted mb-1">Ważny Od</p>
                                 <p class="fw-bold">{{ cert.valid_from }}</p>
                             </div>
+                        </div>
+
+                        <div class="row mb-3">
                             <div class="col-md-6">
                                 <p class="text-muted mb-1">Ważny Do</p>
                                 <p class="fw-bold">{{ cert.valid_to }}</p>
                             </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6">
                                 <p class="text-muted mb-1">Firma</p>
                                 <p class="fw-bold">{{ cert.holder_company_id.name }}</p>
                             </div>
-                            <div class="col-md-6">
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
                                 <p class="text-muted mb-1">Jednostka Wydająca</p>
                                 <p class="fw-bold">{{ cert.issued_by_certifying_unit_id.name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <p class="text-muted mb-1">Działalność</p>
+                                <ul class="list-unstyled">
+                                    {% for activity in cert.activity_areas.all %}
+                                        <li class="fw-bold">• {{ activity.get_name_display }}</li>
+                                    {% empty %}
+                                        <li class="text-muted">Brak przypisanych działalności</li>
+                                    {% endfor %}
+                                </ul>
                             </div>
                         </div>
                     </div>

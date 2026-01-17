@@ -183,5 +183,53 @@
         },
         "previous_hash": "0811155c84ae354080f673ab81aedf4b54f903fafdb13110b2db575a06385915",
         "hash": "eed0b330611ec7a6f64b2026a606546b6dc8f820dda9cd2070bb17cf5e291fee"
+    },
+    {
+        "index": 12,
+        "timestamp": "2026-01-17T00:19:21.392811",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 62,
+            "certificate_number": "PL-EKO-02.155-0024839.2025.001.pdf",
+            "holder_entity_id": null,
+            "valid_from": "2000-12-12",
+            "valid_to": "2020-12-12",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "eed0b330611ec7a6f64b2026a606546b6dc8f820dda9cd2070bb17cf5e291fee",
+        "hash": "305a016f401372985c1923764f541fae653313cc07e5bd67433cea4f42dcda36"
+    },
+    {
+        "index": 13,
+        "timestamp": "2026-01-17T00:43:30.066511",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 63,
+            "certificate_number": "testtest",
+            "holder_entity_id": null,
+            "valid_from": "2011-11-11",
+            "valid_to": "2021-11-11",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "305a016f401372985c1923764f541fae653313cc07e5bd67433cea4f42dcda36",
+        "hash": "c2b1da0f82562b0b4b9393388a8cf8c3eceec7028a02a1b2ed4e107d28e1604a"
+    },
+    {
+        "index": 14,
+        "timestamp": "2026-01-17T00:50:46.868428",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 64,
+            "certificate_number": "test101",
+            "holder_entity_id": null,
+            "valid_from": "2022-12-22",
+            "valid_to": "2024-12-22",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "c2b1da0f82562b0b4b9393388a8cf8c3eceec7028a02a1b2ed4e107d28e1604a",
+        "hash": "8ae6b9d45f96c487282fa6b1620c7b47703363fd5539fe9e38bf9adc06002b67"
     }
 ]
