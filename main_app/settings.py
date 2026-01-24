@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ProjektSystemCertyfikacji',
     'rest_framework',
+    'captcha',
 ]
 
 MIDDLEWARE = [

@@ -9,6 +9,9 @@ from ..forms.report_form import FraudReportForm
 from ..forms.rating_form import ConsumerRatingForm
 from django.db.models import Avg
 from django.http import JsonResponse
+from django_ratelimit.decorators import ratelimit
+from django.core.cache import cache
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -25,24 +28,32 @@ def decrypt_token(token):
     except Exception as e:
         raise ValueError(f"Błąd deszyfrowania tokenu: {str(e)}")
 
+@ratelimit(key='ip', rate='1/m', method='POST', block=False)
 def certificate_view(request, token):
+    ip = request.META.get('REMOTE_ADDR')
+    show_limit_message = False
     try:
         certificate_id = decrypt_token(token)
         certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
-
         ratings = certificate.consumer_rating_set.filter(is_verified=1)
         average_rating = ratings.aggregate(avg=Avg('rating'))['avg']
         average_rating = round(average_rating, 2) if average_rating else None
 
         if request.method == 'POST' and 'submit_rating' in request.POST:
             rating_form = ConsumerRatingForm(request.POST)
-            if rating_form.is_valid():
-                rating = rating_form.save(commit=False)
-                rating.certificate_id = certificate
-                rating.is_verified = 1
-                rating.save()
-                messages.success(request, "Twoja opinia została dodana.")
-                return redirect('certificate_view', token=token)
+            last_comment = cache.get(f"last_comment:{ip}")
+
+            if last_comment and time.time() - last_comment < 300:
+                show_limit_message = True
+            else:
+                if rating_form.is_valid():
+                    rating = rating_form.save(commit=False)
+                    rating.certificate_id = certificate
+                    rating.is_verified = 1
+                    rating.save()
+                    cache.set(f"last_comment:{ip}", time.time(), timeout=300)
+                    messages.success(request, "Twoja opinia została dodana.")
+                    return redirect('certificate_view', token=token)
         else:
             rating_form = ConsumerRatingForm()
 
@@ -51,7 +62,8 @@ def certificate_view(request, token):
             'token': token,
             'average_rating': average_rating,
             'rating_form': rating_form,
-            'ratings': ratings
+            'ratings': ratings,
+            'show_limit_message': show_limit_message
         })
 
     except ValueError as e:
@@ -64,6 +76,8 @@ def certificate_view(request, token):
         return render(request, 'certificate_error.html', {
             'message': 'Wystąpił nieoczekiwany błąd.'
         })
+
+
 
 def fetch_ratings(request, token):
     try:
