@@ -236,9 +236,9 @@ class Product_batch(models.Model):
     UNIT = [
         ('kg', 'Kilogram'),
         ('g', 'Gram'),
-        ('l', 'Liter'),
+        ('l', 'Litr'),
         ('ml', 'Miligram'),
-        ('p', 'Pieces')
+        ('p', 'Sztuk')
     ]
     unit_of_measure = models.CharField(max_length=20, choices=UNIT, db_column='unit_of_measure')
     blockchain_hash = models.CharField(max_length=255, db_column='blockchain_hash')

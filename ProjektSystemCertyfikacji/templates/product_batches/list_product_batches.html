@@ -36,36 +36,52 @@
         .btn-add:hover {
             background-color: #5aa000;
         }
-        .batch-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-        }
-        .batch-card {
-            background-color: #fff;
-            border: 1px solid #cac4d0;
+
+        .batch-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
             border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            overflow: hidden;
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-            transition: 0.3s;
         }
-        .batch-card:hover {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+
+        .batch-table th,
+        .batch-table td {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 14px;
         }
-        .batch-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .batch-name {
+
+        .batch-table th {
+            background-color: #f5f5f5;
             font-weight: 600;
-            font-size: 18px;
             color: #1e1e1e;
         }
+
+        .batch-table tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .batch-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .batch-table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .batch-table .actions a {
+            margin-right: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            color: #77c320;
+        }
+
+        .batch-table .actions a.delete {
+            color: #dc3545;
+        }
+
         .status-badge {
             display: inline-block;
             padding: 6px 12px;
@@ -187,28 +203,136 @@
                 <a href="{% url 'add_product_batch' %}" class="btn-add">+ Dodaj nową partię</a>
             </div>
 
-            {% if product_batches %}
-                <div class="batch-list">
-                    {% for batch in product_batches %}
-                        <div class="batch-card">
-                            <div class="batch-header">
-                                <div class="batch-name">{{ batch.name }}</div>
-                                <span class="status-badge status-{{ batch.status }}">{{ batch.get_status_display }}</span>
-                            </div>
-                            <div class="batch-details">
-                                <div><strong>Kategoria:</strong> {{ batch.category }}</div>
-                                <div><strong>Ilość:</strong> {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</div>
-                                <div><strong>Produkcja:</strong> {{ batch.production_date|date:"d.m.Y" }}</div>
-                                <div><strong>Ważność:</strong> {{ batch.expiration_date|date:"d.m.Y" }}</div>
-                            </div>
-                            <div class="batch-actions">
-                                <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}">Szczegóły</a>
-                                <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}">Edytuj</a>
-                                <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}" class="delete" onclick="return confirm('Czy oznaczyć partię jako wycofaną?');">Wycofaj</a>
-                            </div>
+            <div class="filters-container" style="margin-bottom: 30px;">
+                <form method="get" id="filter-form" class="filter-form">
+                    <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+
+                        <div class="filter-group">
+                            <label for="batch-search" style="display: block; margin-bottom: 8px; font-weight: 500;">Nazwa partii:</label>
+                            <input type="text"
+                                id="batch-search"
+                                name="search"
+                                value="{{ current_search }}"
+                                placeholder="Wpisz nazwę..."
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
                         </div>
-                    {% endfor %}
+
+                        <div class="filter-group">
+                            <label for="category-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoria:</label>
+                            <select id="category-select" name="category"
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="">Wszystkie</option>
+                                {% for cat in category_choices %}
+                                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>
+                                        {{ cat }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
+                            <select id="status-select" name="status"
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="">Wszystkie</option>
+                                {% for status_key, status_name in status_choices %}
+                                    <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>
+                                        {{ status_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
+                            <select id="sort-select" name="sort_by"
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="production_date" {% if current_sort == 'production_date' %}selected{% endif %}>Data produkcji</option>
+                                <option value="expiration_date" {% if current_sort == 'expiration_date' %}selected{% endif %}>Data ważności</option>
+                                <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Nazwa</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
+                            <select id="order-select" name="sort_order"
+                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Rosnąco</option>
+                                <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <button type="button" id="clear-filters"
+                                style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer;">
+                                Wyczyść filtry
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+                {% if current_search or current_category or current_status %}
+                <div class="active-filters" style="margin-top: 15px; font-size: 14px; color: #666;">
+                    <strong>Aktywne filtry:</strong>
+                    {% if current_search %}
+                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">
+                            Nazwa: "{{ current_search }}"
+                        </span>
+                    {% endif %}
+                    {% if current_category %}
+                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">
+                            Kategoria: "{{ current_category }}"
+                        </span>
+                    {% endif %}
+                    {% if current_status %}
+                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">
+                            Status: "{{ current_status }}"
+                        </span>
+                    {% endif %}
                 </div>
+                {% endif %}
+            </div>
+
+            {% if product_batches %}
+            <table class="batch-table">
+                <thead>
+                    <tr>
+                        <th>Nazwa partii</th>
+                        <th>Kategoria</th>
+                        <th>Ilość</th>
+                        <th>Data produkcji</th>
+                        <th>Data ważnosci</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for batch in product_batches %}
+                    <tr>
+                        <td>{{ batch.name }}</td>
+                        <td>{{ batch.category }}</td>
+                        <td>{{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</td>
+                        <td>{{ batch.production_date|date:"d.m.Y" }}</td>
+                        <td>{{ batch.expiration_date|date:"d.m.Y" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ batch.status }}">
+                                {{ batch.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="actions">
+                            <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}">Szczegóły</a>
+                            <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}">Edytuj</a>
+                            <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
+                            class="delete"
+                            onclick="return confirm('Czy oznaczyć partię jako wycofaną?');">
+                            Wycofaj
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             {% else %}
                 <div class="empty-state">
                     <h2>Brak partii produktów</h2>
@@ -255,5 +379,54 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("filter-form");
+        if (!form) return;
+
+        function debounce(fn, delay) {
+            let timer = null;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function submitForm() {
+            form.submit();
+        }
+
+        const selects = form.querySelectorAll("select");
+        selects.forEach(sel => {
+            sel.addEventListener("change", submitForm);
+        });
+
+        const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
+        textInputs.forEach(inp => {
+
+            const debounced = debounce(function() {
+                submitForm();
+            }, 500);
+
+            inp.addEventListener("input", debounced);
+
+            inp.addEventListener("keydown", function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitForm();
+                }
+            });
+        });
+
+        const clearBtn = document.getElementById("clear-filters");
+        if (clearBtn) {
+            clearBtn.addEventListener("click", function() {
+                window.location.href = window.location.pathname;
+            });
+        }
+    });
+    </script>
+
 </body>
 </html>

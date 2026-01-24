@@ -18,7 +18,6 @@ def _is_producer_or_admin(user):
     except Producer.DoesNotExist:
         return False
 
-
 @login_required
 def list_product_batches(request):
     if not _is_producer_or_admin(request.user):
@@ -27,19 +26,43 @@ def list_product_batches(request):
         })
 
     if request.user.is_superuser:
-        product_batches = Product_batch.objects.all()
+        batches = Product_batch.objects.all()
     else:
         try:
             producer = Producer.objects.get(user=request.user)
-            product_batches = Product_batch.objects.filter(
+            batches = Product_batch.objects.filter(
                 certificate_id__holder_company_id__producer=producer,
                 certificate_id__status='valid'
             )
         except Producer.DoesNotExist:
-            product_batches = Product_batch.objects.none()
+            batches = Product_batch.objects.none()
+
+    search = request.GET.get("search", "")
+    category = request.GET.get("category", "")
+    status = request.GET.get("status", "")
+    sort_by = request.GET.get("sort_by", "production_date")
+    sort_order = request.GET.get("sort_order", "asc")
+
+    if search:
+        batches = batches.filter(name__icontains=search)
+    if category:
+        batches = batches.filter(category=category)
+    if status:
+        batches = batches.filter(status=status)
+    if sort_order == "desc":
+        sort_by = "-" + sort_by
+
+    batches = batches.order_by(sort_by)
 
     return render(request, 'product_batches/list_product_batches.html', {
-        'product_batches': product_batches
+        "product_batches": batches,
+        "current_search": search,
+        "current_category": category,
+        "current_status": status,
+        "current_sort": request.GET.get("sort_by", "production_date"),
+        "current_order": sort_order,
+        "category_choices": list(Product_batch.objects.values_list("category", flat=True).distinct()),
+        "status_choices": Product_batch.STATUS,
     })
 
 
