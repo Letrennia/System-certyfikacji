@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'ProjektSystemCertyfikacji',
     'rest_framework',
     'captcha',
+    'ratelimit',
 ]
 
 MIDDLEWARE = [
