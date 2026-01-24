@@ -1,7 +1,9 @@
 from django import forms
 from ..models import Consumer_rating
+from captcha.fields import CaptchaField
 
 class ConsumerRatingForm(forms.ModelForm):
+    captcha_field = CaptchaField(error_messages={'invalid': 'Niepoprawna captcha.'})
     class Meta:
         model = Consumer_rating
         fields = ['consumer_email', 'rating', 'comment']

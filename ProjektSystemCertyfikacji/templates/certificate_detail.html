@@ -381,10 +381,32 @@
             <a href="{% url 'report_fraud' token %}" class="alert-link">Zgłoś podejrzenie oszustwa</a>
         </div>
 
+
+
+        {% if messages %}
+            <div class="messages {{ messages.0.tags }}">
+                {{ messages.0 }}
+            </div>
+        {% endif %}
+
+        {% if 'submit_rating' in request.POST and rating_form.captcha_field.errors %}
+            <div class="form-errors">
+                {{ rating_form.captcha_field.errors }}
+            </div>
+        {% endif %}
+
+        {% if show_limit_message %}
+            <div class="messages error">
+                Przekroczono limit: 1 komentarz na 5 minut
+            </div>
+        {% endif %}
+
+
         <section class="rating-form">
             <form method="post">
                 {% csrf_token %}
                 <h3>Dodaj swoją opinię</h3>
+                {{rating_form.captcha_field}}
 
                 <div class="form-group">
                     <label for="id_consumer_email">Adres email:</label>

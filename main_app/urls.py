@@ -40,6 +40,8 @@ urlpatterns = [
     path('product-batches/<int:batch_id>/edit/', product_views.edit_product_batch, name='edit_product_batch'),
     path('product-batches/<int:batch_id>/delete/', product_views.delete_product_batch,name='delete_product_batch'),
     path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
+
+    path('captcha/', include('captcha.urls')),
 ]
 
 if settings.DEBUG:
