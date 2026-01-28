@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from ..models import Certificate, Certifying_unit, Company
 from ..forms.certificate_form import CertificateForm
+from django.db.models import ProtectedError
 
 @login_required
 def add_cert(request):
@@ -130,3 +131,102 @@ def cert_detail(request, cert_id):
     return render(request, 'certificates/cert_detail.html', {
         'cert': cert
     })
+
+
+@login_required
+def edit_cert(request, cert_id):
+    try:
+        certificate = Certificate.objects.get(certificate_id=cert_id)
+    except Certificate.DoesNotExist:
+        return render(request, 'certificates/cert_error.html', {
+            'msg': 'Certyfikat nie istnieje'
+        })
+    
+    user = request.user
+    is_admin = user.is_staff
+    
+    if not is_admin:
+        try:
+            user_unit = Certifying_unit.objects.get(user=user)
+            if certificate.issued_by_certifying_unit_id != user_unit:
+                return render(request, 'certificates/cert_error.html', {
+                    'msg': 'Brak uprawnień do edycji tego certyfikatu'
+                })
+        except Certifying_unit.DoesNotExist:
+            return render(request, 'certificates/cert_error.html', {
+                'msg': 'Błąd uprawnień'
+            })
+    
+    if request.method == 'GET':
+        form = CertificateForm(
+            instance=certificate,
+            certifying_unit=certificate.issued_by_certifying_unit_id,
+            user=user
+        )
+        
+        return render(request, 'certificates/edit_cert.html', {
+            'form': form,
+            'certificate': certificate,
+            'is_admin': is_admin
+        })
+    
+    elif request.method == 'POST':
+        form = CertificateForm(
+            request.POST, 
+            instance=certificate,
+            certifying_unit=certificate.issued_by_certifying_unit_id,
+            user=user
+        )
+        
+        if form.is_valid():
+            cert = form.save()
+            messages.success(request, f'Certyfikat {cert.certificate_number} został zaktualizowany pomyślnie')
+            return redirect('cert_detail', cert_id=cert.certificate_id)
+        else:
+            return render(request, 'certificates/edit_cert.html', {
+                'form': form,
+                'certificate': certificate,
+                'is_admin': is_admin,
+                'err': 'Błąd - sprawdź poprawność wpisanych danych'
+            })
+
+@login_required
+def delete_cert(request, cert_id):
+    try:
+        certificate = Certificate.objects.get(certificate_id=cert_id)
+    except Certificate.DoesNotExist:
+        return render(request, 'certificates/cert_error.html', {
+            'msg': 'Certyfikat nie istnieje'
+        })
+    
+    user = request.user
+    is_admin = user.is_staff
+    
+    if not is_admin:
+        try:
+            user_unit = Certifying_unit.objects.get(user=user)
+            if certificate.issued_by_certifying_unit_id != user_unit:
+                return render(request, 'certificates/cert_error.html', {
+                    'msg': 'Brak uprawnień do usunięcia tego certyfikatu'
+                })
+        except Certifying_unit.DoesNotExist:
+            return render(request, 'certificates/cert_error.html', {
+                'msg': 'Błąd uprawnień'
+            })
+    
+    if request.method == 'GET':
+        return render(request, 'certificates/confirm_delete.html', {
+            'certificate': certificate
+        })
+    
+    elif request.method == 'POST':
+        cert_number = certificate.certificate_number
+        
+        try:
+            certificate.delete()
+            messages.success(request, f'Certyfikat {cert_number} został usunięty')
+            return redirect('list_cert')
+        
+        except ProtectedError:
+            messages.error(request, 'Nie można usunąć certyfikatu, ponieważ istnieją powiązane partie produktów.')
+            return redirect('cert_detail', cert_id=cert_id)

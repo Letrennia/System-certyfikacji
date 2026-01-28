@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Potwierdź usunięcie</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+</head>
+<body class="white-bg">
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">Produkty</div>
+            <div class="nav-item active">Certyfikaty</div>
+            <div class="nav-item">Track & Trace</div>
+            <div class="nav-item">Historia</div>
+            <div class="nav-item">Mapa</div>
+            <div class="nav-item">Oceny</div>
+            <div class="nav-item">Zgłoś</div>
+        </nav>
+    </header>
+    
+    <main class="main-content" style="max-width: 600px; margin: 50px auto; text-align: center;">
+        <h1>Potwierdź usunięcie</h1>
+        <p style="font-size: 18px; margin: 20px 0;">Czy na pewno chcesz usunąć certyfikat:</p>
+        <h2 style="color: #dc3545;">{{ certificate.certificate_number }}</h2>
+        <p style="margin: 20px 0;">Firma: {{ certificate.holder_company_id.name }}</p>
+        
+        <form method="post" style="margin: 30px 0;">
+            {% csrf_token %}
+            <button type="submit" style="padding: 12px 24px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                Tak, usuń certyfikat
+            </button>
+            <a href="{% url 'cert_detail' certificate.certificate_id %}" style="padding: 12px 24px; background-color: #6c757d; color: white; border-radius: 6px; text-decoration: none; display: inline-block;">
+                Anuluj
+            </a>
+        </form>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px; text-align: left;">
+            <h3 style="color: #dc3545;">Uwaga!</h3>
+            <p>Operacja usunięcia certyfikatu jest nieodwracalna.</p>
+            <p>Jeśli certyfikat ma powiązane partie produktów, usunięcie nie będzie możliwe.</p>
+        </div>
+    </main>
+</body>
+</html>

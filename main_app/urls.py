@@ -4,7 +4,7 @@ from django.contrib import admin
 from ProjektSystemCertyfikacji.all_views import views_certificate
 from django.urls import path, include
 from django.views.generic import RedirectView
-from ProjektSystemCertyfikacji.all_views.certificates_views import add_cert, cert_succes, list_cert,  cert_detail
+from ProjektSystemCertyfikacji.all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail, edit_cert, delete_cert
 from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, p_sign_up_view, choose_account_view, producer_main_view
 from ProjektSystemCertyfikacji.utils import redirect_certificate_url
 from main_app import settings
@@ -32,6 +32,10 @@ urlpatterns = [
     path('certificates/add/', add_cert, name='add_cert'),
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),
     path('certificates/list/', list_cert, name='list_cert'),
+
+
+    path('certificates/<int:cert_id>/edit/', edit_cert, name='edit_cert'),
+    path('certificates/<int:cert_id>/delete/', delete_cert, name='delete_cert'),
     path('certificates/<int:cert_id>/', cert_detail, name='cert_detail'),
 
     path('product-batches/', product_views.list_product_batches, name='list_product_batches'),

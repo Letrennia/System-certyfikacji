@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail
+from .all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail, edit_cert, delete_cert
 from ProjektSystemCertyfikacji.all_views import product_views
 from .all_views.views import (
     CertificateViewSet, CertifyingUnitViewSet,
@@ -30,12 +30,18 @@ router.register(r'fraud-reports', FraudReportViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
     path('certificates/add/', add_cert, name='add_cert'),
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),
     path('certificates/list/', list_cert, name='list_cert'),
 
+    path('certificates/<int:cert_id>/edit/', edit_cert, name='edit_cert'),
+    path('certificates/<int:cert_id>/delete/', delete_cert, name='delete_cert'),
+
     path('certificates/<int:cert_id>/', cert_detail, name='cert_detail'),
 
+    #path('certificates/<int:cert_id>/edit/', edit_cert, name='edit_cert'),
+    #path('certificates/<int:cert_id>/delete/', delete_cert, name='delete_cert'),
     # API dla strony głównej
     # path('verify-qr-code/', verify_qr_code_api, name='verify_qr_code'),
     path('track-product/', track_product_api, name='track_product'),
@@ -51,4 +57,6 @@ urlpatterns = [
     path('product-batches/<int:batch_id>/delete/', product_views.delete_product_batch,name='delete_product_batch'),
 path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
     path('api/', include(router.urls)),
+
+
 ]
