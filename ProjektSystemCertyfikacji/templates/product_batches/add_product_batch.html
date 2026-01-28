@@ -88,6 +88,20 @@
         .btn-cancel:hover {
             background-color: #bdbdbd;
         }
+        .btn-select-cert {
+            padding: 12px 24px;
+            background-color: #2c2c2c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-select-cert:hover {
+            background-color: #1a1a1a;
+        }
         .messages {
             margin-bottom: 24px;
         }
@@ -105,6 +119,104 @@
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .modal-container {
+            background-color: white;
+            margin: 50px auto;
+            max-width: 1200px;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #1e1e1e;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #000;
+        }
+        .modal-body {
+            padding: 24px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .cert-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        .cert-item:hover {
+            border-color: #77c320;
+            background-color: #f9fdf5;
+        }
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+        .cert-number {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1e1e1e;
+            margin-bottom: 8px;
+        }
+        .cert-info {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .cert-status {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #842029;
         }
     </style>
 </head>
@@ -139,6 +251,23 @@
             <div class="form-card">
                 <form method="post">
                     {% csrf_token %}
+                    <div class="form-group">
+                        <label for="certificate_display">Certyfikat *</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text"
+                                   id="certificate_display"
+                                   readonly
+                                   placeholder="Kliknij 'Wybierz', aby wybrać certyfikat"
+                                   style="flex: 1; background-color: #f5f5f5; cursor: not-allowed;">
+                            <input type="hidden" id="certificate_id" name="certificate_id" required>
+                            <button type="button"
+                                    onclick="openCertificateModal()"
+                                    class="btn-select-cert">
+                                Wybierz certyfikat
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="name">Nazwa *</label>
                         <input type="text" id="name" name="name" required>
@@ -188,6 +317,19 @@
             </div>
         </div>
     </main>
+    <div id="certificateModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Wybierz certyfikat</h2>
+                <button onclick="closeCertificateModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="certificateList">
+                    <div class="loading">Ładowanie certyfikatów...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer class="footer top-margin-large">
         <div class="footer-content">
@@ -225,5 +367,72 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    function openCertificateModal() {
+        document.getElementById('certificateModal').style.display = 'block';
+        loadCertificates();
+    }
+
+    function closeCertificateModal() {
+        document.getElementById('certificateModal').style.display = 'none';
+    }
+
+    function loadCertificates() {
+        fetch('{% url "get_certificates_for_batch" %}')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('certificateList');
+
+                if (data.error) {
+                    container.innerHTML = `<div class="error-message">${data.error}</div>`;
+                    return;
+                }
+
+                if (data.certificates.length === 0) {
+                    container.innerHTML = '<div class="error-message">Brak dostępnych certyfikatów</div>';
+                    return;
+                }
+
+                let html = '';
+
+                data.certificates.forEach(cert => {
+                    html += `
+                        <div class="cert-item" onclick="selectCertificate('${cert.id}', '${cert.number}', '${cert.company}', '${cert.valid_to}')">
+                            <div class="cert-header">
+                                <div>
+                                    <div class="cert-number">${cert.number}</div>
+                                    <div class="cert-info">Firma: ${cert.company}</div>
+                                    <div class="cert-info">Jednostka: ${cert.issued_by}</div>
+                                    <div class="cert-info">Ważny do: ${cert.valid_to}</div>
+                                </div>
+                                <span class="cert-status">${cert.status}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('certificateList').innerHTML =
+                    '<div class="error-message">Błąd ładowania certyfikatów</div>';
+            });
+    }
+
+    function selectCertificate(id, number, company, validTo) {
+        document.getElementById('certificate_id').value = id;
+        document.getElementById('certificate_display').value = `${number} - ${company} (ważny do: ${validTo})`;
+        closeCertificateModal();
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('certificateModal');
+        if (event.target === modal) {
+            closeCertificateModal();
+        }
+    }
+    </script>
 </body>
 </html>
