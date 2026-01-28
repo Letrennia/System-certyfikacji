@@ -309,7 +309,6 @@
             border: 1px solid #cac4d0;
             border-radius: 8px;
             padding: 20px;
-            margin-bottom: 16px;
         }
 
         .review-header {
@@ -416,6 +415,18 @@
             <p class="page-subtitle">Szczegóły certyfikatu produktu ekologicznego</p>
         </div>
 
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 32px;">
+            <a href="/certificates/{{ certificate.certificate_id }}/edit/"
+               style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; background-color: #2c2c2c; color: white; text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
+                Edytuj
+            </a>
+            <a href="/certificates/{{ certificate.certificate_id }}/delete/"
+               onclick="return confirm('Czy na pewno chcesz usunąć ten certyfikat?');"
+               style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; background-color: #dc3545; color: white; text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
+                Usuń
+            </a>
+        </div>
+
         <section class="certificate-section">
             <div class="certificate-details-grid">
                 <div class="detail-card">
@@ -481,7 +492,7 @@
                 {% if rating_form.captcha_field %}
                 <div class="captcha-container">
                     <label for="{{ rating_form.captcha_field.id_for_label }}">
-                        Weryfikacja bezpieczeństwa
+                        🔒 Weryfikacja bezpieczeństwa
                     </label>
                     {{ rating_form.captcha_field }}
                     <div class="captcha-help-text">
@@ -549,7 +560,7 @@
             <div class="footer-section">
                 <h3>Produkty i certyfikaty</h3>
                 <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="index.html" class="footer-link">Wyszukaj produkt</a>
                     <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
                     <a href="#" class="footer-link">Jednostki certyfikujące</a>
                     <a href="#" class="footer-link">Producenci i przetwórcy</a>

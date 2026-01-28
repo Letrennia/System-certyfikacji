@@ -1,6 +1,154 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wybierz Typ Rejestracji - System Certyfikacji</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .choice-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
 
+        .choice-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
 
-            <a href="/register">Jednostka certyfikująca</a>
-            <br>
-            <a href="/register_producer">Producent</a>
+        .choice-card {
+            background-color: white;
+            border: 2px solid #d9d9d9;
+            border-radius: 12px;
+            padding: 48px 32px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .choice-card:hover {
+            border-color: #2c2c2c;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .choice-icon {
+            font-size: 64px;
+            margin-bottom: 8px;
+        }
+
+        .choice-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 8px;
+        }
+
+        .choice-description {
+            font-size: 14px;
+            color: #757575;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .choice-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="white-bg">
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item">Produkty</div>
+            <div class="nav-item">Certyfikaty</div>
+            <div class="nav-item">Track & Trace</div>
+            <div class="nav-item">Historia</div>
+            <div class="nav-item">Mapa</div>
+            <div class="nav-item">Oceny</div>
+            <div class="nav-item">Zgłoś</div>
+        </nav>
+
+        <div class="auth-buttons">
+            <a href="/login" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
+            <button class="btn btn-primary" disabled style="opacity: 0.6;">Rejestracja</button>
+        </div>
+    </header>
+
+    <main class="main-content centered">
+        <div class="choice-container">
+            <h1 class="main-title">Wybierz Typ Konta</h1>
+            <p class="main-subtitle">Wybierz odpowiedni rodzaj rejestracji</p>
+
+            <div class="choice-cards">
+                <a href="/register" class="choice-card">
+                    <div class="choice-icon">🏢</div>
+                    <div class="choice-title">Jednostka Certyfikująca</div>
+                    <div class="choice-description">
+                        Dla jednostek wydających certyfikaty ekologiczne
+                    </div>
+                </a>
+
+                <a href="/register_producer" class="choice-card">
+                    <div class="choice-icon">🌾</div>
+                    <div class="choice-title">Producent</div>
+                    <div class="choice-description">
+                        Dla producentów i przetwórców produktów ekologicznych
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer top-margin-large">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
+                    <a href="faq.html" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
             
