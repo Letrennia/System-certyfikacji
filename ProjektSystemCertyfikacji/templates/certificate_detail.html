@@ -101,6 +101,86 @@
             margin-bottom: 24px;
         }
 
+        .captcha-container {
+            background-color: white;
+            border: 2px solid #e3e3e3;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .captcha-container label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #757575;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .captcha-container img {
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            max-width: 100%;
+            height: auto;
+            min-height: 80px;
+        }
+
+        .captcha-container input {
+            max-width: 200px;
+            margin: 12px auto 0;
+            display: block;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .captcha-help-text {
+            font-size: 13px;
+            color: #757575;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .captcha-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+            color: #842029;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .messages {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .messages.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .messages.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+            color: #842029;
+        }
+
+        .messages.warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -170,8 +250,8 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            align-items: center; 
-            margin-bottom: 16px; 
+            align-items: center;
+            margin-bottom: 16px;
             font-size: 16px;
             font-weight: 500;
             gap: 16px;
@@ -217,14 +297,6 @@
             color: white;
         }
 
-        @media (max-width: 768px) {
-            .reviews-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-        }
-
         .reviews-list {
             list-style: none;
             display: flex;
@@ -259,11 +331,11 @@
             padding: 4px 12px;
             font-size: 14px;
             display: flex;
-            gap: 2px; 
+            gap: 2px;
             background-color: transparent;
         }
 
-        .leaf-icon { 
+        .leaf-icon {
             width: 24px;
             height: 24px;
             margin-right: 1px;
@@ -307,6 +379,12 @@
             .certificate-details-grid {
                 grid-template-columns: 1fr;
             }
+
+            .reviews-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
         }
     </style>
 </head>
@@ -327,8 +405,8 @@
         </nav>
 
         <div class="auth-buttons">
-            <a href="{% url 'login' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
-            <a href="{% url 'register' %}" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Rejestracja</a>
+            <button class="btn btn-secondary">Logowanie</button>
+            <button class="btn btn-primary">Rejestracja</button>
         </div>
     </header>
 
@@ -348,7 +426,7 @@
                 <div class="detail-card">
                     <div class="detail-card-label">Stan</div>
                     <div class="detail-card-value">
-                        <span class="status-badge status-active">{{ certificate.status }}</span>
+                        <span class="status-badge status-active">{{ certificate.state }}</span>
                     </div>
                 </div>
 
@@ -381,18 +459,12 @@
             <a href="{% url 'report_fraud' token %}" class="alert-link">Zgłoś podejrzenie oszustwa</a>
         </div>
 
-
-
         {% if messages %}
-            <div class="messages {{ messages.0.tags }}">
-                {{ messages.0 }}
-            </div>
-        {% endif %}
-
-        {% if 'submit_rating' in request.POST and rating_form.captcha_field.errors %}
-            <div class="form-errors">
-                {{ rating_form.captcha_field.errors }}
-            </div>
+            {% for message in messages %}
+                <div class="messages {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
 
         {% if show_limit_message %}
@@ -401,12 +473,27 @@
             </div>
         {% endif %}
 
-
         <section class="rating-form">
             <form method="post">
                 {% csrf_token %}
                 <h3>Dodaj swoją opinię</h3>
-                {{rating_form.captcha_field}}
+
+                {% if rating_form.captcha_field %}
+                <div class="captcha-container">
+                    <label for="{{ rating_form.captcha_field.id_for_label }}">
+                        Weryfikacja bezpieczeństwa
+                    </label>
+                    {{ rating_form.captcha_field }}
+                    <div class="captcha-help-text">
+                        Przepisz kod z obrazka powyżej
+                    </div>
+                    {% if rating_form.captcha_field.errors %}
+                        <div class="captcha-error">
+                            {{ rating_form.captcha_field.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
 
                 <div class="form-group">
                     <label for="id_consumer_email">Adres email:</label>
@@ -429,32 +516,31 @@
 
         <section class="reviews-section">
             <h2 class="reviews-title">Opinie konsumentów</h2>
-                <div class="reviews-header">
-                    {% if average_rating %}
-                        <div class="average-rating">
-                            Średnia ocen: <strong>{{ average_rating }}/5</strong>
-                        </div>
-                    {% else %}
-                        <div class="average-rating">
-                            Brak ocen
-                        </div>
-                    {% endif %}
-                    <div id="reviews-sort-container">
-                        <div class="reviews-sort">
-                            <span>Sortuj według:</span>
-                            <a href="#" class="sort-btn" data-sort="best">Najlepsze</a>
-                            <a href="#" class="sort-btn" data-sort="worst">Najgorsze</a>
-                            <a href="#" class="sort-btn" data-sort="latest">Najnowsze</a>
-                            <a href="#" class="sort-btn" data-sort="eldest">Najstarsze</a>
-                        </div>
+            <div class="reviews-header">
+                {% if average_rating %}
+                    <div class="average-rating">
+                        Średnia ocen: <strong>{{ average_rating }}/5</strong>
+                    </div>
+                {% else %}
+                    <div class="average-rating">
+                        Brak ocen
+                    </div>
+                {% endif %}
+                <div id="reviews-sort-container">
+                    <div class="reviews-sort">
+                        <span>Sortuj według:</span>
+                        <a href="#" class="sort-btn" data-sort="best">Najlepsze</a>
+                        <a href="#" class="sort-btn" data-sort="worst">Najgorsze</a>
+                        <a href="#" class="sort-btn" data-sort="latest">Najnowsze</a>
+                        <a href="#" class="sort-btn" data-sort="eldest">Najstarsze</a>
                     </div>
                 </div>
-                <div id="reviews-container">  
-                    <div class="no-reviews">
-                        <p>Brak ocen dla tego certyfikatu.</p>
-                    </div>
+            </div>
+            <div id="reviews-container">
+                <div class="no-reviews">
+                    <p>Brak ocen dla tego certyfikatu.</p>
                 </div>
-          
+            </div>
         </section>
     </main>
 
@@ -500,7 +586,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             const container = document.getElementById('reviews-container');
             const sortButtons = document.querySelectorAll('.sort-btn');
-            const defaultSort = 'best'; 
+            const defaultSort = 'best';
 
             function loadRatings(sort='best') {
                 fetch(`/certificate/{{ token }}/ratings/?sort=${sort}`, {cache: 'no-store'})
@@ -512,7 +598,7 @@
                             return;
                         }
                         data.ratings.forEach(r => {
-                            const stars = Array.from({length: 5}, (_, i) => 
+                            const stars = Array.from({length: 5}, (_, i) =>
                                 i < r.rating ? '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_filled.png" %}" class="leaf-icon">' :
                                 '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_empty.jpg" %}" class="leaf-icon">').join('');
                             const reviewHTML = `
