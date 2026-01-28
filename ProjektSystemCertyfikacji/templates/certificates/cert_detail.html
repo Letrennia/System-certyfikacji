@@ -226,6 +226,8 @@
                             <div class="detail-value">{{ cert.issued_by_certifying_unit_id.name }}</div>
                         </div>
 
+		
+
                         <div class="detail-item full-width-item">
                             <div class="detail-label">Obszary Działalności</div>
                             <div class="detail-value">
@@ -245,6 +247,9 @@
 
                 <div class="card-footer">
                     <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
+    		    <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="edit-button" style="background-color: #4a6fa5;">
+        		Historia zmian</a>
+
                 </div>
             </div>
         </div>

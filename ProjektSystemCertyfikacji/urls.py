@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail, edit_cert, delete_cert
+from .all_views.certificates_views import (
+	add_cert, cert_succes, list_cert, cert_detail, 
+	edit_cert, delete_cert, 
+	certificate_history_view, certificate_history_export, certificate_change_log_api
+)
 from ProjektSystemCertyfikacji.all_views import product_views
 from .all_views.views import (
     CertificateViewSet, CertifyingUnitViewSet,
@@ -14,6 +18,7 @@ from .all_views.main_page_view import (
     track_product_api, submit_rating_api, get_system_stats_api, get_certificate_details_api
      # submit_fraud_report_api,
 )
+from django.contrib.humanize.templatetags.humanize import naturaltime 
    
 
 
@@ -49,6 +54,12 @@ urlpatterns = [
     # path('submit-fraud-report/', submit_fraud_report_api, name='submit_fraud_report'),
     path('system-stats/', get_system_stats_api, name='system_stats'),
     path('certificate-details/', get_certificate_details_api, name='certificate_details'),
+
+    # Historia zmian certyfikatu
+    path('certificates/<int:cert_id>/history/', certificate_history_view, name='certificate_history'),
+    path('certificates/<int:cert_id>/history/export/', certificate_history_export, name='certificate_history_export'),
+    path('api/certificates/<int:cert_id>/changes/', certificate_change_log_api, name='certificate_change_log_api'),
+
 
     path('product-batches/', product_views.list_product_batches, name='list_product_batches'),
     path('product-batches/add/', product_views.add_product_batch, name='add_product_batch'),

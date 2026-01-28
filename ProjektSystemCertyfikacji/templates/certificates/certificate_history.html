@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historia zmian {{ certificate.certificate_number }}</title>
+</head>
+<body>
+    <h1>Certyfikat: {{ certificate.certificate_number }}</h1>
+    <p>Status: {{ certificate.get_status_display }}</p>
+    <p>Firma: {{ certificate.holder_company_id.name }}</p>
+    <p>Wydał: {{ certificate.issued_by_certifying_unit_id.name }}</p>
+    <p>Ważny od: {{ certificate.valid_from }}</p>
+    <p>Ważny do: {{ certificate.valid_to }}</p>
+    
+    <h2>Historia zmian statusu:</h2>
+    
+    {% for record in history_records %}
+        <p>Data: {{ record.changed_date }}</p>
+        <p>Z: {{ record.get_old_status_display }}</p>
+        <p>Na: {{ record.get_new_status_display }}</p>
+        <p>Kto: {{ record.changed_by_user_id.name }}</p>
+        <p>Powód: {{ record.reason }}</p>
+        <hr>
+    {% empty %}
+        <p>Brak historii zmian.</p>
+    {% endfor %}
+</body>
+</html>

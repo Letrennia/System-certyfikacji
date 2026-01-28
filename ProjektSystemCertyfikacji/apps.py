@@ -6,3 +6,5 @@ class ProjektsystemcertyfikacjiConfig(AppConfig):
 
     def ready(self):
         import ProjektSystemCertyfikacji.blockchain.signals
+        import ProjektSystemCertyfikacji.signals
+      
