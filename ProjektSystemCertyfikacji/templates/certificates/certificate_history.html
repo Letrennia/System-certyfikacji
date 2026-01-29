@@ -1,27 +1,398 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
-    <title>Historia zmian {{ certificate.certificate_number }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia zmian - {{ certificate.certificate_number }}</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .history-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .certificate-summary {
+            background-color: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-header {
+            border-bottom: 2px solid #f5f5f5;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 8px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .summary-item {
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #757575;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e1e1e;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .history-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f5f5f5;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #d9d9d9;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 32px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -32px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #2c2c2c;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #d9d9d9;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .timeline-content {
+            display: grid;
+            gap: 12px;
+        }
+
+        .change-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .change-label {
+            font-weight: 600;
+            color: #1e1e1e;
+            min-width: 80px;
+        }
+
+        .change-value {
+            color: #1e1e1e;
+        }
+
+        .status-change {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background-color: white;
+            border-radius: 6px;
+        }
+
+        .status-old {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-arrow {
+            color: #757575;
+            font-weight: 700;
+        }
+
+        .status-new {
+            color: #77c320;
+            font-weight: 600;
+        }
+
+        .reason-box {
+            background-color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #2196F3;
+            margin-top: 8px;
+        }
+
+        .reason-label {
+            font-size: 12px;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .reason-text {
+            font-size: 14px;
+            color: #1e1e1e;
+            line-height: 1.5;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 60px 40px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: #757575;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #e3e3e3;
+            border: 1px solid #767676;
+            color: #1e1e1e;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            font-weight: 600;
+            margin-top: 32px;
+        }
+
+        .back-button:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 32px;
+            }
+
+            .timeline-item::before {
+                left: -24px;
+            }
+        }
+    </style>
 </head>
-<body>
-    <h1>Certyfikat: {{ certificate.certificate_number }}</h1>
-    <p>Status: {{ certificate.get_status_display }}</p>
-    <p>Firma: {{ certificate.holder_company_id.name }}</p>
-    <p>Wydał: {{ certificate.issued_by_certifying_unit_id.name }}</p>
-    <p>Ważny od: {{ certificate.valid_from }}</p>
-    <p>Ważny do: {{ certificate.valid_to }}</p>
-    
-    <h2>Historia zmian statusu:</h2>
-    
-    {% for record in history_records %}
-        <p>Data: {{ record.changed_date }}</p>
-        <p>Z: {{ record.get_old_status_display }}</p>
-        <p>Na: {{ record.get_new_status_display }}</p>
-        <p>Kto: {{ record.changed_by_user_id.name }}</p>
-        <p>Powód: {{ record.reason }}</p>
-        <hr>
-    {% empty %}
-        <p>Brak historii zmian.</p>
-    {% endfor %}
+<body class="white-bg">
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item">Produkty</div>
+            <div class="nav-item active">Certyfikaty</div>
+            <div class="nav-item">Track & Trace</div>
+            <div class="nav-item">Historia</div>
+            <div class="nav-item">Mapa</div>
+            <div class="nav-item">Oceny</div>
+            <div class="nav-item">Zgłoś</div>
+        </nav>
+
+        <div class="auth-buttons">
+            <a href="/login" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
+            <a href="/register" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Rejestracja</a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="history-container">
+            <div class="product-header">
+                <h1 class="page-title">Historia Zmian Certyfikatu</h1>
+                <p class="page-subtitle">Pełna historia modyfikacji statusu certyfikatu</p>
+            </div>
+
+            <div class="certificate-summary">
+                <div class="summary-header">
+                    <div class="summary-title">{{ certificate.certificate_number }}</div>
+                    <span class="status-badge">{{ certificate.get_status_display }}</span>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Firma Posiadająca</div>
+                        <div class="summary-value">{{ certificate.holder_company_id.name }}</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">Jednostka Wydająca</div>
+                        <div class="summary-value">{{ certificate.issued_by_certifying_unit_id.name }}</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">Ważny Od</div>
+                        <div class="summary-value">{{ certificate.valid_from }}</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">Ważny Do</div>
+                        <div class="summary-value">{{ certificate.valid_to }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <h2 class="history-title">Historia Zmian Statusu</h2>
+
+                {% if history_records %}
+                    <div class="timeline">
+                        {% for record in history_records %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">
+                                    {{ record.changed_date|date:"d.m.Y, H:i" }}
+                                </div>
+
+                                <div class="timeline-content">
+                                    <div class="status-change">
+                                        <span class="status-old">{{ record.get_old_status_display }}</span>
+                                        <span class="status-arrow">→</span>
+                                        <span class="status-new">{{ record.get_new_status_display }}</span>
+                                    </div>
+
+                                    <div class="change-row">
+                                        <span class="change-label">Kto zmienił:</span>
+                                        <span class="change-value">{{ record.changed_by_user_id.name }}</span>
+                                    </div>
+
+                                    {% if record.reason %}
+                                        <div class="reason-box">
+                                            <div class="reason-label">Powód Zmiany</div>
+                                            <div class="reason-text">{{ record.reason }}</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-history">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-text">Brak historii zmian dla tego certyfikatu.</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="text-align: center;">
+                <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy certyfikatów</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
+                    <a href="faq.html" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
