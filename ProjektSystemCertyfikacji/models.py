@@ -36,10 +36,11 @@ def decrypt_certificate_id(token_str):
 
 class Company(models.Model):
     company_id = models.AutoField(primary_key=True, db_column='company_id')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='company_user', null=False)
     COMPANY_TYPE = [
         ('producer', 'Producent'),
         ('distributor', 'Dystrybutor'),
-        ('certifier', 'Certyfikator'),
+        # ('certifier', 'Certyfikator'),
         ('warehouse', 'Magazyn'),
         ('import', 'Import'),
         ('export', 'Export'),
@@ -53,6 +54,7 @@ class Company(models.Model):
     phone = models.CharField(max_length=20, db_column='phone')
     website = models.CharField(max_length=255, db_column='website')
     blockchain_address = models.CharField(max_length=255, db_column='blockchain_address')
+    is_approved = models.BooleanField(default=False, db_column='is_approved', null=True)
 
     class Meta:
         db_table = 'company'

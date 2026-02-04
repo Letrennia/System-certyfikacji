@@ -69,7 +69,16 @@ class Certifying_unit_certificates_Admin(admin.ModelAdmin):
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('name', 'company_type', 'country', 'address', 'registration_number')   
+    readonly_fields = ('user', 'name', 'email', 'address', 'country', 'registration_number', 'phone', 'website', 'company_type')
+    list_display = ('name', 'company_type', 'country', 'address', 'registration_number', 'is_approved')  
+    fields = ('user', 'name', 'email', 'address', 'country', 'registration_number', 'phone', 'website', 'company_type', 'is_approved')
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_approved and not obj.user.is_active:
+            obj.user.is_active = True
+            obj.user.save()
+            
+        super().save_model(request, obj, form, change) 
 
 
 @admin.register(Product_batch)

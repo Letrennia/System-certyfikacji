@@ -29,9 +29,9 @@ def sign_in(request):
             if user:
                 login(request, user)
                 messages.success(request, f'Poprawne zalogowanie {username.title()}')
-                if hasattr(user, 'producer_user'):
+                if hasattr(user, 'company_user'):
                     return redirect('producer_main')
-                else:
+                elif hasattr(user, 'certifying_unit'):
                     return redirect('list_cert') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
             else:
                 messages.error(request, 'Niepoprawne hasło')
