@@ -131,6 +131,92 @@
             grid-column: 1 / -1;
         }
 
+        /* Sekcja partii */
+        .batches-section {
+            padding: 0 32px 32px;
+        }
+
+        .batches-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 16px;
+            padding-top: 8px;
+        }
+
+        .batch-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            gap: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .batch-row:hover {
+            background-color: #eeeeee;
+        }
+
+        .batch-name {
+            font-weight: 600;
+            color: #1e1e1e;
+            font-size: 15px;
+        }
+
+        .batch-meta {
+            font-size: 13px;
+            color: #757575;
+            margin-top: 3px;
+        }
+
+        .batch-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .batch-status-waiting { background-color: #fff3cd; color: #856404; }
+        .batch-status-in_circulation { background-color: #d4edda; color: #155724; }
+        .batch-status-delivered { background-color: #cce5ff; color: #004085; }
+        .batch-status-recalled { background-color: #f8d7da; color: #842029; }
+
+        .btn-chain {
+            padding: 8px 18px;
+            background-color: #77c320;
+            color: white;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+        }
+
+        .btn-chain:hover {
+            background-color: #5aa000;
+        }
+
+        .no-batches {
+            text-align: center;
+            padding: 24px;
+            color: #757575;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 0 32px;
+        }
+
         @media (max-width: 768px) {
             .details-grid {
                 grid-template-columns: 1fr;
@@ -152,6 +238,20 @@
 
             .back-button,
             .edit-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .batches-section {
+                padding: 0 20px 20px;
+            }
+
+            .batch-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .btn-chain {
                 width: 100%;
                 text-align: center;
             }
@@ -189,12 +289,16 @@
 
             <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 32px;">
                 <a href="/certificates/{{ cert.certificate_id }}/edit/"
-                   style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; background-color: #2c2c2c; color: white; text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
+                   style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer;
+                          font-family: 'Inter', sans-serif; background-color: #2c2c2c; color: white;
+                          text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
                     Edytuj
                 </a>
                 <a href="/certificates/{{ cert.certificate_id }}/delete/"
                    onclick="return confirm('Czy na pewno chcesz usunąć ten certyfikat?');"
-                   style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; background-color: #dc3545; color: white; text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
+                   style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer;
+                          font-family: 'Inter', sans-serif; background-color: #dc3545; color: white;
+                          text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
                     Usuń
                 </a>
             </div>
@@ -238,8 +342,6 @@
                             <div class="detail-value">{{ cert.issued_by_certifying_unit_id.name }}</div>
                         </div>
 
-		
-
                         <div class="detail-item full-width-item">
                             <div class="detail-label">Obszary Działalności</div>
                             <div class="detail-value">
@@ -256,12 +358,45 @@
                         </div>
                     </div>
                 </div>
+                <hr class="section-divider">
+                <div class="batches-section">
+                    <h3 class="batches-title">
+                        Partie produktów{% if batches %} ({{ batches.count }}){% endif %}
+                    </h3>
+
+                    {% if batches %}
+                        {% for batch in batches %}
+                        <div class="batch-row">
+                            <div>
+                                <div class="batch-name">{{ batch.name }}</div>
+                                <div class="batch-meta">
+                                    {{ batch.category }}
+                                    &nbsp;|&nbsp;
+                                    {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}
+                                    &nbsp;|&nbsp;
+                                    <span class="batch-status batch-status-{{ batch.status }}">
+                                        {{ batch.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-chain">
+                                🗺 Łańcuch dostaw
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-batches">
+                            Brak przypisanych partii produktów dla tego certyfikatu.
+                        </div>
+                    {% endif %}
+                </div>
 
                 <div class="card-footer">
                     <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
-    		    <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="edit-button" style="background-color: #4a6fa5;">
-        		Historia zmian</a>
-
+                    <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}"
+                       class="edit-button" style="background-color: #4a6fa5;">
+                        Historia zmian
+                    </a>
                 </div>
             </div>
         </div>

@@ -36,7 +36,6 @@
         .btn-add:hover {
             background-color: #5aa000;
         }
-
         .batch-table {
             width: 100%;
             border-collapse: collapse;
@@ -45,43 +44,26 @@
             overflow: hidden;
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
         }
-
         .batch-table th,
         .batch-table td {
             padding: 14px 16px;
             text-align: left;
             font-size: 14px;
         }
-
         .batch-table th {
             background-color: #f5f5f5;
             font-weight: 600;
             color: #1e1e1e;
         }
-
         .batch-table tr {
             border-bottom: 1px solid #e0e0e0;
         }
-
         .batch-table tr:last-child {
             border-bottom: none;
         }
-
         .batch-table tr:hover {
             background-color: #fafafa;
         }
-
-        .batch-table .actions a {
-            margin-right: 12px;
-            font-weight: 500;
-            text-decoration: none;
-            color: #77c320;
-        }
-
-        .batch-table .actions a.delete {
-            color: #dc3545;
-        }
-
         .status-badge {
             display: inline-block;
             padding: 6px 12px;
@@ -89,68 +71,45 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .status-waiting {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-in_circulation {
-            background-color: #cfe2ff;
-            color: #084298;
-        }
-        .status-delivered {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-        .status-recalled {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-        .batch-details {
-            color: #757575;
-            font-size: 14px;
-        }
-        .batch-details div {
-            margin-bottom: 4px;
-        }
-        .batch-actions {
-            margin-top: 12px;
+        .status-waiting    { background-color: #fff3cd; color: #856404; }
+        .status-in_circulation { background-color: #cfe2ff; color: #084298; }
+        .status-delivered  { background-color: #d1e7dd; color: #0f5132; }
+        .status-recalled   { background-color: #f8d7da; color: #842029; }
+
+        /* Akcje */
+        .action-links {
             display: flex;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
         }
-        .batch-actions a {
+        .action-links a {
+            font-size: 13px;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: 500;
-            color: #77c320;
-            transition: 0.3s;
-            font-size: 14px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            transition: 0.2s;
+            white-space: nowrap;
         }
-        .batch-actions a:hover {
-            color: #5aa000;
-        }
-        .batch-actions a.delete {
-            color: #dc3545;
-        }
-        .batch-actions a.delete:hover {
-            color: #a02622;
-        }
-        .messages {
-            margin-bottom: 24px;
-        }
+        .action-detail  { color: #1e1e1e; background-color: #e0e0e0; }
+        .action-detail:hover  { background-color: #bdbdbd; }
+        .action-edit    { color: #fff; background-color: #2c2c2c; }
+        .action-edit:hover    { background-color: #1a1a1a; }
+        .action-chain   { color: #fff; background-color: #77c320; }
+        .action-chain:hover   { background-color: #5aa000; }
+        .action-delete  { color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; }
+        .action-delete:hover  { background-color: #f1aeb5; }
+
+        .messages { margin-bottom: 24px; }
         .message {
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 12px;
         }
-        .message.error {
-            background-color: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
+        .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
         .empty-state {
             text-align: center;
             padding: 64px 24px;
@@ -162,14 +121,7 @@
             color: #1e1e1e;
         }
         @media (max-width: 768px) {
-            .batch-list {
-                grid-template-columns: 1fr;
-            }
-            .page-header {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
+            .page-header { flex-direction: column; gap: 16px; align-items: flex-start; }
         }
     </style>
 </head>
@@ -203,92 +155,73 @@
                 <a href="{% url 'add_product_batch' %}" class="btn-add">+ Dodaj nową partię</a>
             </div>
 
+            <!-- Filtry -->
             <div class="filters-container" style="margin-bottom: 30px;">
                 <form method="get" id="filter-form" class="filter-form">
                     <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-
                         <div class="filter-group">
                             <label for="batch-search" style="display: block; margin-bottom: 8px; font-weight: 500;">Nazwa partii:</label>
-                            <input type="text"
-                                id="batch-search"
-                                name="search"
-                                value="{{ current_search }}"
-                                placeholder="Wpisz nazwę..."
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
+                            <input type="text" id="batch-search" name="search" value="{{ current_search }}"
+                                   placeholder="Wpisz nazwę..."
+                                   style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
                         </div>
-
                         <div class="filter-group">
                             <label for="category-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoria:</label>
                             <select id="category-select" name="category"
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
                                 <option value="">Wszystkie</option>
                                 {% for cat in category_choices %}
-                                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>
-                                        {{ cat }}
-                                    </option>
+                                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
                             <select id="status-select" name="status"
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
                                 <option value="">Wszystkie</option>
                                 {% for status_key, status_name in status_choices %}
-                                    <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>
-                                        {{ status_name }}
-                                    </option>
+                                    <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>{{ status_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
                             <select id="sort-select" name="sort_by"
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
                                 <option value="production_date" {% if current_sort == 'production_date' %}selected{% endif %}>Data produkcji</option>
                                 <option value="expiration_date" {% if current_sort == 'expiration_date' %}selected{% endif %}>Data ważności</option>
                                 <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Nazwa</option>
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
                             <select id="order-select" name="sort_order"
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
                                 <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Rosnąco</option>
                                 <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
                             </select>
                         </div>
-
                         <div class="filter-group">
                             <button type="button" id="clear-filters"
-                                style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer;">
+                                    style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer;">
                                 Wyczyść filtry
                             </button>
                         </div>
-
                     </div>
                 </form>
 
                 {% if current_search or current_category or current_status %}
-                <div class="active-filters" style="margin-top: 15px; font-size: 14px; color: #666;">
+                <div style="margin-top: 15px; font-size: 14px; color: #666;">
                     <strong>Aktywne filtry:</strong>
                     {% if current_search %}
-                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">
-                            Nazwa: "{{ current_search }}"
-                        </span>
+                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Nazwa: "{{ current_search }}"</span>
                     {% endif %}
                     {% if current_category %}
-                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">
-                            Kategoria: "{{ current_category }}"
-                        </span>
+                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Kategoria: "{{ current_category }}"</span>
                     {% endif %}
                     {% if current_status %}
-                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">
-                            Status: "{{ current_status }}"
-                        </span>
+                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Status: "{{ current_status }}"</span>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -302,7 +235,7 @@
                         <th>Kategoria</th>
                         <th>Ilość</th>
                         <th>Data produkcji</th>
-                        <th>Data ważnosci</th>
+                        <th>Data ważności</th>
                         <th>Status</th>
                         <th>Akcje</th>
                     </tr>
@@ -320,14 +253,15 @@
                                 {{ batch.get_status_display }}
                             </span>
                         </td>
-                        <td class="actions">
-                            <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}">Szczegóły</a>
-                            <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}">Edytuj</a>
-                            <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
-                            class="delete"
-                            onclick="return confirm('Czy oznaczyć partię jako wycofaną?');">
-                            Wycofaj
-                            </a>
+                        <td>
+                            <div class="action-links">
+                                <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="action-detail">Szczegóły</a>
+                                <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}" class="action-edit">Edytuj</a>
+                                <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="action-chain">🗺 Łańcuch</a>
+                                <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
+                                   class="action-delete"
+                                   onclick="return confirm('Czy na pewno chcesz usunąć tę partię?');">Usuń</a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -393,40 +327,24 @@
             };
         }
 
-        function submitForm() {
-            form.submit();
-        }
-
-        const selects = form.querySelectorAll("select");
-        selects.forEach(sel => {
-            sel.addEventListener("change", submitForm);
+        form.querySelectorAll("select").forEach(sel => {
+            sel.addEventListener("change", () => form.submit());
         });
 
-        const textInputs = form.querySelectorAll('input[type="text"], input[type="search"]');
-        textInputs.forEach(inp => {
-
-            const debounced = debounce(function() {
-                submitForm();
-            }, 500);
-
-            inp.addEventListener("input", debounced);
-
-            inp.addEventListener("keydown", function(e) {
-                if (e.key === "Enter") {
-                    e.preventDefault();
-                    submitForm();
-                }
+        form.querySelectorAll('input[type="text"]').forEach(inp => {
+            inp.addEventListener("input", debounce(() => form.submit(), 500));
+            inp.addEventListener("keydown", e => {
+                if (e.key === "Enter") { e.preventDefault(); form.submit(); }
             });
         });
 
         const clearBtn = document.getElementById("clear-filters");
         if (clearBtn) {
-            clearBtn.addEventListener("click", function() {
+            clearBtn.addEventListener("click", () => {
                 window.location.href = window.location.pathname;
             });
         }
     });
     </script>
-
 </body>
 </html>
