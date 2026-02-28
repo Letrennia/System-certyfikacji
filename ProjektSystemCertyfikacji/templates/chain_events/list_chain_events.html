@@ -1,0 +1,438 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia łańcucha dostaw - System Certyfikacji</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    {% if geo_data %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% endif %}
+    <style>
+        .container { max-width: 1000px; margin: 64px auto 32px; padding: 0 24px; }
+        h1.main-title { font-size: 32px; font-weight: 700; color: #1e1e1e; margin-bottom: 8px; }
+        p.main-subtitle { font-size: 16px; color: #757575; margin-bottom: 32px; }
+
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px; flex-wrap: wrap; gap: 12px;
+        }
+        .batch-info-card {
+            background-color: #ffffff; border: 1px solid #cac4d0; border-radius: 12px;
+            padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .batch-name { font-size: 18px; font-weight: 700; color: #1e1e1e; }
+        .batch-meta { font-size: 14px; color: #757575; margin-top: 4px; }
+
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .status-waiting    { background-color: #fff3cd; color: #856404; }
+        .status-in_circulation { background-color: #d4edda; color: #155724; }
+        .status-delivered  { background-color: #cce5ff; color: #004085; }
+        .status-recalled   { background-color: #f8d7da; color: #842029; }
+
+        /* ── Blockchain widget ── */
+        .blockchain-widget {
+            border-radius: 12px; padding: 20px 24px; margin-bottom: 28px;
+            border: 2px solid #cac4d0; background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .blockchain-widget-header {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; margin-bottom: 14px;
+        }
+        .blockchain-widget-title {
+            font-size: 15px; font-weight: 700; color: #1e1e1e;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-verify {
+            padding: 8px 20px; background-color: #2c2c2c; color: white; border: none;
+            border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-verify:hover { background-color: #1a1a1a; }
+        .btn-verify:disabled { background-color: #aaa; cursor: not-allowed; }
+
+        .blockchain-status {
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+            border-radius: 10px; font-size: 14px; font-weight: 600;
+        }
+        .blockchain-status.valid {
+            background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+        }
+        .blockchain-status.invalid {
+            background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7;
+        }
+        .blockchain-status.loading {
+            background-color: #e2e8f0; color: #475569; border: 1px solid #cbd5e1;
+        }
+        .blockchain-status.unknown {
+            background-color: #f5f5f5; color: #757575; border: 1px solid #e0e0e0;
+        }
+        .blockchain-status .status-icon { font-size: 22px; flex-shrink: 0; }
+        .blockchain-status .status-text { flex: 1; }
+        .blockchain-status .status-text strong { display: block; font-size: 15px; margin-bottom: 2px; }
+        .blockchain-status .status-text span { font-weight: 400; font-size: 13px; }
+        .blockchain-meta {
+            margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px;
+        }
+        .blockchain-meta-item {
+            background-color: #f5f5f5; border-radius: 6px; padding: 6px 12px;
+            font-size: 12px; color: #555;
+        }
+        .blockchain-meta-item strong { color: #1e1e1e; }
+
+        /* ── Timeline ── */
+        .timeline { position: relative; padding-left: 40px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 14px; top: 0; bottom: 0;
+            width: 2px; background: linear-gradient(to bottom, #77c320, #cac4d0);
+        }
+        .timeline-item { position: relative; margin-bottom: 24px; }
+        .timeline-dot {
+            position: absolute; left: -33px; top: 18px; width: 14px; height: 14px;
+            border-radius: 50%; background-color: #77c320; border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #77c320;
+        }
+        .event-card {
+            background-color: #ffffff; border: 1px solid #cac4d0; border-radius: 12px;
+            padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s;
+        }
+        .event-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+        .event-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+        }
+        .event-area { font-size: 16px; font-weight: 700; color: #1e1e1e; }
+        .event-timestamp { font-size: 13px; color: #757575; }
+        .event-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; }
+        .event-meta-item { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #555; }
+        .event-actions { margin-top: 14px; display: flex; gap: 10px; }
+        .btn-detail {
+            padding: 8px 18px; background-color: #2c2c2c; color: white; border: none;
+            border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+            text-decoration: none; transition: background-color 0.2s;
+        }
+        .btn-detail:hover { background-color: #1a1a1a; }
+        .btn-delete {
+            padding: 8px 18px; background-color: #f8d7da; color: #842029;
+            border: 1px solid #f5c2c7; border-radius: 8px; font-size: 14px;
+            font-weight: 600; cursor: pointer; text-decoration: none; transition: 0.2s;
+        }
+        .btn-delete:hover { background-color: #f1aeb5; }
+        .btn-add {
+            padding: 12px 24px; background-color: #77c320; color: white; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
+            text-decoration: none; transition: 0.2s; display: inline-block;
+        }
+        .btn-add:hover { background-color: #5aa000; }
+        .btn-back {
+            padding: 12px 24px; background-color: #e0e0e0; color: #1e1e1e; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
+            text-decoration: none; transition: 0.2s; display: inline-block;
+        }
+        .btn-back:hover { background-color: #bdbdbd; }
+
+        .area-badge {
+            display: inline-block; padding: 4px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 600; background-color: #e8f5e9; color: #2e7d32;
+        }
+        .empty-state {
+            text-align: center; padding: 64px 32px; background-color: #ffffff;
+            border: 1px solid #cac4d0; border-radius: 12px;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 20px; color: #1e1e1e; margin-bottom: 8px; }
+        .empty-state p { color: #757575; margin-bottom: 24px; }
+        .messages { margin-bottom: 24px; }
+        .message { padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+        .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
+        .map-section {
+            background-color: #ffffff; border: 1px solid #cac4d0; border-radius: 12px;
+            padding: 24px; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .map-section h2 { font-size: 18px; font-weight: 700; color: #1e1e1e; margin-bottom: 16px; }
+        #map { height: 320px; border-radius: 8px; border: 1px solid #cac4d0; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item"><a href="/">Strona główna</a></div>
+            <div class="nav-item active"><a href="{% url 'list_product_batches' %}">Produkty</a></div>
+            <div class="nav-item"><a href="{% url 'list_cert' %}">Certyfikaty</a></div>
+        </nav>
+        <div class="auth-buttons">
+            <a href="{% url 'logout' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Wyloguj</a>
+        </div>
+    </header>
+
+    <main class="main-content centered">
+        <div class="container">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <h1 class="main-title">Łańcuch dostaw</h1>
+            <p class="main-subtitle">Historia etapów dla partii produktów</p>
+
+            <!-- Batch info -->
+            <div class="batch-info-card">
+                <div>
+                    <div class="batch-name">{{ batch.name }}</div>
+                    <div class="batch-meta">Kategoria: {{ batch.category }} &nbsp;|&nbsp; Ilość: {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</div>
+                    <div class="batch-meta">Certyfikat: {{ batch.certificate_id.certificate_number }}</div>
+                </div>
+                <span class="status-badge status-{{ batch.status }}">{{ batch.get_status_display }}</span>
+            </div>
+
+            <!-- ── Blockchain integrity widget ── -->
+            <div class="blockchain-widget" id="blockchain-widget">
+                <div class="blockchain-widget-header">
+                    <div class="blockchain-widget-title">
+                        🔗 Weryfikacja integralności blockchain
+                    </div>
+                    <button class="btn-verify" id="btn-verify" onclick="verifyBlockchain()">
+                        Weryfikuj teraz
+                    </button>
+                </div>
+
+                <div class="blockchain-status unknown" id="blockchain-status">
+                    <span class="status-icon">⏳</span>
+                    <div class="status-text">
+                        <strong>Nie zweryfikowano</strong>
+                        <span>Kliknij "Weryfikuj teraz", aby sprawdzić integralność danych w blockchain.</span>
+                    </div>
+                </div>
+
+                <div class="blockchain-meta" id="blockchain-meta" style="display:none;"></div>
+            </div>
+
+            <div class="top-bar">
+                <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="btn-back">← Wróć do partii</a>
+                <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">+ Dodaj etap</a>
+            </div>
+
+            <!-- Map -->
+            {% if geo_data %}
+            <div class="map-section">
+                <h2>🗺 Mapa trasy</h2>
+                <div id="map"></div>
+            </div>
+            {% endif %}
+            {% if events %}
+                <div class="timeline">
+                    {% for event in events %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="event-card">
+                            <div class="event-header">
+                                <div>
+                                    <div class="event-area">
+                                        <span class="area-badge">{{ event.area_id.get_name_display }}</span>
+                                        &nbsp;{{ event.company_id.name }}
+                                    </div>
+                                </div>
+                                <div class="event-timestamp">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
+                            </div>
+                            <div class="event-meta">
+                                {% if event.location %}
+                                <div class="event-meta-item"><span>Lokalizacja</span> {{ event.location }}</div>
+                                {% endif %}
+                                <div class="event-meta-item"><span>Kategoria</span> {{ event.company_id.get_company_type_display }}</div>
+                                <div class="event-meta-item"><span>Numer certyfikatu</span> {{ event.certificate_id.certificate_number }}</div>
+                                {% if event.blockchain_hash %}
+                                <div class="event-meta-item">
+                                    <span>Łańcuch</span>
+                                    <code style="font-size:11px; color:#777;">{{ event.blockchain_hash|slice:":16" }}…</code>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="event-actions">
+                                <a href="{% url 'chain_event_detail' event_id=event.event_id %}" class="btn-detail">Szczegóły</a>
+                                <a href="{% url 'delete_chain_event' event_id=event.event_id %}" class="btn-delete">Usuń</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>Brak zdarzeń w łańcuchu dostaw</h3>
+                    <p>Nie zarejestrowano jeszcze żadnych etapów dla tej partii produktów.</p>
+                    <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">Dodaj pierwszy etap</a>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer top-margin-large">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="#" class="footer-link">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% if geo_data %}
+    <script>
+        const geoData = {{ geo_data|safe }};
+        if (geoData.length > 0) {
+            const map = L.map('map');
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            const bounds = [];
+            geoData.forEach((loc, i) => {
+                const m = L.marker([loc.latitude, loc.longitude]).addTo(map);
+                m.bindPopup(`<b>${i + 1}. ${loc.display_name || loc.address}</b>`);
+                bounds.push([loc.latitude, loc.longitude]);
+            });
+            if (geoData.length > 1)
+                L.polyline(bounds, { color: '#77c320', weight: 3, dashArray: '6,6' }).addTo(map);
+            map.fitBounds(bounds, { padding: [30, 30] });
+        }
+    </script>
+    {% endif %}
+
+    <script>
+    const BATCH_ID = {{ batch.batch_id }};
+
+    function getCookie(name) {
+        let v = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
+        });
+        return v;
+    }
+
+    function setStatus(type, icon, title, subtitle) {
+        const el = document.getElementById('blockchain-status');
+        el.className = `blockchain-status ${type}`;
+        el.innerHTML = `
+            <span class="status-icon">${icon}</span>
+            <div class="status-text">
+                <strong>${title}</strong>
+                <span>${subtitle}</span>
+            </div>`;
+    }
+
+    function setMeta(items) {
+        const el = document.getElementById('blockchain-meta');
+        if (!items || items.length === 0) { el.style.display = 'none'; return; }
+        el.style.display = 'flex';
+        el.innerHTML = items.map(i => `<div class="blockchain-meta-item"><strong>${i.label}:</strong> ${i.value}</div>`).join('');
+    }
+
+    async function verifyBlockchain() {
+        const btn = document.getElementById('btn-verify');
+        btn.disabled = true;
+        btn.textContent = 'Weryfikuję…';
+        setStatus('loading', 'Weryfikacja w toku…', 'Trwa sprawdzanie integralności danych w blockchain.');
+        setMeta([]);
+
+        try {
+            const validateResp = await fetch('/blockchain/api/blockchain/validate/');
+            const validateData = await validateResp.json();
+            const chainValid  = validateData.is_valid === true;
+            const chainLength = validateData.chain_length ?? '—';
+
+            const historyResp = await fetch(`/blockchain/api/blockchain/supply-chain/${BATCH_ID}/history/`);
+            const historyData = await historyResp.json();
+            const historyList = historyData.history ?? [];
+
+            const revokedHashes = new Set(
+                historyList
+                    .filter(b => b.data?.type === 'event_revocation')
+                    .map(b => b.data?.revoked_block_hash)
+            );
+
+            const activeBlocks = historyList.filter(b =>
+                b.data?.type !== 'supply_chain_genesis' &&
+                b.data?.type !== 'event_revocation' &&
+                !revokedHashes.has(b.hash)
+            );
+
+            const batchBlocks  = activeBlocks.length;
+            const totalBlocks  = historyList.length;
+            const revokedCount = revokedHashes.size;
+            const batchInChain = historyData.success === true && batchBlocks > 0;
+
+            let subchainValid = true;
+            for (let i = 1; i < historyList.length; i++) {
+                if (historyList[i].previous_hash !== historyList[i - 1].hash) {
+                    subchainValid = false;
+                    break;
+                }
+            }
+
+            if (!chainValid || !subchainValid) {
+                setStatus('invalid',
+                    'Wykryto manipulację danych!',
+                    'Integralność blockchaina została naruszona. Co najmniej jeden blok został zmodyfikowany. Skontaktuj się z administratorem.'
+                );
+            } else if (!batchInChain) {
+                setStatus('invalid',
+                    'Brak aktywnych etapów w blockchain',
+                    'Wszystkie etapy tej partii zostały usunięte lub partia nie posiada jeszcze zapisów w blockchain.'
+                );
+            } else {
+                const odmiana = batchBlocks === 1 ? 'etap' : batchBlocks < 5 ? 'etapy' : 'etapów';
+                setStatus('valid',
+                    'Blockchain zweryfikowany — dane są nienaruszone',
+                    `${batchBlocks} aktywne ${odmiana} są spójne. Żaden etap nie został nielegalnie zmodyfikowany.`
+                );
+            }
+
+            setMeta([
+                { label: 'Aktywne etapy',    value: batchBlocks },
+                { label: 'Usunięte etapy',    value: revokedCount },
+                { label: 'Łączne bloki',      value: totalBlocks },
+                { label: 'Długość łańcucha',  value: chainLength + ' bloków' },
+                { label: 'Główny łańcuch',    value: chainValid     ?  'Spójny' : 'Naruszony' },
+                { label: 'Podłańcuch partii', value: !historyData.success ? '—' : subchainValid ? 'Spójny' : 'Naruszony' },
+            ]);
+
+        } catch (err) {
+            setStatus('invalid', 'Błąd połączenia z blockchain', 'Nie udało się połączyć z serwisem blockchain. Spróbuj ponownie później.');
+            console.error('Blockchain verify error:', err);
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Weryfikuj ponownie';
+    }
+    </script>
+</body>
+</html>

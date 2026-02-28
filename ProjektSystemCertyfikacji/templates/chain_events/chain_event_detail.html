@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szczegóły zdarzenia - System Certyfikacji</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    {% if geo %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% endif %}
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 64px auto 32px;
+            padding: 0 24px;
+        }
+        h1.main-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 12px;
+        }
+        .detail-card {
+            background-color: #ffffff;
+            border: 1px solid #cac4d0;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        .detail-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 16px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #757575;
+            min-width: 180px;
+        }
+        .detail-value {
+            font-size: 14px;
+            color: #1e1e1e;
+            text-align: right;
+            word-break: break-all;
+        }
+        .area-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .company-type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            margin-left: 8px;
+        }
+        .blockchain-value {
+            font-family: monospace;
+            font-size: 12px;
+            color: #555;
+            background-color: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        #map {
+            height: 280px;
+            border-radius: 8px;
+            border: 1px solid #cac4d0;
+            margin-top: 8px;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn-back {
+            padding: 12px 24px;
+            background-color: #e0e0e0;
+            color: #1e1e1e;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+        .btn-back:hover { background-color: #bdbdbd; }
+        .btn-delete {
+            padding: 12px 24px;
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+        .btn-delete:hover { background-color: #f1aeb5; }
+        .messages { margin-bottom: 24px; }
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .message.error { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        p.main-subtitle { font-size: 16px; color: #757575; margin-bottom: 32px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item"><a href="/">Strona główna</a></div>
+            <div class="nav-item active"><a href="{% url 'list_product_batches' %}">Produkty</a></div>
+            <div class="nav-item"><a href="{% url 'list_cert' %}">Certyfikaty</a></div>
+        </nav>
+        <div class="auth-buttons">
+            <a href="{% url 'logout' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Wyloguj</a>
+        </div>
+    </header>
+
+    <main class="main-content centered">
+        <div class="container">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <h1 class="main-title">Szczegóły zdarzenia</h1>
+            <p class="main-subtitle">Etap #{{ event.event_id }} w łańcuchu dostaw</p>
+
+            <div class="detail-card">
+                <h2>Informacje o zdarzeniu</h2>
+                <div class="detail-row">
+                    <div class="detail-label">Obszar działalności</div>
+                    <div class="detail-value">
+                        <span class="area-badge">{{ event.area_id.get_name_display }}</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Data i czas</div>
+                    <div class="detail-value">{{ event.event_timestamp|date:"d.m.Y H:i:s" }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Firma</div>
+                    <div class="detail-value">
+                        {{ event.company_id.name }}
+                        <span class="company-type-badge">{{ event.company_id.get_company_type_display }}</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Lokalizacja</div>
+                    <div class="detail-value">{{ event.location|default:"—" }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Certyfikat</div>
+                    <div class="detail-value">{{ event.certificate_id.certificate_number }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Partia produktów</div>
+                    <div class="detail-value">{{ event.batch_id.name }}</div>
+                </div>
+            </div>
+
+            {% if geo %}
+            <div class="detail-card">
+                <h2>Lokalizacja na mapie</h2>
+                <div id="map"></div>
+            </div>
+            {% endif %}
+
+            {% if event.blockchain_hash or event.blockchain_tx_id %}
+            <div class="detail-card">
+                <h2>🔗 Dane blockchain</h2>
+                {% if event.blockchain_hash %}
+                <div class="detail-row">
+                    <div class="detail-label">Hash</div>
+                    <div class="detail-value">
+                        <span class="blockchain-value">{{ event.blockchain_hash }}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% if event.blockchain_tx_id %}
+                <div class="detail-row">
+                    <div class="detail-label">ID transakcji</div>
+                    <div class="detail-value">
+                        <span class="blockchain-value">{{ event.blockchain_tx_id }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Akcje -->
+            <div class="actions">
+                <a href="{% url 'list_chain_events' batch_id=event.batch_id.batch_id %}" class="btn-back">← Wróć do listy</a>
+                <a href="{% url 'delete_chain_event' event_id=event.event_id %}" class="btn-delete">🗑 Usuń zdarzenie</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer top-margin-large">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="#" class="footer-link">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    {% if geo %}
+    <script>
+        const map = L.map('map');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        const latlng = [{{ geo.latitude }}, {{ geo.longitude }}];
+        map.setView(latlng, 13);
+        L.marker(latlng).addTo(map)
+            .bindPopup("{{ geo.display_name|default:event.location }}")
+            .openPopup();
+    </script>
+    {% endif %}
+</body>
+</html>

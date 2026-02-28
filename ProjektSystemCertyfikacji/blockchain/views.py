@@ -171,15 +171,7 @@ def get_supply_chain_history(request, batch_id):
 
 @require_http_methods(["GET"])
 def get_supply_chain_map(request, batch_id):
-    """
-    Pobranie danych łańcucha dostaw w formacie odpowiednim do wyświetlenia na interaktywnej mapie.
-    Zwraca waypoints (punkty na mapie) i routes (trasy między punktami) z pełnymi informacjami.
-    
-    Parametry URL:
-    - geocode=true/false (domyślnie true) - czy geokodować adresy na współrzędne używając Nominatim (OpenStreetMap)
-    """
     try:
-        # Sprawdzenie czy partia istnieje
         try:
             batch = Product_batch.objects.get(batch_id=batch_id)
         except Product_batch.DoesNotExist:
@@ -187,33 +179,31 @@ def get_supply_chain_map(request, batch_id):
                 "success": False,
                 "error": "Batch not found"
             }, status=404)
-        
-        # Parametry geokodowania z URL
+
         geocode_param = request.GET.get('geocode', 'true').lower()
         geocode_enabled = geocode_param in ('true', '1', 'yes')
         
         blockchain = get_blockchain()
         map_data = blockchain.get_batch_supply_chain_map_data(batch_id, geocode=geocode_enabled)
-        
+
+        subchain = blockchain.get_subchain(batch_id)
+        if subchain is None:
+            return JsonResponse({"success": False, "error": "Subchain not found"}, status=404)
+        map_data = subchain.get_supply_chain_map_data(geocode=geocode_enabled)
+
         if map_data is None:
             return JsonResponse({
                 "success": False,
                 "error": "Subchain not found for this batch"
             }, status=404)
-        
-        # Wzbogacenie danych o informacje o firmach z bazy danych
+
         enriched_waypoints = []
         for waypoint in map_data.get("waypoints", []):
             enriched_waypoint = waypoint.copy()
-            
-            # Pobranie informacji o firmie jeśli entity_id jest dostępne
             entity_id = waypoint.get("entity_id")
             if entity_id:
                 try:
-                    # Próba znalezienia firmy - może to być company_id lub certifying_unit_id
-                    # W zależności od typu etapu
                     if waypoint.get("entity_type") == "producer":
-                        # Dla producenta sprawdzamy certifying_unit
                         from ..models import Certifying_unit
                         entity = Certifying_unit.objects.get(certifying_unit_id=entity_id)
                         enriched_waypoint["entity_info"] = {
@@ -223,7 +213,6 @@ def get_supply_chain_map(request, batch_id):
                             "type": "certifying_unit"
                         }
                     else:
-                        # Dla innych etapów sprawdzamy Company
                         entity = Company.objects.get(company_id=entity_id)
                         enriched_waypoint["entity_info"] = {
                             "id": entity.company_id,
@@ -235,15 +224,10 @@ def get_supply_chain_map(request, batch_id):
                             "type": entity.company_type
                         }
                 except Exception:
-                    # Jeśli nie znaleziono firmy, pozostawiamy bez zmian
                     enriched_waypoint["entity_info"] = None
             
             enriched_waypoints.append(enriched_waypoint)
-        
-        # Aktualizacja waypoints w map_data
         map_data["waypoints"] = enriched_waypoints
-        
-        # Dodanie informacji o produkcie
         map_data["product_info"] = {
             "batch_id": batch.batch_id,
             "batch_name": batch.name,

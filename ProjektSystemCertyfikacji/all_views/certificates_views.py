@@ -7,10 +7,10 @@ from ..forms.certificate_form import CertificateForm
 from django.db.models import ProtectedError
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from ..models import Certificate_status_history, Certificate, Activity_area
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from ..models import Certificate_status_history, Certificate, Activity_area, Certifying_unit, Company, Product_batch
 from ProjektSystemCertyfikacji.utils.pdf_reader import extract_data
 from datetime import datetime
-
 @login_required
 def add_cert(request):
     user = request.user
@@ -170,9 +170,12 @@ def cert_detail(request, cert_id):
         return render(request, 'certificates/cert_error.html', {
             'msg': 'Certyfikat nie znaleziony'
         })
-    
+
+    batches = Product_batch.objects.filter(certificate_id=cert)
+
     return render(request, 'certificates/cert_detail.html', {
-        'cert': cert
+        'cert': cert,
+        'batches': batches,
     })
 
 

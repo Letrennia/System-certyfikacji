@@ -9,6 +9,9 @@ from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view,
 from ProjektSystemCertyfikacji.utils import redirect_certificate_url
 from main_app import settings
 from ProjektSystemCertyfikacji.all_views import product_views
+from ProjektSystemCertyfikacji.all_views.chain_events_views import (list_chain_events,
+                                                                    add_chain_event, chain_event_detail, delete_chain_event, geocode_location_ajax)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -48,6 +51,12 @@ urlpatterns = [
     path('api/certificates-for-batch/', product_views.get_certificates_for_batch, name='get_certificates_for_batch'),
 
     path('captcha/', include('captcha.urls')),
+
+    path('batches/<int:batch_id>/events/', list_chain_events, name='list_chain_events'),
+    path('batches/<int:batch_id>/events/add/', add_chain_event, name='add_chain_event'),
+    path('events/geocode/', geocode_location_ajax, name='geocode_location_ajax'),
+    path('events/<int:event_id>/', chain_event_detail, name='chain_event_detail'),
+    path('events/<int:event_id>/delete/', delete_chain_event, name='delete_chain_event'),
 ]
 
 if settings.DEBUG:
