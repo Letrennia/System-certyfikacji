@@ -26,6 +26,7 @@ class CertificateForm(forms.ModelForm):
             'status',
             'activity_areas',
             'subject_type',
+            'pdf_file',
         ]
 
         widgets = {
@@ -56,6 +57,9 @@ class CertificateForm(forms.ModelForm):
             'subject_type': forms.Select(attrs={
                 'class': 'form-control'
             }),
+            'pdf_file': forms.FileInput(attrs={
+                'class': 'form-control'
+            })
         }
 
     def __init__(self, *args, certifying_unit=None, user=None, **kwargs):

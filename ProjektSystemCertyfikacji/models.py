@@ -73,8 +73,9 @@ class Activity_area(models.Model):
     
     ACTIVITY_CHOICES = [
         ('production', 'Produkcja'),
-        ('preparation', 'Przygotowanie'),
-        ('introduction', 'Wprowadzenie'),
+        ('preparation', 'Przygotowywanie'),
+        ('distribution', 'Distribution'), # Dodane w ten sposób, ponieważ tak wygląda to w oryginale
+        ('introduction', 'Dystrybucja/Wprowadzanie do obrotu'),
         ('storage', 'Przechowywanie'),
         ('import', 'Import'),
         ('export', 'Eksport'),
@@ -142,7 +143,6 @@ class Certificate(models.Model):
         db_column='subject_type'
         )
 
-
     #certificate_publisher = models.CharField(max_length=200, db_column='certificate_publisher')
     STATUS = [
         #('none', 'None'),
@@ -168,6 +168,9 @@ class Certificate(models.Model):
 
     qr_code_img = models.ImageField(upload_to='qr_codes/', blank=True,
                                     null=True)  # Dodane w celu przetrzymywania img qr kodów
+
+    pdf_file = models.FileField(upload_to='certificate_files/', blank=True,
+                                null=True) # Dodane do przechowywania oryginalnych certyfikatów
 
     class Meta:
         db_table = 'certificate'

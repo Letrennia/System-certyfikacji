@@ -9,8 +9,8 @@ from ..forms.report_form import FraudReportForm
 from ..forms.rating_form import ConsumerRatingForm
 from django.db.models import Avg
 from django.http import JsonResponse
-from django_ratelimit.decorators import ratelimit #Wywala błąd przy runserver
-# from ratelimit.decorators import ratelimit
+# from django_ratelimit.decorators import ratelimit #Wywala błąd przy runserver
+from ratelimit.decorators import ratelimit
 from django.core.cache import cache
 import time
 

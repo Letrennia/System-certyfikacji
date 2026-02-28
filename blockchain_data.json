@@ -247,5 +247,69 @@
         },
         "previous_hash": "8ae6b9d45f96c487282fa6b1620c7b47703363fd5539fe9e38bf9adc06002b67",
         "hash": "7b4d9787ec08ad2036a6879984e9146883f6f4eaeee645e04d355a88fab72e17"
+    },
+    {
+        "index": 16,
+        "timestamp": "2026-02-28T18:22:50.395240",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 70,
+            "certificate_number": "IT-BIO-015.380-0055011.2025.002",
+            "holder_entity_id": null,
+            "valid_from": "2025-10-20",
+            "valid_to": "2028-10-19",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "7b4d9787ec08ad2036a6879984e9146883f6f4eaeee645e04d355a88fab72e17",
+        "hash": "6dfa03b662cb742be098b7c33a8211d2d2d8a11a81e8b1546a07d5160b253b5f"
+    },
+    {
+        "index": 17,
+        "timestamp": "2026-02-28T18:31:58.647856",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 71,
+            "certificate_number": "PL-EKO-07.616-0024745.2026.002",
+            "holder_entity_id": null,
+            "valid_from": "2026-02-27",
+            "valid_to": "2027-02-28",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "6dfa03b662cb742be098b7c33a8211d2d2d8a11a81e8b1546a07d5160b253b5f",
+        "hash": "eec61f37f6c26a0b67ffa70af40224487d63f01078a6bbc049f42d962c16b20c"
+    },
+    {
+        "index": 18,
+        "timestamp": "2026-02-28T20:08:42.824843",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 72,
+            "certificate_number": "PL-EKO-01.616-0000325.2026.001",
+            "holder_entity_id": null,
+            "valid_from": "2026-02-24",
+            "valid_to": "2027-05-23",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "eec61f37f6c26a0b67ffa70af40224487d63f01078a6bbc049f42d962c16b20c",
+        "hash": "355d52baed9196ac2972daef574eefcdafc6a1b971562303bd8c7fc6b845fc36"
+    },
+    {
+        "index": 19,
+        "timestamp": "2026-02-28T21:22:28.160487",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 73,
+            "certificate_number": "PL-EKO-01.616-0000325.2026.001",
+            "holder_entity_id": null,
+            "valid_from": "2026-02-24",
+            "valid_to": "2027-05-23",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "355d52baed9196ac2972daef574eefcdafc6a1b971562303bd8c7fc6b845fc36",
+        "hash": "8ea0b5bdf4b0e938b78aa81f962a2198c9733d5980ccfdace7f63e2c98637816"
     }
 ]

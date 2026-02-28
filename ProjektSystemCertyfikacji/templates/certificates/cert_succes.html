@@ -237,14 +237,15 @@
                         </div>
 
                         <div class="summary-item">
-                            <div class="summary-label">Typ Certyfikatu</div>
-                            <div class="summary-value">{{ cert.certificate_type }}</div>
+                            <div class="summary-label">Rodzaj podmiotu</div>
+                            <div class="summary-value">{{ cert.get_subject_type_display }}</div>
                         </div>
 
-                        <div class="summary-item">
-                            <div class="summary-label">Wydawca</div>
-                            <div class="summary-value">{{ cert.certificate_publisher }}</div>
-                        </div>
+{#                        Nie ma juz certificate_publisher w modelu#}
+{#                        <div class="summary-item">#}
+{#                            <div class="summary-label">Wydawca</div>#}
+{#                            <div class="summary-value">{{ cert.certificate_publisher }}</div>#}
+{#                        </div>#}
 
                         <div class="summary-item">
                             <div class="summary-label">Status</div>

@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,8 +7,9 @@ from ..forms.certificate_form import CertificateForm
 from django.db.models import ProtectedError
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from ..models import Certificate_status_history, Certificate
-
+from ..models import Certificate_status_history, Certificate, Activity_area
+from ProjektSystemCertyfikacji.utils.pdf_reader import extract_data
+from datetime import datetime
 
 @login_required
 def add_cert(request):
@@ -31,24 +33,61 @@ def add_cert(request):
         })
     
     if request.method == 'POST':
-        form = CertificateForm(request.POST, certifying_unit=certifying_unit, user=request.user)
-        if form.is_valid():
-            cert = form.save(commit=False)
-            
-            if not is_admin:
-                cert.issued_by_certifying_unit_id = certifying_unit
-            
-            cert.save()
-            form.save_m2m()
-            
-            messages.success(request, f'Certyfikat {cert.certificate_number} został poprawnie dodany')
-            return redirect('cert_succes', cert_id=cert.certificate_id)
-        else:
+        form = CertificateForm(request.POST, request.FILES, certifying_unit=certifying_unit, user=request.user)
+
+        if 'load_pdf' in request.POST and request.FILES.get('pdf_file'):
+            pdf_file = request.FILES['pdf_file']
+            extracted_data = extract_data(pdf_file)
+
+            activity_names = extracted_data.get('activity_areas') or []
+            activity_ids = []
+            for name in activity_names:
+                try:
+                    area = Activity_area.objects.get(
+                        name__in=[c[0] for c in Activity_area.ACTIVITY_CHOICES if c[1] == name])
+                    activity_ids.append(area.area_id)
+                except Activity_area.DoesNotExist:
+                    continue
+
+            form = CertificateForm(
+                initial={
+                    'certificate_number': extracted_data.get('certificate_number'),
+                    'subject_type': extracted_data.get('subject_type'),
+                    'valid_from': extracted_data.get('valid_from'),
+                    'valid_to': extracted_data.get('valid_to'),
+                    'activity_areas': activity_ids,
+                },
+                certifying_unit=certifying_unit,
+                user=request.user
+            )
+
             return render(request, 'certificates/add_cert.html', {
                 'form': form,
-                'err': 'Błąd - sprawdź poprawność danych',
-                'is_admin': is_admin
+                'is_admin': is_admin,
             })
+
+        if 'save_cert' in request.POST:
+            if form.is_valid():
+                cert = form.save(commit=False)
+
+                if not is_admin:
+                    cert.issued_by_certifying_unit_id = certifying_unit
+
+                cert.save()
+                form.save_m2m()
+
+                messages.success(
+                    request,
+                    f'Certyfikat {cert.certificate_number} został poprawnie dodany'
+                )
+                return redirect('cert_succes', cert_id=cert.certificate_id)
+
+            else:
+                return render(request, 'certificates/add_cert.html', {
+                    'form': form,
+                    'err': 'Błąd - sprawdź poprawność danych',
+                    'is_admin': is_admin
+                })
 
 def cert_succes(request, cert_id):
     try:

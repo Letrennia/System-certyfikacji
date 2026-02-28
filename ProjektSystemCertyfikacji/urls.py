@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .all_views.certificates_views import (
 	add_cert, cert_succes, list_cert, cert_detail, 
 	edit_cert, delete_cert, 
-	certificate_history_view, certificate_history_export, certificate_change_log_api
+	certificate_history_view, certificate_history_export, certificate_change_log_api,
 )
 from ProjektSystemCertyfikacji.all_views import product_views
 from .all_views.views import (
