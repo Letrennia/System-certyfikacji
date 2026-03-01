@@ -72,7 +72,6 @@
         .blockchain-status.unknown {
             background-color: #f5f5f5; color: #757575; border: 1px solid #e0e0e0;
         }
-        .blockchain-status .status-icon { font-size: 22px; flex-shrink: 0; }
         .blockchain-status .status-text { flex: 1; }
         .blockchain-status .status-text strong { display: block; font-size: 15px; margin-bottom: 2px; }
         .blockchain-status .status-text span { font-weight: 400; font-size: 13px; }
@@ -188,7 +187,6 @@
             <h1 class="main-title">Łańcuch dostaw</h1>
             <p class="main-subtitle">Historia etapów dla partii produktów</p>
 
-            <!-- Batch info -->
             <div class="batch-info-card">
                 <div>
                     <div class="batch-name">{{ batch.name }}</div>
@@ -198,11 +196,10 @@
                 <span class="status-badge status-{{ batch.status }}">{{ batch.get_status_display }}</span>
             </div>
 
-            <!-- ── Blockchain integrity widget ── -->
             <div class="blockchain-widget" id="blockchain-widget">
                 <div class="blockchain-widget-header">
                     <div class="blockchain-widget-title">
-                        🔗 Weryfikacja integralności blockchain
+                        Weryfikacja integralności blockchain
                     </div>
                     <button class="btn-verify" id="btn-verify" onclick="verifyBlockchain()">
                         Weryfikuj teraz
@@ -210,7 +207,6 @@
                 </div>
 
                 <div class="blockchain-status unknown" id="blockchain-status">
-                    <span class="status-icon">⏳</span>
                     <div class="status-text">
                         <strong>Nie zweryfikowano</strong>
                         <span>Kliknij "Weryfikuj teraz", aby sprawdzić integralność danych w blockchain.</span>
@@ -225,13 +221,13 @@
                 <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">+ Dodaj etap</a>
             </div>
 
-            <!-- Map -->
             {% if geo_data %}
             <div class="map-section">
                 <h2>🗺 Mapa trasy</h2>
                 <div id="map"></div>
             </div>
             {% endif %}
+
             {% if events %}
                 <div class="timeline">
                     {% for event in events %}
@@ -338,11 +334,10 @@
         return v;
     }
 
-    function setStatus(type, icon, title, subtitle) {
+    function setStatus(type, title, subtitle) {
         const el = document.getElementById('blockchain-status');
         el.className = `blockchain-status ${type}`;
         el.innerHTML = `
-            <span class="status-icon">${icon}</span>
             <div class="status-text">
                 <strong>${title}</strong>
                 <span>${subtitle}</span>
@@ -412,7 +407,7 @@
                 const odmiana = batchBlocks === 1 ? 'etap' : batchBlocks < 5 ? 'etapy' : 'etapów';
                 setStatus('valid',
                     'Blockchain zweryfikowany — dane są nienaruszone',
-                    `${batchBlocks} aktywne ${odmiana} są spójne. Żaden etap nie został nielegalnie zmodyfikowany.`
+                    `${batchBlocks} aktywnych ${odmiana}, które są spójne. Żaden etap nie został nielegalnie zmodyfikowany.`
                 );
             }
 
@@ -421,12 +416,15 @@
                 { label: 'Usunięte etapy',    value: revokedCount },
                 { label: 'Łączne bloki',      value: totalBlocks },
                 { label: 'Długość łańcucha',  value: chainLength + ' bloków' },
-                { label: 'Główny łańcuch',    value: chainValid     ?  'Spójny' : 'Naruszony' },
+                { label: 'Główny łańcuch',    value: chainValid     ? 'Spójny' : 'Naruszony' },
                 { label: 'Podłańcuch partii', value: !historyData.success ? '—' : subchainValid ? 'Spójny' : 'Naruszony' },
             ]);
 
         } catch (err) {
-            setStatus('invalid', 'Błąd połączenia z blockchain', 'Nie udało się połączyć z serwisem blockchain. Spróbuj ponownie później.');
+            setStatus('invalid',
+                'Błąd połączenia z blockchain',
+                'Nie udało się połączyć z serwisem blockchain. Spróbuj ponownie później.'
+            );
             console.error('Blockchain verify error:', err);
         }
 
