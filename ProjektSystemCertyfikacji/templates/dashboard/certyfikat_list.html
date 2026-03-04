@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel kontrolny - certyfikaty</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+        .btn-revoke { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>Lista certyfikatów</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Numer certyfikatu</th>
+                <th>Status</th>
+                <th>Ważny od</th>
+                <th>Ważny do</th>
+                <th>Posiadacz</th>
+                <th>Jednostka wydająca</th>
+                <th>Średnia ocena</th>
+                <th>Liczba ocen</th>
+                <th>Szczegóły</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cert in certificates %}
+            <tr>
+                <td>{{ cert.certificate_number }}</td>
+                <td>{{ cert.get_status_display }}</td>
+                <td>{{ cert.valid_from }}</td>
+                <td>{{ cert.valid_to }}</td>
+                <td>{{ cert.holder_company_id.name }}</td>
+                <td>{{ cert.issued_by_certifying_unit_id.name }}</td>
+                <td>{{ cert.avg_rating|floatformat:2|default:"-" }}</td>
+                <td>{{ cert.ratings_count }}</td>
+                <td><a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn">Zobacz</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9">Brak certyfikatów.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'home' %}">Powrót na stronę główną</a>
+</body>
+</html>

@@ -31,7 +31,7 @@ urlpatterns = [
     path('account_type/', choose_account_view.account_type, name='account_type'),
     path('producer_main/', producer_main_view.p_main_page, name='producer_main'),
     
-
+    path('', include('ProjektSystemCertyfikacji.urls')),
 
     path('certificates/add/', add_cert, name='add_cert'),
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),

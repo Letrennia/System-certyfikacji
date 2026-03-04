@@ -5,6 +5,7 @@ from .all_views.certificates_views import (
 	add_cert, cert_succes, list_cert, cert_detail, 
 	edit_cert, delete_cert, 
 	certificate_history_view, certificate_history_export, certificate_change_log_api,
+    
 )
 from ProjektSystemCertyfikacji.all_views import product_views
 from .all_views.views import (
@@ -20,7 +21,7 @@ from .all_views.main_page_view import (
 )
 from django.contrib.humanize.templatetags.humanize import naturaltime 
    
-
+from .all_views import dashboard_views
 
 router = DefaultRouter()
 router.register(r'certificates', CertificateViewSet)
@@ -69,5 +70,9 @@ urlpatterns = [
 path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
     path('api/', include(router.urls)),
 
-
+# Dashboard
+        #path('dashboard/certificate/<int:certificate_id>/'),
+    path('dashboard/', dashboard_views.control_dashboard, name='control_dashboard'),
+    path('dashboard/certificate/<int:cert_id>/', dashboard_views.certificate_control_detail, name='certificate_control_detail'),
+    path('dashboard/certificate/<int:cert_id>/revoke/', dashboard_views.revoke_certificate, name='revoke_certificate'),
 ]

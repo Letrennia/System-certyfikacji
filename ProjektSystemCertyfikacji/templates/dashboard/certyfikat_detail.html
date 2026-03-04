@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Szczegóły certyfikatu</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+        .btn-revoke { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>Certyfikat {{ certificate.certificate_number }}</h1>
+
+    <h2>Podstawowe informacje</h2>
+    <p>Status: {{ certificate.get_status_display }}</p>
+    <p>Ważny od: {{ certificate.valid_from }} do: {{ certificate.valid_to }}</p>
+    <p>Posiadacz: {{ certificate.holder_company_id.name }}</p>
+    <p>Jednostka wydająca: {{ certificate.issued_by_certifying_unit_id.name }}</p>
+    <p>Liczba partii produktów: {{ batches_count }}</p>
+
+    {% if certificate.status == 'valid' %}
+        <a href="{% url 'revoke_certificate' certificate.certificate_id %}" class="btn btn-revoke">Wycofaj certyfikat</a>
+    {% endif %}
+
+    <h2>Oceny konsumentów</h2>
+    <canvas id="ratingsChart" width="400" height="200"></canvas>
+
+    <script>
+        const ctx = document.getElementById('ratingsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ rating_labels|safe }},
+                datasets: [{
+                    label: 'Ocena',
+                    data: {{ rating_values|safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h2>Partie produktów</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nazwa partii</th>
+                <th>Kategoria</th>
+                <th>Ilość</th>
+                <th>Jednostka</th>
+                <th>Data produkcji</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for batch in batches %}
+            <tr>
+                <td>{{ batch.name }}</td>
+                <td>{{ batch.category }}</td>
+                <td>{{ batch.quantity }}</td>
+                <td>{{ batch.get_unit_of_measure_display }}</td>
+                <td>{{ batch.production_date }}</td>
+                <td>{{ batch.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Brak partii dla tego certyfikatu.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{% url 'control_dashboard' %}">Powrót do listy certyfikatów</a>
+</body>
+</html>

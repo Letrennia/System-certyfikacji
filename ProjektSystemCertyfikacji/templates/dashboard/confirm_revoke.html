@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Potwierdź wycofanie certyfikatu</title>
+    <style>
+        .btn { padding: 5px 10px; color: white; text-decoration: none; border-radius: 3px; }
+        .btn-confirm { background-color: #dc3545; }
+        .btn-cancel { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <h1>Potwierdź wycofanie certyfikatu</h1>
+    <p>Czy na pewno chcesz wycofać certyfikat <strong>{{ certificate.certificate_number }}</strong>?</p>
+    <p>Akcja jest nieodwracalna.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-confirm">Tak, wycofaj</button>
+        <a href="{% url 'certificate_control_detail' certificate.certificate_id %}" class="btn btn-cancel">Anuluj</a>
+    </form>
+</body>
+</html>
