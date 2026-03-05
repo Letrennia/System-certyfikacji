@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h3>Certyfikaty wygasające w ciągu 3 dni</h3>
+
+    {% for c in cert %}
+        <p>
+            Certyfikat: {{ c }} <br>
+            Data ważności: {{ c.valid_to }}
+        </p>
+    {% empty %}
+        <p>Brak certyfikatów wygasających w najbliższych 3 dniach.</p>
+    {% endfor %}
+</body>
+</html>

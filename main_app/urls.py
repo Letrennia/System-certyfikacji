@@ -5,7 +5,7 @@ from ProjektSystemCertyfikacji.all_views import views_certificate
 from django.urls import path, include
 from django.views.generic import RedirectView
 from ProjektSystemCertyfikacji.all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail, edit_cert, delete_cert
-from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, choose_account_view, producer_main_view, company_sign_up_view
+from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, choose_account_view, company_sign_up_view, notification_view
 from ProjektSystemCertyfikacji.utils import redirect_certificate_url
 from main_app import settings
 from ProjektSystemCertyfikacji.all_views import product_views
@@ -29,7 +29,8 @@ urlpatterns = [
     # path('register_producer/', p_sign_up_view.sign_up, name='register_producer'), #producent do wywalenia poxniej
     path('register_company/', company_sign_up_view.sign_up, name='register_company'), #company
     path('account_type/', choose_account_view.account_type, name='account_type'),
-    path('producer_main/', producer_main_view.p_main_page, name='producer_main'),
+    path('notifications/', notification_view.show_notifications, name='notifications'),
+    # path('producer_main/', producer_main_view.p_main_page, name='producer_main'),
     
     path('', include('ProjektSystemCertyfikacji.urls')),
 

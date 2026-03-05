@@ -343,5 +343,53 @@
         },
         "previous_hash": "1c13dce5c1048fe55122f9d084531b8aadd3cd8471c36539d304a0ee6803d308",
         "hash": "73adb8558f510ff48ea6b26d22033e8fa3944817a21cb9458a076820e6629340"
+    },
+    {
+        "index": 22,
+        "timestamp": "2026-03-05T18:49:41.297742",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 76,
+            "certificate_number": "ADLR-00231",
+            "holder_entity_id": null,
+            "valid_from": "2026-03-03",
+            "valid_to": "2026-03-06",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "73adb8558f510ff48ea6b26d22033e8fa3944817a21cb9458a076820e6629340",
+        "hash": "a432b537bee09314459700d187dd0082f60042acf309cdf30d24344bb261828e"
+    },
+    {
+        "index": 23,
+        "timestamp": "2026-03-05T18:54:36.997970",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 77,
+            "certificate_number": "ARAR-5839754H",
+            "holder_entity_id": null,
+            "valid_from": "2026-03-02",
+            "valid_to": "2026-03-07",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "a432b537bee09314459700d187dd0082f60042acf309cdf30d24344bb261828e",
+        "hash": "bae22bac0a7eff5a3dd75184daff09a0ca287cfe2e863b9d5076af46dcae4108"
+    },
+    {
+        "index": 24,
+        "timestamp": "2026-03-05T18:55:26.805769",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 78,
+            "certificate_number": "LSTR-358253V",
+            "holder_entity_id": null,
+            "valid_from": "2026-03-01",
+            "valid_to": "2026-03-06",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "bae22bac0a7eff5a3dd75184daff09a0ca287cfe2e863b9d5076af46dcae4108",
+        "hash": "02dd78cca7237971e76e4c77d2d45412276f96a0046cc1d9fe2a40d46d62b6fe"
     }
 ]

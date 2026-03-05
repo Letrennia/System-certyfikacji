@@ -30,7 +30,7 @@ def sign_in(request):
                 login(request, user)
                 messages.success(request, f'Poprawne zalogowanie {username.title()}')
                 if hasattr(user, 'company_user'):
-                    return redirect('producer_main')
+                    return redirect('list_product_batches')
                 elif hasattr(user, 'certifying_unit'):
                     return redirect('list_cert') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
             else:
