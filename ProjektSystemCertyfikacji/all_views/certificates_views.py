@@ -116,10 +116,14 @@ def list_cert(request):
             certifying_unit = Certifying_unit.objects.get(user=user)
             certificates = certificates.filter(issued_by_certifying_unit_id=certifying_unit)
         except Certifying_unit.DoesNotExist:
-            return render(request, 'certificates/cert_error.html', {
-                'msg': 'Błąd - Twoje konto nie jest powiązane z żadną jednostką certyfikującą'
-            })
-    
+            try:
+                company = Company.objects.get(user=user)
+                certificates = certificates.filter(holder_company_id=company)
+            except:
+                return render(request, 'certificates/cert_error.html', {
+                    'msg': 'Błąd - Twoje konto nie jest powiązane z żadną jednostką certyfikującą'
+                })
+
     search = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
     sort_by = request.GET.get('sort_by', 'valid_from')

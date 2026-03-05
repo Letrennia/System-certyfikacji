@@ -311,5 +311,37 @@
         },
         "previous_hash": "355d52baed9196ac2972daef574eefcdafc6a1b971562303bd8c7fc6b845fc36",
         "hash": "8ea0b5bdf4b0e938b78aa81f962a2198c9733d5980ccfdace7f63e2c98637816"
+    },
+    {
+        "index": 20,
+        "timestamp": "2026-03-02T15:40:31.978025",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 74,
+            "certificate_number": "ES-ECO-019-CT.724-0024295.2026.001",
+            "holder_entity_id": null,
+            "valid_from": "2026-02-11",
+            "valid_to": "2027-06-30",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "8ea0b5bdf4b0e938b78aa81f962a2198c9733d5980ccfdace7f63e2c98637816",
+        "hash": "1c13dce5c1048fe55122f9d084531b8aadd3cd8471c36539d304a0ee6803d308"
+    },
+    {
+        "index": 21,
+        "timestamp": "2026-03-05T17:55:45.758710",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 75,
+            "certificate_number": "PL-EKO-07.616-0030318.2026.001",
+            "holder_entity_id": null,
+            "valid_from": "2026-03-03",
+            "valid_to": "2026-12-31",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "1c13dce5c1048fe55122f9d084531b8aadd3cd8471c36539d304a0ee6803d308",
+        "hash": "73adb8558f510ff48ea6b26d22033e8fa3944817a21cb9458a076820e6629340"
     }
 ]
