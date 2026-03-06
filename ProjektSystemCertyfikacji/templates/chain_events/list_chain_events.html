@@ -160,19 +160,7 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
-        </div>
-        <nav class="nav-menu">
-            <div class="nav-item"><a href="/">Strona główna</a></div>
-            <div class="nav-item active"><a href="{% url 'list_product_batches' %}">Produkty</a></div>
-            <div class="nav-item"><a href="{% url 'list_cert' %}">Certyfikaty</a></div>
-        </nav>
-        <div class="auth-buttons">
-            <a href="{% url 'logout' %}" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Wyloguj</a>
-        </div>
-    </header>
+    {% include "navbars/certifying_unit_navbar.html" %}
 
     <main class="main-content centered">
         <div class="container">

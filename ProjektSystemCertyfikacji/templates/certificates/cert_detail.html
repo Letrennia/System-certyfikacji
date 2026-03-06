@@ -259,27 +259,7 @@
     </style>
 </head>
 <body class="white-bg">
-    <header class="header">
-        <div class="logo">
-            <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
-        </div>
-
-        <nav class="nav-menu">
-            <div class="nav-item">Produkty</div>
-            <div class="nav-item active">Certyfikaty</div>
-            <div class="nav-item">Track & Trace</div>
-            <div class="nav-item">Historia</div>
-            <div class="nav-item">Mapa</div>
-            <div class="nav-item">Oceny</div>
-            <div class="nav-item">Zgłoś</div>
-        </nav>
-
-        <div class="auth-buttons">
-            <a href="/login" class="btn btn-secondary" style="text-decoration: none; display: inline-block;">Logowanie</a>
-            <a href="/register" class="btn btn-primary" style="text-decoration: none; display: inline-block;">Rejestracja</a>
-        </div>
-    </header>
-
+    {% include "navbars/certifying_unit_navbar.html" %}
     <main class="main-content">
         <div class="details-container">
             <div class="product-header">

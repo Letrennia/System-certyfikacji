@@ -391,5 +391,35 @@
         },
         "previous_hash": "bae22bac0a7eff5a3dd75184daff09a0ca287cfe2e863b9d5076af46dcae4108",
         "hash": "02dd78cca7237971e76e4c77d2d45412276f96a0046cc1d9fe2a40d46d62b6fe"
+    },
+    {
+        "index": 25,
+        "timestamp": "2026-03-06T19:41:35.264116",
+        "data": {
+            "type": "batch_registration",
+            "batch_id": 15,
+            "certificate_id": 77,
+            "name": "ryż",
+            "category": "zboże",
+            "production_date": "2026-03-04",
+            "producer_id": 8,
+            "amount": 12.0,
+            "unit": "kg"
+        },
+        "previous_hash": "02dd78cca7237971e76e4c77d2d45412276f96a0046cc1d9fe2a40d46d62b6fe",
+        "hash": "cb8a8cad1e66fd9747b17eba63d6c3658c7d8215623f027afe40a00a83e42293"
+    },
+    {
+        "index": 26,
+        "timestamp": "2026-03-06T19:41:35.265109",
+        "data": {
+            "type": "subchain_creation",
+            "batch_id": 15,
+            "certificate_id": 77,
+            "subchain_address": "2c96873605de2d05c644c4c210107dac89e254e6aee46e8f6c7f7ea0d6524fa2",
+            "producer_id": 8
+        },
+        "previous_hash": "cb8a8cad1e66fd9747b17eba63d6c3658c7d8215623f027afe40a00a83e42293",
+        "hash": "6005d002cd81b7ec92dc7ee15f704909123074d4c39d51ef62fb8aa59969724d"
     }
 ]
