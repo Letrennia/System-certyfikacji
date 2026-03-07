@@ -1,50 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
-    <title>Panel kontrolny - certyfikaty</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Kontrolny - Certyfikaty</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .btn { padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; }
-        .btn-revoke { background-color: #dc3545; }
+        .table-container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .certificates-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .certificates-table thead {
+            background-color: #2c2c2c;
+            color: white;
+        }
+
+        .certificates-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .certificates-table tbody tr {
+            border-bottom: 1px solid #e5e5e5;
+            transition: background-color 0.2s;
+        }
+
+        .certificates-table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .certificates-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .certificates-table td {
+            padding: 16px;
+            color: #1e1e1e;
+            font-size: 15px;
+        }
+
+        .cert-number {
+            font-weight: 600;
+            color: #2c2c2c;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-valid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-revoked {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-suspended {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+            font-weight: 700;
+        }
+
+        .rating-count {
+            color: #757575;
+            font-size: 13px;
+        }
+
+        .btn-view {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background-color: #2c2c2c;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-view:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            background-color: #f5f5f5;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: #757575;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 32px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #e3e3e3;
+            border: 1px solid #767676;
+            color: #1e1e1e;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .certificates-table {
+                min-width: 1000px;
+            }
+        }
     </style>
 </head>
-<body>
-    <h1>Lista certyfikatów</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Numer certyfikatu</th>
-                <th>Status</th>
-                <th>Ważny od</th>
-                <th>Ważny do</th>
-                <th>Posiadacz</th>
-                <th>Jednostka wydająca</th>
-                <th>Średnia ocena</th>
-                <th>Liczba ocen</th>
-                <th>Szczegóły</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cert in certificates %}
-            <tr>
-                <td>{{ cert.certificate_number }}</td>
-                <td>{{ cert.get_status_display }}</td>
-                <td>{{ cert.valid_from }}</td>
-                <td>{{ cert.valid_to }}</td>
-                <td>{{ cert.holder_company_id.name }}</td>
-                <td>{{ cert.issued_by_certifying_unit_id.name }}</td>
-                <td>{{ cert.avg_rating|floatformat:2|default:"-" }}</td>
-                <td>{{ cert.ratings_count }}</td>
-                <td><a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn">Zobacz</a></td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="9">Brak certyfikatów.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
-    <a href="{% url 'home' %}">Powrót na stronę główną</a>
+<body class="white-bg">
+    {% include "navbars/customer_navbar.html" %}
+
+    <main class="main-content">
+        <div class="product-header">
+            <h1 class="page-title">Panel Kontrolny</h1>
+            <p class="page-subtitle">Lista wszystkich certyfikatów w systemie</p>
+        </div>
+
+        <div class="table-container">
+            <table class="certificates-table">
+                <thead>
+                    <tr>
+                        <th>Numer certyfikatu</th>
+                        <th>Status</th>
+                        <th>Ważny od</th>
+                        <th>Ważny do</th>
+                        <th>Posiadacz</th>
+                        <th>Jednostka wydająca</th>
+                        <th>Średnia ocena</th>
+                        <th>Liczba ocen</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cert in certificates %}
+                    <tr>
+                        <td class="cert-number">{{ cert.certificate_number }}</td>
+                        <td>
+                            <span class="status-badge {% if cert.status == 'valid' %}status-valid{% elif cert.status == 'revoked' %}status-revoked{% else %}status-suspended{% endif %}">
+                                {{ cert.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ cert.valid_from }}</td>
+                        <td>{{ cert.valid_to }}</td>
+                        <td>{{ cert.holder_company_id.name }}</td>
+                        <td>{{ cert.issued_by_certifying_unit_id.name }}</td>
+                        <td>
+                            {% if cert.avg_rating %}
+                                <div class="rating-display">
+                                    <span class="rating-stars">{{ cert.avg_rating|floatformat:1 }}/5</span>
+                                </div>
+                            {% else %}
+                                <span style="color: #757575;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="rating-count">{{ cert.ratings_count }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn-view">Zobacz</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <div class="empty-icon">📋</div>
+                                <div class="empty-text">Brak certyfikatów w systemie.</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{% url 'home' %}" class="back-link">Powrót na stronę główną</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Wyszukaj produkt</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="#" class="footer-link">Historia produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Moduły systemu</a>
+                    <a href="#" class="footer-link">Funkcje</a>
+                    <a href="#" class="footer-link">Transparentność</a>
+                    <a href="#" class="footer-link">Łańcuch dostaw</a>
+                    <a href="#" class="footer-link">Zarządzanie</a>
+                    <a href="#" class="footer-link">Platforma</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Przepisy UE</a>
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
+                    <a href="faq.html" class="footer-link">FAQ</a>
+                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
