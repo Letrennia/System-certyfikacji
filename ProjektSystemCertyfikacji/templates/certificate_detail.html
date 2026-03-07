@@ -399,13 +399,13 @@
             <div class="certificate-details-grid">
                 <div class="detail-card">
                     <div class="detail-card-label">Typ certyfikatu</div>
-                    <div class="detail-card-value">{{ certificate.certificate_type }}</div>
+                    <div class="detail-card-value">{{ certificate.get_subject_type_display }}</div>
                 </div>
 
                 <div class="detail-card">
                     <div class="detail-card-label">Stan</div>
                     <div class="detail-card-value">
-                        <span class="status-badge status-active">{{ certificate.state }}</span>
+                        <span class="status-badge status-active">{{ certificate.get_status_display }}</span>
                     </div>
                 </div>
 
