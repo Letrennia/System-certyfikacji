@@ -13,6 +13,8 @@ from django.http import JsonResponse
 from ratelimit.decorators import ratelimit
 from django.core.cache import cache
 import time
+from django.http import Http404
+from django.http import FileResponse
 
 logger = logging.getLogger(__name__)
 
@@ -172,3 +174,9 @@ def report_fraud(request, token):
         'certificate': certificate,
         'token': token
     })
+def certificate_pdf_download(request, token):
+    certificate_id = decrypt_token(token)
+    certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
+    if not certificate.pdf_file:
+        raise Http404
+    return FileResponse(certificate.pdf_file.open('rb'), as_attachment=False, filename='certificate.pdf')

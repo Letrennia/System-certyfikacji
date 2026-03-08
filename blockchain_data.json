@@ -421,5 +421,21 @@
         },
         "previous_hash": "cb8a8cad1e66fd9747b17eba63d6c3658c7d8215623f027afe40a00a83e42293",
         "hash": "6005d002cd81b7ec92dc7ee15f704909123074d4c39d51ef62fb8aa59969724d"
+    },
+    {
+        "index": 27,
+        "timestamp": "2026-03-08T13:16:15.931822",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 79,
+            "certificate_number": "PL-EKO-07.616-0014482.2026.001",
+            "holder_entity_id": null,
+            "valid_from": "2026-02-27",
+            "valid_to": "2027-02-28",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "6005d002cd81b7ec92dc7ee15f704909123074d4c39d51ef62fb8aa59969724d",
+        "hash": "4dde7e496af7635a284ef2eb171b5a598c98cf681f669c089fb15695988ec5ab"
     }
 ]
