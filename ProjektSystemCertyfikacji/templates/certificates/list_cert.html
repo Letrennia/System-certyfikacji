@@ -360,7 +360,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <body class="white-bg">
 {#powielenie navbaru jednostki certyfikujacej#}
-    {% include "navbars/certifying_unit_navbar.html" %}
+    {% if user.company_user %}
+        {% include "navbars/company_navbar.html" %}
+    {% elif user.certifying_unit %}
+        {% include "navbars/certifying_unit_navbar.html" %}
+    {% else %}
+        {% include "navbars/admin_navbar.html" %}
+    {% endif %}
 
     <main class="main-content">
         <div class="page-header">
