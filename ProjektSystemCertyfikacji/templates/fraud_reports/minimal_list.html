@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fraud Reports - Lista</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .status-new { color: orange; font-weight: bold; }
+        .status-investigating { color: blue; font-weight: bold; }
+        .status-resolved { color: green; font-weight: bold; }
+        .status-rejected { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Zgłoszenia fraudów</h1>
+    <p><a href="/api/fraud-reports/">API JSON</a> | <a href="/api/fraud-reports/stats/">Statystyki</a></p>
+    
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Data</th>
+            <th>Typ</th>
+            <th>Email</th>
+            <th>Opis</th>
+            <th>Certyfikat</th>
+            <th>Status</th>
+            <th>Akcje</th>
+        </tr>
+        {% for report in reports %}
+        <tr>
+            <td>#{{ report.report_id }}</td>
+            <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ report.get_fraud_type_display }}</td>
+            <td>{{ report.reporter_email }}</td>
+            <td>{{ report.description|truncatechars:50 }}</td>
+            <td>
+                {% if report.certificate_id %}
+                    {{ report.certificate_id.certificate_number|truncatechars:15 }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td class="status-{{ report.status }}">{{ report.get_status_display }}</td>
+            <td><a href="/fraud-reports/{{ report.report_id }}/">Szczegóły</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" style="text-align: center;">Brak zgłoszeń</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

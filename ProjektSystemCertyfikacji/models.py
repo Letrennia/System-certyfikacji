@@ -446,15 +446,16 @@ class Fraud_report(models.Model):
     reporter_email = models.CharField(max_length=100, db_column='reporter_email')
     description = models.CharField(max_length=1000, db_column='description')
     STATUS = [
-        ('new', 'New'),
-        ('investigating', 'Investigation'),
-        ('rejected', 'Rejected')
+        ('new', 'Nowe'),
+        ('investigating', 'W trakcie weryfikacji'),
+        ('resolved', 'Rozwiązane'),
+        ('rejected', 'Odrzucone')
     ]
     status = models.CharField(max_length=50, choices=STATUS, default='new', db_column='status')
-    investigation_notes = models.CharField(max_length=1000, db_column='investigation_notes')
+    investigation_notes = models.CharField(max_length=1000, db_column='investigation_notes', blank=True, null=True)
 
-    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id')
-    certificate_id = models.ForeignKey('Certificate', on_delete=models.CASCADE, db_column='certificate_id')
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id', null=True, blank=True)
+    certificate_id = models.ForeignKey('Certificate', on_delete=models.CASCADE, db_column='certificate_id', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def check_and_reject_spam(self):
@@ -476,13 +477,11 @@ class Fraud_report(models.Model):
 
     class Meta:
         db_table = 'fraud_reports'
-        # managed = False
         verbose_name = 'Fraud report'
         verbose_name_plural = 'Fraud reports'
 
     def __str__(self):
         return f"Fraud {self.fraud_type} reported by {self.reporter_email}"
-
 
 class Certificate_status_history(models.Model):
     history_id = models.AutoField(primary_key=True, db_column='history_id')
