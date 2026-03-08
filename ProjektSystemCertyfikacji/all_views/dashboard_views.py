@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db.models import Avg, Q, Count
 from ..models import Certificate, Consumer_rating, Product_batch, Certifying_unit, Certificate_status_history
-
+from ..models import Fraud_report
+from django.utils import timezone
+from datetime import timedelta
 
 @login_required
 def control_dashboard(request):
@@ -118,3 +121,44 @@ def revoke_certificate(request, cert_id):
 
         messages.success(request, f'Certyfikat {certificate.certificate_number} został wycofany.')
         return redirect('control_dashboard')
+
+@staff_member_required
+def dashboard_fraud_reports(request):
+    
+    total = Fraud_report.objects.count()
+    new = Fraud_report.objects.filter(status='new').count()
+    investigating = Fraud_report.objects.filter(status='investigating').count()
+    resolved = Fraud_report.objects.filter(status='resolved').count()
+    rejected = Fraud_report.objects.filter(status='rejected').count()
+    
+    recent_reports = Fraud_report.objects.all().select_related(
+        'certificate_id', 'batch_id'
+    ).order_by('-created_at')[:10]
+    
+    pending_reports = Fraud_report.objects.filter(
+        status__in=['new', 'investigating']
+    ).select_related('certificate_id', 'batch_id').order_by('-created_at')[:5]
+    
+    context = {
+        'stats': {
+            'total': total,
+            'new': new,
+            'investigating': investigating,
+            'resolved': resolved,
+            'rejected': rejected,
+        },
+        'recent_reports': recent_reports,
+        'pending_reports': pending_reports,
+    }
+    
+    return render(request, 'dashboard/fraud_reports.html', context)
+
+@staff_member_required
+def dashboard_fraud_detail(request, report_id):
+    report = Fraud_report.objects.select_related(
+        'certificate_id', 
+        'batch_id',
+        'certificate_id__holder_company_id'
+    ).get(report_id=report_id)
+    
+    return render(request, 'dashboard/fraud_detail.html', {'report': report})

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .all_views import fraud_views
 from .all_views.certificates_views import (
 	add_cert, cert_succes, list_cert, cert_detail, 
 	edit_cert, delete_cert, 
@@ -22,6 +23,8 @@ from .all_views.main_page_view import (
 from django.contrib.humanize.templatetags.humanize import naturaltime 
    
 from .all_views import dashboard_views
+from .all_views.fraud_views import FraudReportViewSet
+from .all_views import fraud_views
 
 router = DefaultRouter()
 router.register(r'certificates', CertificateViewSet)
@@ -33,6 +36,8 @@ router.register(r'consumer-verifications', ConsumerVerificationViewSet)
 router.register(r'consumer-ratings', ConsumerRatingViewSet)
 router.register(r'alerts', AlertViewSet)
 router.register(r'fraud-reports', FraudReportViewSet)
+router.register(r'fraud-reports', FraudReportViewSet, basename='fraud-report')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -75,4 +80,7 @@ path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batc
     path('dashboard/', dashboard_views.control_dashboard, name='control_dashboard'),
     path('dashboard/certificate/<int:cert_id>/', dashboard_views.certificate_control_detail, name='certificate_control_detail'),
     path('dashboard/certificate/<int:cert_id>/revoke/', dashboard_views.revoke_certificate, name='revoke_certificate'),
+
+    path('dashboard/fraud-reports/', dashboard_views.dashboard_fraud_reports, name='dashboard_fraud_reports'),
+    path('dashboard/fraud-reports/<int:report_id>/', dashboard_views.dashboard_fraud_detail, name='dashboard_fraud_detail'),
 ]

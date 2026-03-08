@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zgłoszenia fraudów - Dashboard</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #2c2c2c; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; }
+        .stat-label { color: #757575; font-size: 14px; }
+        .table-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f0f0f0; padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .status-new { background: #ffc107; color: #000; }
+        .status-investigating { background: #17a2b8; color: #fff; }
+        .status-resolved { background: #28a745; color: #fff; }
+        .status-rejected { background: #dc3545; color: #fff; }
+        .btn { display: inline-block; padding: 8px 16px; background: #2c2c2c; color: white; text-decoration: none; border-radius: 5px; }
+        .btn-small { padding: 4px 8px; font-size: 12px; }
+        .section-title { margin-top: 0; color: #2c2c2c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dashboard zgłoszeń fraudów</h1>
+            <p>Panel zarządzania zgłoszeniami od konsumentów</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">Wszystkie</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #ffc107;">{{ stats.new }}</div>
+                <div class="stat-label">Nowe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #17a2b8;">{{ stats.investigating }}</div>
+                <div class="stat-label">W trakcie</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #28a745;">{{ stats.resolved }}</div>
+                <div class="stat-label">Rozwiązane</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: #dc3545;">{{ stats.rejected }}</div>
+                <div class="stat-label">Odrzucone</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <h2 class="section-title">Do weryfikacji ({{ pending_reports|length }})</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Typ</th>
+                        <th>Email</th>
+                        <th>Certyfikat</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in pending_reports %}
+                    <tr>
+                        <td>#{{ report.report_id }}</td>
+                        <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ report.get_fraud_type_display }}</td>
+                        <td>{{ report.reporter_email }}</td>
+                        <td>{{ report.certificate_id.certificate_number|default:"-" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ report.status }}">
+                                {{ report.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn btn-small">Szczegóły</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Brak zgłoszeń do weryfikacji</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="table-container">
+            <h2 class="section-title">Ostatnie zgłoszenia</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Typ</th>
+                        <th>Email</th>
+                        <th>Certyfikat</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in recent_reports %}
+                    <tr>
+                        <td>#{{ report.report_id }}</td>
+                        <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ report.get_fraud_type_display }}</td>
+                        <td>{{ report.reporter_email }}</td>
+                        <td>{{ report.certificate_id.certificate_number|default:"-" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ report.status }}">
+                                {{ report.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn btn-small">Szczegóły</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">Brak zgłoszeń</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="text-align: right; margin-top: 20px;">
+            <a href="/api/fraud-reports/" target="_blank" class="btn">Zobacz API</a>
+        </div>
+    </div>
+</body>
+</html>

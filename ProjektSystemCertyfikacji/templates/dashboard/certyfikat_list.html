@@ -8,6 +8,38 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .fraud-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        
+        .fraud-button:hover {
+            background-color: #c82333;
+        }
+        
+        .fraud-button i {
+            margin-right: 8px;
+        }
+        
         .table-container {
             background-color: white;
             border-radius: 12px;
@@ -170,9 +202,14 @@
     {% endif %}
 
     <main class="main-content">
-        <div class="product-header">
-            <h1 class="page-title">Panel Kontrolny</h1>
-            <p class="page-subtitle">Lista wszystkich certyfikatów w systemie</p>
+        <div class="dashboard-header">
+            <div class="header-left">
+                <h1 class="page-title">Panel Kontrolny</h1>
+                <p class="page-subtitle">Lista wszystkich certyfikatów w systemie</p>
+            </div>
+            <a href="{% url 'dashboard_fraud_reports' %}" class="fraud-button">
+                ⚠️ Zarządzaj zgłoszeniami fraudów
+            </a>
         </div>
 
         <div class="table-container">

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zgłoszenie #{{ report.report_id }}</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { background: #2c2c2c; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .info-row { display: flex; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .info-label { width: 150px; font-weight: bold; color: #757575; }
+        .info-value { flex: 1; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
+        .status-new { background: #ffc107; }
+        .status-investigating { background: #17a2b8; color: white; }
+        .status-resolved { background: #28a745; color: white; }
+        .status-rejected { background: #dc3545; color: white; }
+        .btn { display: inline-block; padding: 10px 20px; background: #2c2c2c; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; }
+        .btn-secondary { background: #6c757d; }
+        .notes-box { background: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Zgłoszenie #{{ report.report_id }}</h1>
+            <p>Szczegóły zgłoszenia fraudu</p>
+        </div>
+        
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Informacje podstawowe</h2>
+                <span class="status-badge status-{{ report.status }}">
+                    {{ report.get_status_display }}
+                </span>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Data zgłoszenia:</div>
+                <div class="info-value">{{ report.created_at|date:"Y-m-d H:i:s" }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Typ fraudu:</div>
+                <div class="info-value">{{ report.get_fraud_type_display }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Zgłaszający:</div>
+                <div class="info-value">{{ report.reporter_email }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Opis:</div>
+                <div class="info-value">{{ report.description|linebreaks }}</div>
+            </div>
+            
+            {% if report.certificate_id %}
+            <div class="info-row">
+                <div class="info-label">Certyfikat:</div>
+                <div class="info-value">
+                    {{ report.certificate_id.certificate_number }}<br>
+                    <small>Posiadacz: {{ report.certificate_id.holder_company_id.name|default:"-" }}</small>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if report.batch_id %}
+            <div class="info-row">
+                <div class="info-label">Partia produktu:</div>
+                <div class="info-value">{{ report.batch_id.name }}</div>
+            </div>
+            {% endif %}
+            
+            {% if report.investigation_notes %}
+            <div class="info-row">
+                <div class="info-label">Notatki:</div>
+                <div class="info-value notes-box">{{ report.investigation_notes|linebreaks }}</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'dashboard_fraud_reports' %}" class="btn btn-secondary">Powrót do listy</a>
+            <a href="/api/fraud-reports/{{ report.report_id }}/" target="_blank" class="btn">Zobacz w API</a>
+        </div>
+    </div>
+</body>
+</html>
