@@ -8,7 +8,13 @@
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
 </head>
 <body class="white-bg">
-    {% include "navbars/certifying_unit_navbar.html" %}
+    {% if user.company_user %}
+        {% include "navbars/company_navbar.html" %}
+    {% elif user.certifying_unit %}
+        {% include "navbars/certifying_unit_navbar.html" %}
+    {% elif user.is_superuser %}
+        {% include "navbars/admin_navbar.html" %}
+    {% endif %}
     <main class="main-content" style="max-width: 600px; margin: 50px auto; text-align: center;">
         <h1>Potwierdź usunięcie</h1>
         <p style="font-size: 18px; margin: 20px 0;">Czy na pewno chcesz usunąć certyfikat:</p>

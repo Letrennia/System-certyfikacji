@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
         {% include "navbars/company_navbar.html" %}
     {% elif user.certifying_unit %}
         {% include "navbars/certifying_unit_navbar.html" %}
-    {% else %}
+    {% elif user.is_superuser %}
         {% include "navbars/admin_navbar.html" %}
     {% endif %}
 

@@ -139,7 +139,13 @@
     </style>
 </head>
 <body>
-    {% include "navbars/company_navbar.html" %}
+    {% if user.company_user %}
+        {% include "navbars/company_navbar.html" %}
+    {% elif user.certifying_unit %}
+        {% include "navbars/certifying_unit_navbar.html" %}
+    {% elif user.is_superuser %}
+        {% include "navbars/admin_navbar.html" %}
+    {% endif %}
     <main class="main-content centered">
         <div class="container">
             <a href="{% url 'list_product_batches' %}" class="back-link">&larr; Powrót do listy</a>

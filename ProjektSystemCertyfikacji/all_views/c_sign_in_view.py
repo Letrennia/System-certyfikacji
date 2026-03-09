@@ -33,6 +33,8 @@ def sign_in(request):
                     return redirect('list_product_batches')
                 elif hasattr(user, 'certifying_unit'):
                     return redirect('list_cert') #tutaj ma byc strona/widok do formularza z dodawaniem certyfikatow albo jakis panel jednostki certyfikujacej
+                else:
+                    return redirect('list_cert')
             else:
                 messages.error(request, 'Niepoprawne hasło')
 
