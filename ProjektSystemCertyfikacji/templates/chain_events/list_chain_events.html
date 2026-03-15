@@ -12,6 +12,37 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     {% endif %}
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        @keyframes pulseRibbon {
+            0%   { box-shadow: 0 0 0 0 rgba(119,195,32,0.4); }
+            70%  { box-shadow: 0 0 0 18px rgba(119,195,32,0); }
+            100% { box-shadow: 0 0 0 0 rgba(119,195,32,0); }
+        }
+
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container { max-width: 1000px; margin: 64px auto 32px; padding: 0 24px; }
         h1.main-title { font-size: 32px; font-weight: 700; color: #1e1e1e; margin-bottom: 8px; }
         p.main-subtitle { font-size: 16px; color: #757575; margin-bottom: 32px; }
@@ -28,13 +59,12 @@
         .batch-name { font-size: 18px; font-weight: 700; color: #1e1e1e; }
         .batch-meta { font-size: 14px; color: #757575; margin-top: 4px; }
 
-        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; animation: pulseRibbon 2s ease-out infinite; }
         .status-waiting    { background-color: #fff3cd; color: #856404; }
         .status-in_circulation { background-color: #d4edda; color: #155724; }
         .status-delivered  { background-color: #cce5ff; color: #004085; }
         .status-recalled   { background-color: #f8d7da; color: #842029; }
 
-        /* ── Blockchain widget ── */
         .blockchain-widget {
             border-radius: 12px; padding: 20px 24px; margin-bottom: 28px;
             border: 2px solid #cac4d0; background-color: #fff;
@@ -60,47 +90,49 @@
             display: flex; align-items: center; gap: 12px; padding: 14px 16px;
             border-radius: 10px; font-size: 14px; font-weight: 600;
         }
-        .blockchain-status.valid {
-            background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
-        }
-        .blockchain-status.invalid {
-            background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7;
-        }
-        .blockchain-status.loading {
-            background-color: #e2e8f0; color: #475569; border: 1px solid #cbd5e1;
-        }
-        .blockchain-status.unknown {
-            background-color: #f5f5f5; color: #757575; border: 1px solid #e0e0e0;
-        }
+        .blockchain-status.valid   { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .blockchain-status.invalid { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        .blockchain-status.loading { background-color: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+        .blockchain-status.unknown { background-color: #f5f5f5; color: #757575; border: 1px solid #e0e0e0; }
         .blockchain-status .status-text { flex: 1; }
         .blockchain-status .status-text strong { display: block; font-size: 15px; margin-bottom: 2px; }
         .blockchain-status .status-text span { font-weight: 400; font-size: 13px; }
-        .blockchain-meta {
-            margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px;
-        }
+        .blockchain-meta { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
         .blockchain-meta-item {
             background-color: #f5f5f5; border-radius: 6px; padding: 6px 12px;
             font-size: 12px; color: #555;
         }
         .blockchain-meta-item strong { color: #1e1e1e; }
 
-        /* ── Timeline ── */
+        /* Timeline */
         .timeline { position: relative; padding-left: 40px; }
         .timeline::before {
             content: ''; position: absolute; left: 14px; top: 0; bottom: 0;
             width: 2px; background: linear-gradient(to bottom, #77c320, #cac4d0);
         }
-        .timeline-item { position: relative; margin-bottom: 24px; }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        /* Each timeline item staggers via inline style */
+        .timeline-item .event-card {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--item-delay, 0.5s);
+        }
         .timeline-dot {
             position: absolute; left: -33px; top: 18px; width: 14px; height: 14px;
             border-radius: 50%; background-color: #77c320; border: 2px solid #fff;
             box-shadow: 0 0 0 2px #77c320;
+            opacity: 0;
+            animation: revealDown 0.4s ease-out forwards;
+            animation-delay: var(--item-delay, 0.5s);
         }
         .event-card {
             background-color: #ffffff; border: 1px solid #cac4d0; border-radius: 12px;
-            padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s;
+            padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s, transform 0.2s;
         }
-        .event-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+        .event-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-2px); }
         .event-header {
             display: flex; justify-content: space-between; align-items: flex-start;
             flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
@@ -127,13 +159,13 @@
             border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
             text-decoration: none; transition: 0.2s; display: inline-block;
         }
-        .btn-add:hover { background-color: #5aa000; }
+        .btn-add:hover { background-color: #5aa000; transform: translateY(-1px); }
         .btn-back {
             padding: 12px 24px; background-color: #e0e0e0; color: #1e1e1e; border: none;
             border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
             text-decoration: none; transition: 0.2s; display: inline-block;
         }
-        .btn-back:hover { background-color: #bdbdbd; }
+        .btn-back:hover { background-color: #bdbdbd; transform: translateY(-1px); }
 
         .area-badge {
             display: inline-block; padding: 4px 10px; border-radius: 12px;
@@ -142,12 +174,16 @@
         .empty-state {
             text-align: center; padding: 64px 32px; background-color: #ffffff;
             border: 1px solid #cac4d0; border-radius: 12px;
+            opacity: 0; animation: revealDown 0.5s ease-out 0.5s forwards;
         }
         .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
         .empty-state h3 { font-size: 20px; color: #1e1e1e; margin-bottom: 8px; }
         .empty-state p { color: #757575; margin-bottom: 24px; }
         .messages { margin-bottom: 24px; }
-        .message { padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+        .message {
+            padding: 16px; border-radius: 8px; margin-bottom: 12px;
+            opacity: 0; animation: revealDown 0.35s ease-out 0.05s forwards;
+        }
         .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
         .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 
@@ -169,102 +205,107 @@
     {% endif %}
 
     <main class="main-content centered">
-        <div class="container">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <h1 class="main-title">Łańcuch dostaw</h1>
-            <p class="main-subtitle">Historia etapów dla partii produktów</p>
-
-            <div class="batch-info-card">
-                <div>
-                    <div class="batch-name">{{ batch.name }}</div>
-                    <div class="batch-meta">Kategoria: {{ batch.category }} &nbsp;|&nbsp; Ilość: {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</div>
-                    <div class="batch-meta">Certyfikat: {{ batch.certificate_id.certificate_number }}</div>
-                </div>
-                <span class="status-badge status-{{ batch.status }}">{{ batch.get_status_display }}</span>
-            </div>
-
-            <div class="blockchain-widget" id="blockchain-widget">
-                <div class="blockchain-widget-header">
-                    <div class="blockchain-widget-title">
-                        Weryfikacja integralności blockchain
+        <div class="page-wrapper">
+            <div class="container">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
                     </div>
-                    <button class="btn-verify" id="btn-verify" onclick="verifyBlockchain()">
-                        Weryfikuj teraz
-                    </button>
-                </div>
+                {% endif %}
 
-                <div class="blockchain-status unknown" id="blockchain-status">
-                    <div class="status-text">
-                        <strong>Nie zweryfikowano</strong>
-                        <span>Kliknij "Weryfikuj teraz", aby sprawdzić integralność danych w blockchain.</span>
+                <h1 class="main-title stagger-child" style="--delay:.08s">Łańcuch dostaw</h1>
+                <p class="main-subtitle stagger-child" style="--delay:.14s">Historia etapów dla partii produktów</p>
+
+                <div class="batch-info-card stagger-child" style="--delay:.22s">
+                    <div>
+                        <div class="batch-name">{{ batch.name }}</div>
+                        <div class="batch-meta">Kategoria: {{ batch.category }} &nbsp;|&nbsp; Ilość: {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</div>
+                        <div class="batch-meta">Certyfikat: {{ batch.certificate_id.certificate_number }}</div>
                     </div>
+                    <span class="status-badge status-{{ batch.status }}">{{ batch.get_status_display }}</span>
                 </div>
 
-                <div class="blockchain-meta" id="blockchain-meta" style="display:none;"></div>
-            </div>
+                <div class="blockchain-widget stagger-child" id="blockchain-widget" style="--delay:.32s">
+                    <div class="blockchain-widget-header">
+                        <div class="blockchain-widget-title">
+                            Weryfikacja integralności blockchain
+                        </div>
+                        <button class="btn-verify" id="btn-verify" onclick="verifyBlockchain()">
+                            Weryfikuj teraz
+                        </button>
+                    </div>
 
-            <div class="top-bar">
-                <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="btn-back">← Wróć do partii</a>
-                <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">+ Dodaj etap</a>
-            </div>
-
-            {% if geo_data %}
-            <div class="map-section">
-                <h2>🗺 Mapa trasy</h2>
-                <div id="map"></div>
-            </div>
-            {% endif %}
-
-            {% if events %}
-                <div class="timeline">
-                    {% for event in events %}
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <div class="event-card">
-                            <div class="event-header">
-                                <div>
-                                    <div class="event-area">
-                                        <span class="area-badge">{{ event.area_id.get_name_display }}</span>
-                                        &nbsp;{{ event.company_id.name }}
-                                    </div>
-                                </div>
-                                <div class="event-timestamp">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
-                            </div>
-                            <div class="event-meta">
-                                {% if event.location %}
-                                <div class="event-meta-item"><span>Lokalizacja</span> {{ event.location }}</div>
-                                {% endif %}
-                                <div class="event-meta-item"><span>Kategoria</span> {{ event.company_id.get_company_type_display }}</div>
-                                <div class="event-meta-item"><span>Numer certyfikatu</span> {{ event.certificate_id.certificate_number }}</div>
-                                {% if event.blockchain_hash %}
-                                <div class="event-meta-item">
-                                    <span>Łańcuch</span>
-                                    <code style="font-size:11px; color:#777;">{{ event.blockchain_hash|slice:":16" }}…</code>
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="event-actions">
-                                <a href="{% url 'chain_event_detail' event_id=event.event_id %}" class="btn-detail">Szczegóły</a>
-                                <a href="{% url 'delete_chain_event' event_id=event.event_id %}" class="btn-delete">Usuń</a>
-                            </div>
+                    <div class="blockchain-status unknown" id="blockchain-status">
+                        <div class="status-text">
+                            <strong>Nie zweryfikowano</strong>
+                            <span>Kliknij "Weryfikuj teraz", aby sprawdzić integralność danych w blockchain.</span>
                         </div>
                     </div>
-                    {% endfor %}
+
+                    <div class="blockchain-meta" id="blockchain-meta" style="display:none;"></div>
                 </div>
-            {% else %}
-                <div class="empty-state">
-                    <h3>Brak zdarzeń w łańcuchu dostaw</h3>
-                    <p>Nie zarejestrowano jeszcze żadnych etapów dla tej partii produktów.</p>
-                    <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">Dodaj pierwszy etap</a>
+
+                <div class="top-bar stagger-child" style="--delay:.40s">
+                    <a href="{% url 'list_product_batches' %}" class="btn-back">← Wróć do listy partii</a>
+                    <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">+ Dodaj etap</a>
                 </div>
-            {% endif %}
+
+                {% if geo_data %}
+                <div class="map-section stagger-child" style="--delay:.46s">
+                    <h2>🗺 Mapa trasy</h2>
+                    <div id="map"></div>
+                </div>
+                {% endif %}
+
+                {% if events %}
+                    <div class="timeline">
+                        {% for event in events %}
+                        <div class="timeline-item" style="--item-delay: {{ forloop.counter|add:4 }}00ms;">
+                            <!-- note: Django doesn't do arithmetic in templates natively;
+                                 use a templatetag or set delay in the view context if needed.
+                                 As a fallback, each item will appear at 0.5s + index*0.08s roughly. -->
+                            <div class="timeline-dot"></div>
+                            <div class="event-card">
+                                <div class="event-header">
+                                    <div>
+                                        <div class="event-area">
+                                            <span class="area-badge">{{ event.area_id.get_name_display }}</span>
+                                            &nbsp;{{ event.company_id.name }}
+                                        </div>
+                                    </div>
+                                    <div class="event-timestamp">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
+                                </div>
+                                <div class="event-meta">
+                                    {% if event.location %}
+                                    <div class="event-meta-item"><span>Lokalizacja</span> {{ event.location }}</div>
+                                    {% endif %}
+                                    <div class="event-meta-item"><span>Kategoria</span> {{ event.company_id.get_company_type_display }}</div>
+                                    <div class="event-meta-item"><span>Numer certyfikatu</span> {{ event.certificate_id.certificate_number }}</div>
+                                    {% if event.blockchain_hash %}
+                                    <div class="event-meta-item">
+                                        <span>Łańcuch</span>
+                                        <code style="font-size:11px; color:#777;">{{ event.blockchain_hash|slice:":16" }}…</code>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="event-actions">
+                                    <a href="{% url 'chain_event_detail' event_id=event.event_id %}" class="btn-detail">Szczegóły</a>
+                                    <a href="{% url 'delete_chain_event' event_id=event.event_id %}" class="btn-delete">Usuń</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <h3>Brak zdarzeń w łańcuchu dostaw</h3>
+                        <p>Nie zarejestrowano jeszcze żadnych etapów dla tej partii produktów.</p>
+                        <a href="{% url 'add_chain_event' batch_id=batch.batch_id %}" class="btn-add">Dodaj pierwszy etap</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </main>
 
@@ -317,16 +358,13 @@
     {% endif %}
 
     <script>
-    const BATCH_ID = {{ batch.batch_id }};
+    /* Stagger timeline items dynamically (bypasses Django template arithmetic) */
+    document.querySelectorAll('.timeline-item').forEach((item, i) => {
+        const delay = (0.52 + i * 0.08) + 's';
+        item.style.setProperty('--item-delay', delay);
+    });
 
-    function getCookie(name) {
-        let v = null;
-        document.cookie.split(';').forEach(c => {
-            c = c.trim();
-            if (c.startsWith(name + '=')) v = decodeURIComponent(c.slice(name.length + 1));
-        });
-        return v;
-    }
+    const BATCH_ID = {{ batch.batch_id }};
 
     function setStatus(type, title, subtitle) {
         const el = document.getElementById('blockchain-status');
@@ -425,6 +463,23 @@
         btn.disabled = false;
         btn.textContent = 'Weryfikuj ponownie';
     }
+
+    /* Page transition */
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
     </script>
 </body>
 </html>
