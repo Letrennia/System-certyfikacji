@@ -10,6 +10,37 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        @keyframes softPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(119,195,32,0.35); }
+            70%  { box-shadow: 0 0 0 14px rgba(119,195,32,0); }
+            100% { box-shadow: 0 0 0 0 rgba(119,195,32,0); }
+        }
+
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container { max-width: 800px; margin: 64px auto 32px; padding: 0 24px; }
         h1.main-title { font-size: 32px; font-weight: 700; color: #1e1e1e; margin-bottom: 12px; }
         p.main-subtitle { font-size: 16px; color: #757575; margin-bottom: 32px; }
@@ -34,6 +65,7 @@
         .form-group select {
             width: 100%; padding: 12px; border: 1px solid #cac4d0; border-radius: 8px;
             font-size: 14px; color: #1e1e1e; box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .form-group input:focus, .form-group select:focus {
             outline: none; border-color: #77c320; box-shadow: 0 0 0 3px rgba(119,195,32,0.15);
@@ -55,15 +87,23 @@
             width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 12px;
             background-color: #77c320; color: #fff; border: none; cursor: pointer; transition: 0.3s;
         }
-        .btn-submit:hover { background-color: #5aa000; }
+        .btn-submit:hover {
+            background-color: #5aa000;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.16);
+        }
         .btn-cancel {
             width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 12px;
             background-color: #e0e0e0; color: #1e1e1e; border: none; cursor: pointer;
             transition: 0.3s; margin-top: 12px; text-decoration: none; display: inline-block; text-align: center;
         }
-        .btn-cancel:hover { background-color: #bdbdbd; }
+        .btn-cancel:hover {
+            background-color: #bdbdbd;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+        }
         .messages { margin-bottom: 24px; }
-        .message { padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+        .message { padding: 16px; border-radius: 8px; margin-bottom: 12px; opacity: 0; animation: revealDown 0.35s ease-out 0.05s forwards; }
         .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
         .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .section-divider { border: none; border-top: 1px solid #e0e0e0; margin: 24px 0; }
@@ -84,82 +124,83 @@
     {% endif %}
 
     <main class="main-content centered">
-        <div class="container">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
+        <div class="page-wrapper">
+            <div class="container">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <h1 class="main-title stagger-child" style="--delay:.08s">Dodaj etap łańcucha dostaw</h1>
+                <p class="main-subtitle stagger-child" style="--delay:.16s">Zarejestruj nowy etap dla partii produktów</p>
+
+                <div class="batch-info-strip stagger-child" style="--delay:.24s">
+                    Partia: <span>{{ batch.name }}</span>
+                    &nbsp;&nbsp;|&nbsp;&nbsp;
+                    Certyfikat: <span>{{ batch.certificate_id.certificate_number }}</span>
                 </div>
-            {% endif %}
 
-            <h1 class="main-title">Dodaj etap łańcucha dostaw</h1>
-            <p class="main-subtitle">Zarejestruj nowy etap dla partii produktów</p>
+                <div class="blockchain-info stagger-child" style="--delay:.32s">
+                    <span>Zdarzenie zostanie automatycznie zarejestrowane w blockchain — dane są niezmienne i weryfikowalne.</span>
+                </div>
 
-            <div class="batch-info-strip">
-                📦 Partia: <span>{{ batch.name }}</span>
-                &nbsp;&nbsp;|&nbsp;&nbsp;
-                Certyfikat: <span>{{ batch.certificate_id.certificate_number }}</span>
-            </div>
+                <div class="form-card stagger-child" style="--delay:.42s">
+                    <form method="post">
+                        {% csrf_token %}
 
-            <div class="blockchain-info">
-                <span class="icon">🔗</span>
-                <span>Zdarzenie zostanie automatycznie zarejestrowane w blockchain — dane są niezmienne i weryfikowalne.</span>
-            </div>
+                        <div class="section-label">Dane zdarzenia</div>
 
-            <div class="form-card">
-                <form method="post">
-                    {% csrf_token %}
-
-                    <div class="section-label">Dane zdarzenia</div>
-
-                    <div class="form-group">
-                        <label for="area_id">Obszar działalności *</label>
-                        <select id="area_id" name="area_id" required>
-                            <option value="">Wybierz obszar działalności</option>
-                            {% for area in activity_areas %}
-                                <option value="{{ area.area_id }}"
-                                    {% if request.POST.area_id == area.area_id|stringformat:"s" %}selected{% endif %}>
-                                    {{ area.get_name_display }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    {% if companies %}
-                    <div class="form-group">
-                        <label for="company_id">Firma (admin) *</label>
-                        <select id="company_id" name="company_id" required>
-                            <option value="">Wybierz firmę</option>
-                            {% for company in companies %}
-                                <option value="{{ company.company_id }}">
-                                    {{ company.name }} ({{ company.get_company_type_display }})
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% endif %}
-
-                    <hr class="section-divider">
-                    <div class="section-label">Lokalizacja <span class="optional-tag">opcjonalnie</span></div>
-
-                    <div class="form-group">
-                        <label for="location">Adres / Lokalizacja</label>
-                        <div class="location-row">
-                            <input type="text" id="location" name="location"
-                                   placeholder="np. Warszawa, ul. Przykładowa 1"
-                                   value="{{ request.POST.location }}">
-                            <button type="button" class="btn-geocode" onclick="previewLocation()">
-                                📍 Podgląd mapy
-                            </button>
+                        <div class="form-group">
+                            <label for="area_id">Obszar działalności *</label>
+                            <select id="area_id" name="area_id" required>
+                                <option value="">Wybierz obszar działalności</option>
+                                {% for area in activity_areas %}
+                                    <option value="{{ area.area_id }}"
+                                        {% if request.POST.area_id == area.area_id|stringformat:"s" %}selected{% endif %}>
+                                        {{ area.get_name_display }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="geocode-hint">Wpisz adres i kliknij "Podgląd mapy", aby zobaczyć lokalizację.</div>
-                        <div id="map-preview"></div>
-                    </div>
 
-                    <button type="submit" class="btn-submit">Zarejestruj etap</button>
-                    <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-cancel">Anuluj</a>
-                </form>
+                        {% if companies %}
+                        <div class="form-group">
+                            <label for="company_id">Firma (admin) *</label>
+                            <select id="company_id" name="company_id" required>
+                                <option value="">Wybierz firmę</option>
+                                {% for company in companies %}
+                                    <option value="{{ company.company_id }}">
+                                        {{ company.name }} ({{ company.get_company_type_display }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+
+                        <hr class="section-divider">
+                        <div class="section-label">Lokalizacja <span class="optional-tag">opcjonalnie</span></div>
+
+                        <div class="form-group">
+                            <label for="location">Adres / Lokalizacja</label>
+                            <div class="location-row">
+                                <input type="text" id="location" name="location"
+                                       placeholder="np. Warszawa, ul. Przykładowa 1"
+                                       value="{{ request.POST.location }}">
+                                <button type="button" class="btn-geocode" onclick="previewLocation()">
+                                    Podgląd mapy
+                                </button>
+                            </div>
+                            <div class="geocode-hint">Wpisz adres i kliknij "Podgląd mapy", aby zobaczyć lokalizację.</div>
+                            <div id="map-preview"></div>
+                        </div>
+
+                        <button type="submit" class="btn-submit">Zarejestruj etap</button>
+                        <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-cancel">Anuluj</a>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
@@ -214,6 +255,22 @@
             })
             .catch(() => alert('Błąd geokodowania.'));
     }
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
     </script>
 </body>
 </html>

@@ -8,6 +8,36 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        @keyframes pulseWarning {
+            0%   { box-shadow: 0 0 0 0 rgba(220,53,69,0.45); }
+            70%  { box-shadow: 0 0 0 16px rgba(220,53,69,0); }
+            100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+        }
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container {
             max-width: 600px;
             margin: 100px auto;
@@ -20,11 +50,12 @@
             padding: 48px 32px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
             text-align: center;
+            animation: pulseWarning 1.6s ease-out infinite;
         }
         .warning-icon {
             font-size: 64px;
-            color: #dc3545;
             margin-bottom: 24px;
+            display: block;
         }
         .delete-title {
             font-size: 28px;
@@ -45,9 +76,7 @@
             margin-bottom: 32px;
             text-align: left;
         }
-        .batch-info strong {
-            color: #1e1e1e;
-        }
+        .batch-info strong { color: #1e1e1e; }
         .action-buttons {
             display: flex;
             gap: 12px;
@@ -67,20 +96,10 @@
             cursor: pointer;
             font-size: 16px;
         }
-        .btn-delete {
-            background-color: #dc3545;
-            color: #fff;
-        }
-        .btn-delete:hover {
-            background-color: #a02622;
-        }
-        .btn-cancel {
-            background-color: #e0e0e0;
-            color: #1e1e1e;
-        }
-        .btn-cancel:hover {
-            background-color: #bdbdbd;
-        }
+        .btn-delete { background-color: #dc3545; color: #fff; }
+        .btn-delete:hover { background-color: #a02622; transform: translateY(-1px); }
+        .btn-cancel { background-color: #e0e0e0; color: #1e1e1e; }
+        .btn-cancel:hover { background-color: #bdbdbd; transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -91,29 +110,32 @@
     {% elif user.is_superuser %}
         {% include "navbars/admin_navbar.html" %}
     {% endif %}
+
     <main class="main-content centered">
-        <div class="container">
-            <div class="delete-card">
-                <div class="warning-icon">⚠️</div>
-                <h1 class="delete-title">Potwierdź usunięcie partii</h1>
-                <p class="delete-message">
-                    Czy na pewno chcesz trwale usunąć tę partię produktów? Ta operacja jest nieodwracalna.
-                </p>
+        <div class="page-wrapper">
+            <div class="container">
+                <div class="delete-card stagger-child" style="--delay:.10s">
+                    <div class="warning-icon">⚠️</div>
+                    <h1 class="delete-title">Potwierdź usunięcie partii</h1>
+                    <p class="delete-message">
+                        Czy na pewno chcesz trwale usunąć tę partię produktów? Ta operacja jest nieodwracalna.
+                    </p>
 
-                <div class="batch-info">
-                    <div><strong>Nazwa:</strong> {{ product_batch.name }}</div>
-                    <div><strong>Kategoria:</strong> {{ product_batch.category }}</div>
-                    <div><strong>Ilość:</strong> {{ product_batch.quantity }} {{ product_batch.get_unit_of_measure_display }}</div>
-                    <div><strong>Status:</strong> {{ product_batch.get_status_display }}</div>
-                </div>
-
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="action-buttons">
-                        <button type="submit" class="btn-delete">Usuń partię</button>
-                        <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="btn-cancel">Anuluj</a>
+                    <div class="batch-info">
+                        <div><strong>Nazwa:</strong> {{ product_batch.name }}</div>
+                        <div><strong>Kategoria:</strong> {{ product_batch.category }}</div>
+                        <div><strong>Ilość:</strong> {{ product_batch.quantity }} {{ product_batch.get_unit_of_measure_display }}</div>
+                        <div><strong>Status:</strong> {{ product_batch.get_status_display }}</div>
                     </div>
-                </form>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="action-buttons">
+                            <button type="submit" class="btn-delete">Usuń partię</button>
+                            <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="btn-cancel">Anuluj</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
@@ -129,5 +151,23 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
+    </script>
 </body>
 </html>

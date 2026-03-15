@@ -8,6 +8,37 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        @keyframes pulseWarning {
+            0%   { box-shadow: 0 0 0 0 rgba(220,53,69,0.45); }
+            70%  { box-shadow: 0 0 0 16px rgba(220,53,69,0); }
+            100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+        }
+
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container {
             max-width: 600px;
             margin: 64px auto 32px;
@@ -30,6 +61,7 @@
             border-radius: 12px;
             padding: 28px 32px;
             margin-bottom: 24px;
+            animation: pulseWarning 1.6s ease-out infinite;
         }
         .warning-icon {
             font-size: 40px;
@@ -100,9 +132,12 @@
             color: #fff;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
-        .btn-delete-confirm:hover { background-color: #b02a37; }
+        .btn-delete-confirm:hover {
+            background-color: #b02a37;
+            transform: translateY(-1px);
+        }
         .btn-cancel {
             width: 100%;
             padding: 14px;
@@ -113,18 +148,23 @@
             color: #1e1e1e;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
             margin-top: 12px;
             text-decoration: none;
             display: inline-block;
             text-align: center;
         }
-        .btn-cancel:hover { background-color: #bdbdbd; }
+        .btn-cancel:hover {
+            background-color: #bdbdbd;
+            transform: translateY(-1px);
+        }
         .messages { margin-bottom: 24px; }
         .message {
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 12px;
+            opacity: 0;
+            animation: revealDown 0.35s ease-out 0.05s forwards;
         }
         .message.error { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
     </style>
@@ -139,55 +179,56 @@
     {% endif %}
 
     <main class="main-content centered">
-        <div class="container">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
+        <div class="page-wrapper">
+            <div class="container">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <h1 class="main-title stagger-child" style="--delay:.08s">Usuń zdarzenie</h1>
+                <p class="main-subtitle stagger-child" style="--delay:.16s">Ta operacja jest nieodwracalna</p>
+
+                <div class="warning-card stagger-child" style="--delay:.26s">
+                    <h2>Czy na pewno chcesz usunąć to zdarzenie?</h2>
+                    <p>Zdarzenie zostanie trwale usunięte z historii łańcucha dostaw i nie będzie można tego cofnąć.</p>
                 </div>
-            {% endif %}
 
-            <h1 class="main-title">Usuń zdarzenie</h1>
-            <p class="main-subtitle">Ta operacja jest nieodwracalna</p>
-
-            <div class="warning-card">
-                <div class="warning-icon">⚠️</div>
-                <h2>Czy na pewno chcesz usunąć to zdarzenie?</h2>
-                <p>Zdarzenie zostanie trwale usunięte z historii łańcucha dostaw i nie będzie można tego cofnąć.</p>
-            </div>
-
-            <div class="detail-card">
-                <h3>Dane zdarzenia</h3>
-                <div class="detail-row">
-                    <div class="detail-label">Obszar działalności</div>
-                    <div class="detail-value">
-                        <span class="area-badge">{{ event.area_id.get_name_display }}</span>
+                <div class="detail-card stagger-child" style="--delay:.38s">
+                    <h3>Dane zdarzenia</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Obszar działalności</div>
+                        <div class="detail-value">
+                            <span class="area-badge">{{ event.area_id.get_name_display }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Firma</div>
+                        <div class="detail-value">{{ event.company_id.name }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Lokalizacja</div>
+                        <div class="detail-value">{{ event.location|default:"—" }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Data i czas</div>
+                        <div class="detail-value">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Partia produktów</div>
+                        <div class="detail-value">{{ event.batch_id.name }}</div>
                     </div>
                 </div>
-                <div class="detail-row">
-                    <div class="detail-label">Firma</div>
-                    <div class="detail-value">{{ event.company_id.name }}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Lokalizacja</div>
-                    <div class="detail-value">{{ event.location|default:"—" }}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Data i czas</div>
-                    <div class="detail-value">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
-                </div>
-                <div class="detail-row">
-                    <div class="detail-label">Partia produktów</div>
-                    <div class="detail-value">{{ event.batch_id.name }}</div>
-                </div>
-            </div>
 
-            <form method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn-delete-confirm">🗑 Tak, usuń zdarzenie</button>
-                <a href="{% url 'chain_event_detail' event_id=event.event_id %}" class="btn-cancel">Anuluj</a>
-            </form>
+                <form method="post" class="stagger-child" style="--delay:.48s">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete-confirm">🗑 Tak, usuń zdarzenie</button>
+                    <a href="{% url 'chain_event_detail' event_id=event.event_id %}" class="btn-cancel">Anuluj</a>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -216,5 +257,23 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
+    </script>
 </body>
 </html>

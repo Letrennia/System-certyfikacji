@@ -8,6 +8,31 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container {
             max-width: 900px;
             margin: 64px auto 32px;
@@ -19,10 +44,9 @@
             font-weight: 500;
             display: inline-block;
             margin-bottom: 24px;
+            transition: color 0.2s;
         }
-        a.back-link:hover {
-            color: #5aa000;
-        }
+        a.back-link:hover { color: #5aa000; }
         h1.main-title {
             font-size: 32px;
             font-weight: 700;
@@ -37,22 +61,11 @@
             font-weight: 600;
             margin-bottom: 32px;
         }
-        .status-waiting {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-in_circulation {
-            background-color: #cfe2ff;
-            color: #084298;
-        }
-        .status-delivered {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-        .status-recalled {
-            background-color: #f8d7da;
-            color: #842029;
-        }
+        .status-waiting        { background-color: #fff3cd; color: #856404; }
+        .status-in_circulation { background-color: #cfe2ff; color: #084298; }
+        .status-delivered      { background-color: #d1e7dd; color: #0f5132; }
+        .status-recalled       { background-color: #f8d7da; color: #842029; }
+
         .detail-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -64,6 +77,11 @@
             border-radius: 12px;
             padding: 24px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.10);
         }
         .detail-card h3 {
             font-size: 18px;
@@ -73,9 +91,7 @@
             padding-bottom: 8px;
             border-bottom: 2px solid #77c320;
         }
-        .detail-row {
-            margin-bottom: 16px;
-        }
+        .detail-row { margin-bottom: 16px; }
         .detail-label {
             display: block;
             color: #757575;
@@ -89,9 +105,7 @@
             color: #1e1e1e;
             font-size: 16px;
         }
-        .full-width {
-            grid-column: 1 / -1;
-        }
+        .full-width { grid-column: 1 / -1; }
         .action-buttons {
             margin-top: 32px;
             display: flex;
@@ -107,34 +121,16 @@
             transition: 0.3s;
             font-size: 16px;
         }
-        .btn-edit {
-            background-color: #77c320;
-            color: #fff;
-        }
-        .btn-edit:hover {
-            background-color: #5aa000;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: #fff;
-        }
-        .btn-danger:hover {
-            background-color: #a02622;
-        }
+        .btn-edit    { background-color: #77c320; color: #fff; }
+        .btn-edit:hover    { background-color: #5aa000; transform: translateY(-1px); }
+        .btn-warning { background-color: #ffc107; color: #000; }
+        .btn-warning:hover { background-color: #e0a800; transform: translateY(-1px); }
+        .btn-danger  { background-color: #dc3545; color: #fff; }
+        .btn-danger:hover  { background-color: #a02622; transform: translateY(-1px); }
+
         @media (max-width: 768px) {
-            .detail-grid {
-                grid-template-columns: 1fr;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-        .btn-warning {
-            background-color: #ffc107;
-            color: #000;
-            }
-        .btn-warning:hover {
-            background-color: #e0a800;
-            }
+            .detail-grid { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
         }
     </style>
 </head>
@@ -146,78 +142,84 @@
     {% elif user.is_superuser %}
         {% include "navbars/admin_navbar.html" %}
     {% endif %}
-    <main class="main-content centered">
-        <div class="container">
-            <a href="{% url 'list_product_batches' %}" class="back-link">&larr; Powrót do listy</a>
-            <h1 class="main-title">{{ product_batch.name }}</h1>
-            <span class="batch-status status-{{ product_batch.status }}">{{ product_batch.get_status_display }}</span>
 
-            <div class="detail-grid">
-                <div class="detail-card">
-                    <h3>Informacje podstawowe</h3>
-                    <div class="detail-row">
-                        <span class="detail-label">Kategoria</span>
-                        <span class="detail-value">{{ product_batch.category }}</span>
+    <main class="main-content centered">
+        <div class="page-wrapper">
+            <div class="container">
+                <a href="{% url 'list_product_batches' %}" class="back-link stagger-child" style="--delay:.06s">&larr; Powrót do listy</a>
+                <h1 class="main-title stagger-child" style="--delay:.14s">{{ product_batch.name }}</h1>
+                <span class="batch-status status-{{ product_batch.status }} stagger-child" style="--delay:.22s">
+                    {{ product_batch.get_status_display }}
+                </span>
+
+                <div class="detail-grid">
+                    <div class="detail-card stagger-child" style="--delay:.30s">
+                        <h3>Informacje podstawowe</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Kategoria</span>
+                            <span class="detail-value">{{ product_batch.category }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Kod CN</span>
+                            <span class="detail-value">{{ product_batch.cn_code }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Ilość</span>
+                            <span class="detail-value">{{ product_batch.quantity }} {{ product_batch.get_unit_of_measure_display }}</span>
+                        </div>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Kod CN</span>
-                        <span class="detail-value">{{ product_batch.cn_code }}</span>
+
+                    <div class="detail-card stagger-child" style="--delay:.38s">
+                        <h3>Daty</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Data produkcji</span>
+                            <span class="detail-value">{{ product_batch.production_date|date:"d.m.Y" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Data ważności</span>
+                            <span class="detail-value">{{ product_batch.expiration_date|date:"d.m.Y" }}</span>
+                        </div>
+                        {% if product_batch.harvest_date %}
+                        <div class="detail-row">
+                            <span class="detail-label">Data zbioru</span>
+                            <span class="detail-value">{{ product_batch.harvest_date|date:"d.m.Y" }}</span>
+                        </div>
+                        {% endif %}
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Ilość</span>
-                        <span class="detail-value">{{ product_batch.quantity }} {{ product_batch.get_unit_of_measure_display }}</span>
+
+                    <div class="detail-card full-width stagger-child" style="--delay:.46s">
+                        <h3>Warunki transportu i przechowywania</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Warunki przechowywania</span>
+                            <span class="detail-value">{{ product_batch.storage_conditions|default:"Nie określono" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Temperatura transportu</span>
+                            <span class="detail-value">{{ product_batch.transport_temperature }} °C</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card full-width stagger-child" style="--delay:.54s">
+                        <h3>Certyfikacja</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Numer certyfikatu</span>
+                            <span class="detail-value">{{ product_batch.certificate_id.certificate_number }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Jednostka certyfikująca</span>
+                            <span class="detail-value">{{ product_batch.certifying_unit_id.name }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="detail-card">
-                    <h3>Daty</h3>
-                    <div class="detail-row">
-                        <span class="detail-label">Data produkcji</span>
-                        <span class="detail-value">{{ product_batch.production_date|date:"d.m.Y" }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Data ważności</span>
-                        <span class="detail-value">{{ product_batch.expiration_date|date:"d.m.Y" }}</span>
-                    </div>
-                    {% if product_batch.harvest_date %}
-                    <div class="detail-row">
-                        <span class="detail-label">Data zbioru</span>
-                        <span class="detail-value">{{ product_batch.harvest_date|date:"d.m.Y" }}</span>
-                    </div>
+                <div class="action-buttons stagger-child" style="--delay:.62s">
+                    <a href="{% url 'edit_product_batch' batch_id=product_batch.batch_id %}" class="btn-edit">Edytuj partię</a>
+                    <a href="{% url 'recall_product_batch' batch_id=product_batch.batch_id %}" class="btn-warning"
+                       onclick="return confirm('Czy na pewno chcesz wycofać tę partię produktów?');">Wycofaj partię</a>
+                    {% if user.is_superuser %}
+                    <a href="{% url 'delete_product_batch' batch_id=product_batch.batch_id %}" class="btn-danger">Usuń partię</a>
                     {% endif %}
                 </div>
-
-                <div class="detail-card full-width">
-                    <h3>Warunki transportu i przechowywania</h3>
-                    <div class="detail-row">
-                        <span class="detail-label">Warunki przechowywania</span>
-                        <span class="detail-value">{{ product_batch.storage_conditions|default:"Nie określono" }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Temperatura transportu</span>
-                        <span class="detail-value">{{ product_batch.transport_temperature }} °C</span>
-                    </div>
-                </div>
-
-                <div class="detail-card full-width">
-                    <h3>Certyfikacja</h3>
-                    <div class="detail-row">
-                        <span class="detail-label">Numer certyfikatu</span>
-                        <span class="detail-value">{{ product_batch.certificate_id.certificate_number }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Jednostka certyfikująca</span>
-                        <span class="detail-value">{{ product_batch.certifying_unit_id.name }}</span>
-                    </div>
-                </div>
-            </div>
-
-           <div class="action-buttons">
-                <a href="{% url 'edit_product_batch' batch_id=product_batch.batch_id %}" class="btn-edit">Edytuj partię</a>
-                <a href="{% url 'recall_product_batch' batch_id=product_batch.batch_id %}" class="btn-warning" onclick="return confirm('Czy na pewno chcesz wycofać tę partię produktów?');">Wycofaj partię</a>
-                {% if user.is_superuser %}
-                <a href="{% url 'delete_product_batch' batch_id=product_batch.batch_id %}" class="btn-danger">Usuń partię</a>
-                {% endif %}
             </div>
         </div>
     </main>
@@ -258,5 +260,23 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
+    </script>
 </body>
 </html>

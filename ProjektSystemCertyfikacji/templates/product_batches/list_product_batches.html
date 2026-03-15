@@ -8,16 +8,37 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container {
             max-width: 1200px;
             margin: 32px auto 32px;
             padding: 0 24px;
         }
-        h1.main-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e1e1e;
-        }
+        h1.main-title { font-size: 32px; font-weight: 700; color: #1e1e1e; }
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -33,9 +54,8 @@
             font-weight: 600;
             transition: 0.3s;
         }
-        .btn-add:hover {
-            background-color: #5aa000;
-        }
+        .btn-add:hover { background-color: #5aa000; transform: translateY(-1px); }
+
         .batch-table {
             width: 100%;
             border-collapse: collapse;
@@ -45,25 +65,12 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
         }
         .batch-table th,
-        .batch-table td {
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 14px;
-        }
-        .batch-table th {
-            background-color: #f5f5f5;
-            font-weight: 600;
-            color: #1e1e1e;
-        }
-        .batch-table tr {
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .batch-table tr:last-child {
-            border-bottom: none;
-        }
-        .batch-table tr:hover {
-            background-color: #fafafa;
-        }
+        .batch-table td { padding: 14px 16px; text-align: left; font-size: 14px; }
+        .batch-table th { background-color: #f5f5f5; font-weight: 600; color: #1e1e1e; }
+        .batch-table tr { border-bottom: 1px solid #e0e0e0; transition: background-color 0.15s; }
+        .batch-table tr:last-child { border-bottom: none; }
+        .batch-table tbody tr:hover { background-color: #fafafa; }
+
         .status-badge {
             display: inline-block;
             padding: 6px 12px;
@@ -71,26 +78,15 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .status-waiting    { background-color: #fff3cd; color: #856404; }
+        .status-waiting        { background-color: #fff3cd; color: #856404; }
         .status-in_circulation { background-color: #cfe2ff; color: #084298; }
-        .status-delivered  { background-color: #d1e7dd; color: #0f5132; }
-        .status-recalled   { background-color: #f8d7da; color: #842029; }
+        .status-delivered      { background-color: #d1e7dd; color: #0f5132; }
+        .status-recalled       { background-color: #f8d7da; color: #842029; }
 
-        /* Akcje */
-        .action-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
+        .action-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .action-links a {
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            padding: 5px 12px;
-            border-radius: 6px;
-            transition: 0.2s;
-            white-space: nowrap;
+            font-size: 13px; font-weight: 600; text-decoration: none;
+            padding: 5px 12px; border-radius: 6px; transition: 0.2s; white-space: nowrap;
         }
         .action-detail  { color: #1e1e1e; background-color: #e0e0e0; }
         .action-detail:hover  { background-color: #bdbdbd; }
@@ -103,23 +99,18 @@
 
         .messages { margin-bottom: 24px; }
         .message {
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            padding: 16px; border-radius: 8px; margin-bottom: 12px;
+            opacity: 0; animation: revealDown 0.35s ease-out 0.05s forwards;
         }
         .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
         .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 
         .empty-state {
-            text-align: center;
-            padding: 64px 24px;
-            color: #757575;
+            text-align: center; padding: 64px 24px; color: #757575;
+            opacity: 0; animation: revealDown 0.5s ease-out 0.4s forwards;
         }
-        .empty-state h2 {
-            font-size: 24px;
-            margin-bottom: 12px;
-            color: #1e1e1e;
-        }
+        .empty-state h2 { font-size: 24px; margin-bottom: 12px; color: #1e1e1e; }
+
         @media (max-width: 768px) {
             .page-header { flex-direction: column; gap: 16px; align-items: flex-start; }
         }
@@ -135,139 +126,142 @@
     {% endif %}
 
     <main class="main-content centered">
-        <div class="container">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <div class="page-header">
-                <h1 class="main-title">Twoje partie produktów</h1>
-                <a href="{% url 'add_product_batch' %}" class="btn-add">+ Dodaj nową partię</a>
-            </div>
-
-            <!-- Filtry -->
-            <div class="filters-container" style="margin-bottom: 30px;">
-                <form method="get" id="filter-form" class="filter-form">
-                    <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="filter-group">
-                            <label for="batch-search" style="display: block; margin-bottom: 8px; font-weight: 500;">Nazwa partii:</label>
-                            <input type="text" id="batch-search" name="search" value="{{ current_search }}"
-                                   placeholder="Wpisz nazwę..."
-                                   style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
-                        </div>
-                        <div class="filter-group">
-                            <label for="category-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoria:</label>
-                            <select id="category-select" name="category"
-                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="">Wszystkie</option>
-                                {% for cat in category_choices %}
-                                    <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
-                            <select id="status-select" name="status"
-                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="">Wszystkie</option>
-                                {% for status_key, status_name in status_choices %}
-                                    <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>{{ status_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
-                            <select id="sort-select" name="sort_by"
-                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="production_date" {% if current_sort == 'production_date' %}selected{% endif %}>Data produkcji</option>
-                                <option value="expiration_date" {% if current_sort == 'expiration_date' %}selected{% endif %}>Data ważności</option>
-                                <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Nazwa</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
-                            <select id="order-select" name="sort_order"
-                                    style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Rosnąco</option>
-                                <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <button type="button" id="clear-filters"
-                                    style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer;">
-                                Wyczyść filtry
-                            </button>
-                        </div>
+        <div class="page-wrapper">
+            <div class="container">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
                     </div>
-                </form>
+                {% endif %}
 
-                {% if current_search or current_category or current_status %}
-                <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                    <strong>Aktywne filtry:</strong>
-                    {% if current_search %}
-                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Nazwa: "{{ current_search }}"</span>
-                    {% endif %}
-                    {% if current_category %}
-                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Kategoria: "{{ current_category }}"</span>
-                    {% endif %}
-                    {% if current_status %}
-                        <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Status: "{{ current_status }}"</span>
+                <div class="page-header stagger-child" style="--delay:.08s">
+                    <h1 class="main-title">Twoje partie produktów</h1>
+                    <a href="{% url 'add_product_batch' %}" class="btn-add">+ Dodaj nową partię</a>
+                </div>
+
+                <div class="filters-container stagger-child" style="--delay:.18s; margin-bottom: 30px;">
+                    <form method="get" id="filter-form" class="filter-form">
+                        <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                            <div class="filter-group">
+                                <label for="batch-search" style="display: block; margin-bottom: 8px; font-weight: 500;">Nazwa partii:</label>
+                                <input type="text" id="batch-search" name="search" value="{{ current_search }}"
+                                       placeholder="Wpisz nazwę..."
+                                       style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
+                            </div>
+                            <div class="filter-group">
+                                <label for="category-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoria:</label>
+                                <select id="category-select" name="category"
+                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    <option value="">Wszystkie</option>
+                                    {% for cat in category_choices %}
+                                        <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
+                                <select id="status-select" name="status"
+                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    <option value="">Wszystkie</option>
+                                    {% for status_key, status_name in status_choices %}
+                                        <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>{{ status_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
+                                <select id="sort-select" name="sort_by"
+                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    <option value="production_date" {% if current_sort == 'production_date' %}selected{% endif %}>Data produkcji</option>
+                                    <option value="expiration_date" {% if current_sort == 'expiration_date' %}selected{% endif %}>Data ważności</option>
+                                    <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Nazwa</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
+                                <select id="order-select" name="sort_order"
+                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
+                                    <option value="asc"  {% if current_order == 'asc'  %}selected{% endif %}>Rosnąco</option>
+                                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <button type="button" id="clear-filters"
+                                        style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">
+                                    Wyczyść filtry
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    {% if current_search or current_category or current_status %}
+                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                        <strong>Aktywne filtry:</strong>
+                        {% if current_search %}
+                            <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Nazwa: "{{ current_search }}"</span>
+                        {% endif %}
+                        {% if current_category %}
+                            <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Kategoria: "{{ current_category }}"</span>
+                        {% endif %}
+                        {% if current_status %}
+                            <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Status: "{{ current_status }}"</span>
+                        {% endif %}
+                    </div>
                     {% endif %}
                 </div>
+
+                {% if product_batches %}
+                <div class="stagger-child" style="--delay:.28s">
+                    <table class="batch-table">
+                        <thead>
+                            <tr>
+                                <th>Nazwa partii</th>
+                                <th>Kategoria</th>
+                                <th>Ilość</th>
+                                <th>Data produkcji</th>
+                                <th>Data ważności</th>
+                                <th>Status</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in product_batches %}
+                            <tr>
+                                <td>{{ batch.name }}</td>
+                                <td>{{ batch.category }}</td>
+                                <td>{{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</td>
+                                <td>{{ batch.production_date|date:"d.m.Y" }}</td>
+                                <td>{{ batch.expiration_date|date:"d.m.Y" }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ batch.status }}">
+                                        {{ batch.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-links">
+                                        <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="action-detail">Szczegóły</a>
+                                        <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}" class="action-edit">Edytuj</a>
+                                        <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="action-chain">🗺 Łańcuch</a>
+                                        <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
+                                           class="action-delete"
+                                           onclick="return confirm('Czy na pewno chcesz usunąć tę partię?');">Usuń</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <div class="empty-state">
+                        <h2>Brak partii produktów</h2>
+                        <p>Nie masz jeszcze żadnych dodanych partii produktów.</p>
+                        <a href="{% url 'add_product_batch' %}" class="btn-add" style="margin-top: 24px; display: inline-block;">Dodaj pierwszą partię</a>
+                    </div>
                 {% endif %}
             </div>
-
-            {% if product_batches %}
-            <table class="batch-table">
-                <thead>
-                    <tr>
-                        <th>Nazwa partii</th>
-                        <th>Kategoria</th>
-                        <th>Ilość</th>
-                        <th>Data produkcji</th>
-                        <th>Data ważności</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for batch in product_batches %}
-                    <tr>
-                        <td>{{ batch.name }}</td>
-                        <td>{{ batch.category }}</td>
-                        <td>{{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</td>
-                        <td>{{ batch.production_date|date:"d.m.Y" }}</td>
-                        <td>{{ batch.expiration_date|date:"d.m.Y" }}</td>
-                        <td>
-                            <span class="status-badge status-{{ batch.status }}">
-                                {{ batch.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="action-links">
-                                <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="action-detail">Szczegóły</a>
-                                <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}" class="action-edit">Edytuj</a>
-                                <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="action-chain">🗺 Łańcuch</a>
-                                <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
-                                   class="action-delete"
-                                   onclick="return confirm('Czy na pewno chcesz usunąć tę partię?');">Usuń</a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-                <div class="empty-state">
-                    <h2>Brak partii produktów</h2>
-                    <p>Nie masz jeszcze żadnych dodanych partii produktów.</p>
-                    <a href="{% url 'add_product_batch' %}" class="btn-add" style="margin-top: 24px; display: inline-block;">Dodaj pierwszą partię</a>
-                </div>
-            {% endif %}
         </div>
     </main>
 
@@ -315,28 +309,36 @@
 
         function debounce(fn, delay) {
             let timer = null;
-            return function(...args) {
-                clearTimeout(timer);
-                timer = setTimeout(() => fn.apply(this, args), delay);
-            };
+            return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), delay); };
         }
 
         form.querySelectorAll("select").forEach(sel => {
             sel.addEventListener("change", () => form.submit());
         });
-
         form.querySelectorAll('input[type="text"]').forEach(inp => {
             inp.addEventListener("input", debounce(() => form.submit(), 500));
-            inp.addEventListener("keydown", e => {
-                if (e.key === "Enter") { e.preventDefault(); form.submit(); }
-            });
+            inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); form.submit(); } });
         });
 
         const clearBtn = document.getElementById("clear-filters");
         if (clearBtn) {
-            clearBtn.addEventListener("click", () => {
-                window.location.href = window.location.pathname;
-            });
+            clearBtn.addEventListener("click", () => { window.location.href = window.location.pathname; });
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
         }
     });
     </script>

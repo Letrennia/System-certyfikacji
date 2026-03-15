@@ -8,6 +8,31 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container {
             max-width: 800px;
             margin: 64px auto 32px;
@@ -26,9 +51,7 @@
             padding: 32px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.05);
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block;
             margin-bottom: 6px;
@@ -44,6 +67,15 @@
             border-radius: 8px;
             font-size: 14px;
             color: #1e1e1e;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #77c320;
+            box-shadow: 0 0 0 3px rgba(119,195,32,0.15);
         }
         .form-group textarea {
             min-height: 100px;
@@ -67,20 +99,10 @@
             cursor: pointer;
             font-size: 16px;
         }
-        .btn-primary {
-            background-color: #77c320;
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background-color: #5aa000;
-        }
-        .btn-secondary {
-            background-color: #e0e0e0;
-            color: #1e1e1e;
-        }
-        .btn-secondary:hover {
-            background-color: #bdbdbd;
-        }
+        .btn-primary { background-color: #77c320; color: #fff; }
+        .btn-primary:hover { background-color: #5aa000; transform: translateY(-1px); }
+        .btn-secondary { background-color: #e0e0e0; color: #1e1e1e; }
+        .btn-secondary:hover { background-color: #bdbdbd; transform: translateY(-1px); }
         .btn-select-cert {
             padding: 12px 24px;
             background-color: #2c2c2c;
@@ -92,46 +114,33 @@
             font-weight: 600;
             transition: 0.3s;
         }
-        .btn-select-cert:hover {
-            background-color: #1a1a1a;
-        }
+        .btn-select-cert:hover { background-color: #1a1a1a; }
         a.back-link {
             text-decoration: none;
             color: #77c320;
             font-weight: 500;
             display: inline-block;
             margin-bottom: 24px;
+            transition: color 0.2s;
         }
-        a.back-link:hover {
-            color: #5aa000;
-        }
-        .messages {
-            margin-bottom: 24px;
-        }
+        a.back-link:hover { color: #5aa000; }
+        .messages { margin-bottom: 24px; }
         .message {
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 12px;
+            opacity: 0;
+            animation: revealDown 0.35s ease-out 0.05s forwards;
         }
-        .message.error {
-            background-color: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
+        .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 
-        /* Modal styles */
+        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.5);
             z-index: 1000;
             overflow-y: auto;
@@ -151,30 +160,15 @@
             justify-content: space-between;
             align-items: center;
         }
-        .modal-header h2 {
-            margin: 0;
-            font-size: 24px;
-            color: #1e1e1e;
-        }
+        .modal-header h2 { margin: 0; font-size: 24px; color: #1e1e1e; }
         .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #666;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            line-height: 1;
+            background: none; border: none;
+            font-size: 28px; cursor: pointer;
+            color: #666; padding: 0;
+            width: 32px; height: 32px; line-height: 1;
         }
-        .modal-close:hover {
-            color: #000;
-        }
-        .modal-body {
-            padding: 24px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
+        .modal-close:hover { color: #000; }
+        .modal-body { padding: 24px; max-height: 600px; overflow-y: auto; }
         .cert-item {
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -183,44 +177,17 @@
             transition: all 0.2s;
             margin-bottom: 16px;
         }
-        .cert-item:hover {
-            border-color: #77c320;
-            background-color: #f9fdf5;
-        }
-        .cert-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-        }
-        .cert-number {
-            font-weight: 600;
-            font-size: 16px;
-            color: #1e1e1e;
-            margin-bottom: 8px;
-        }
-        .cert-info {
-            color: #757575;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
+        .cert-item:hover { border-color: #77c320; background-color: #f9fdf5; }
+        .cert-header { display: flex; justify-content: space-between; align-items: start; }
+        .cert-number { font-weight: 600; font-size: 16px; color: #1e1e1e; margin-bottom: 8px; }
+        .cert-info { color: #757575; font-size: 14px; margin-bottom: 4px; }
         .cert-status {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 13px;
-            font-weight: 600;
+            background-color: #d4edda; color: #155724;
+            padding: 6px 12px; border-radius: 16px;
+            font-size: 13px; font-weight: 600;
         }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #757575;
-        }
-        .error-message {
-            text-align: center;
-            padding: 40px;
-            color: #842029;
-        }
+        .loading { text-align: center; padding: 40px; color: #757575; }
+        .error-message { text-align: center; padding: 40px; color: #842029; }
     </style>
 </head>
 <body>
@@ -231,94 +198,89 @@
     {% elif user.is_superuser %}
         {% include "navbars/admin_navbar.html" %}
     {% endif %}
+
     <main class="main-content centered">
-        <div class="container">
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message {{ message.tags }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        <div class="page-wrapper">
+            <div class="container">
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message {{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-            <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="back-link">&larr; Powrót do szczegółów</a>
-            <h1 class="main-title">Edytuj partię: {{ product_batch.name }}</h1>
+                <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="back-link stagger-child" style="--delay:.06s">&larr; Powrót do szczegółów</a>
+                <h1 class="main-title stagger-child" style="--delay:.14s">Edytuj partię: {{ product_batch.name }}</h1>
 
-            <div class="form-card">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="certificate_display">Certyfikat *</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="text"
-                                   id="certificate_display"
-                                   readonly
-                                   value="{{ product_batch.certificate_id.certificate_number }} - {{ product_batch.certificate_id.holder_company_id.name }} (ważny do: {{ product_batch.certificate_id.valid_to|date:'Y-m-d' }})"
-                                   style="flex: 1; background-color: #f5f5f5; cursor: not-allowed;">
-                            <input type="hidden"
-                                   id="certificate_id"
-                                   name="certificate_id"
-                                   value="{{ product_batch.certificate_id.certificate_id }}"
-                                   required>
-                            <button type="button"
-                                    onclick="openCertificateModal()"
-                                    class="btn-select-cert">
-                                Zmień certyfikat
-                            </button>
+                <div class="form-card stagger-child" style="--delay:.24s">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="certificate_display">Certyfikat *</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" id="certificate_display" readonly
+                                       value="{{ product_batch.certificate_id.certificate_number }} - {{ product_batch.certificate_id.holder_company_id.name }} (ważny do: {{ product_batch.certificate_id.valid_to|date:'Y-m-d' }})"
+                                       style="flex: 1; background-color: #f5f5f5; cursor: not-allowed;">
+                                <input type="hidden" id="certificate_id" name="certificate_id"
+                                       value="{{ product_batch.certificate_id.certificate_id }}" required>
+                                <button type="button" onclick="openCertificateModal()" class="btn-select-cert">
+                                    Zmień certyfikat
+                                </button>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="name">Nazwa *</label>
-                        <input type="text" id="name" name="name" value="{{ product_batch.name }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="category">Kategoria *</label>
-                        <input type="text" id="category" name="category" value="{{ product_batch.category }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cn_code">Kod CN *</label>
-                        <input type="text" id="cn_code" name="cn_code" value="{{ product_batch.cn_code }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity">Ilość *</label>
-                        <input type="number" step="0.01" id="quantity" name="quantity" value="{{ product_batch.quantity }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="unit_of_measure">Jednostka miary *</label>
-                        <select id="unit_of_measure" name="unit_of_measure" required>
-                            <option value="kg" {% if product_batch.unit_of_measure == 'kg' %}selected{% endif %}>Kilogram (kg)</option>
-                            <option value="g" {% if product_batch.unit_of_measure == 'g' %}selected{% endif %}>Gram (g)</option>
-                            <option value="l" {% if product_batch.unit_of_measure == 'l' %}selected{% endif %}>Liter (l)</option>
-                            <option value="ml" {% if product_batch.unit_of_measure == 'ml' %}selected{% endif %}>Mililitr (ml)</option>
-                            <option value="p" {% if product_batch.unit_of_measure == 'p' %}selected{% endif %}>Sztuki (szt)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="storage_conditions">Warunki przechowywania</label>
-                        <textarea id="storage_conditions" name="storage_conditions">{{ product_batch.storage_conditions }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="transport_temperature">Temperatura transportu (°C)</label>
-                        <input type="number" step="0.01" id="transport_temperature" name="transport_temperature" value="{{ product_batch.transport_temperature }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="production_date">Data produkcji *</label>
-                        <input type="date" id="production_date" name="production_date" value="{{ product_batch.production_date|date:'Y-m-d' }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="expiration_date">Data ważności *</label>
-                        <input type="date" id="expiration_date" name="expiration_date" value="{{ product_batch.expiration_date|date:'Y-m-d' }}" required>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button type="submit" class="btn-primary">Zapisz zmiany</button>
-                        <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="btn-secondary">Anuluj</a>
-                    </div>
-                </form>
+                        <div class="form-group">
+                            <label for="name">Nazwa *</label>
+                            <input type="text" id="name" name="name" value="{{ product_batch.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Kategoria *</label>
+                            <input type="text" id="category" name="category" value="{{ product_batch.category }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cn_code">Kod CN *</label>
+                            <input type="text" id="cn_code" name="cn_code" value="{{ product_batch.cn_code }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">Ilość *</label>
+                            <input type="number" step="0.01" id="quantity" name="quantity" value="{{ product_batch.quantity }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit_of_measure">Jednostka miary *</label>
+                            <select id="unit_of_measure" name="unit_of_measure" required>
+                                <option value="kg" {% if product_batch.unit_of_measure == 'kg' %}selected{% endif %}>Kilogram (kg)</option>
+                                <option value="g"  {% if product_batch.unit_of_measure == 'g'  %}selected{% endif %}>Gram (g)</option>
+                                <option value="l"  {% if product_batch.unit_of_measure == 'l'  %}selected{% endif %}>Liter (l)</option>
+                                <option value="ml" {% if product_batch.unit_of_measure == 'ml' %}selected{% endif %}>Mililitr (ml)</option>
+                                <option value="p"  {% if product_batch.unit_of_measure == 'p'  %}selected{% endif %}>Sztuki (szt)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="storage_conditions">Warunki przechowywania</label>
+                            <textarea id="storage_conditions" name="storage_conditions">{{ product_batch.storage_conditions }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="transport_temperature">Temperatura transportu (°C)</label>
+                            <input type="number" step="0.01" id="transport_temperature" name="transport_temperature" value="{{ product_batch.transport_temperature }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="production_date">Data produkcji *</label>
+                            <input type="date" id="production_date" name="production_date" value="{{ product_batch.production_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expiration_date">Data ważności *</label>
+                            <input type="date" id="expiration_date" name="expiration_date" value="{{ product_batch.expiration_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="action-buttons">
+                            <button type="submit" class="btn-primary">Zapisz zmiany</button>
+                            <a href="{% url 'product_batch_detail' product_batch.batch_id %}" class="btn-secondary">Anuluj</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
+
     <div id="certificateModal" class="modal-overlay">
         <div class="modal-container">
             <div class="modal-header">
@@ -326,9 +288,7 @@
                 <button onclick="closeCertificateModal()" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="certificateList">
-                    <div class="loading">Ładowanie certyfikatów...</div>
-                </div>
+                <div id="certificateList"><div class="loading">Ładowanie certyfikatów...</div></div>
             </div>
         </div>
     </div>
@@ -375,66 +335,58 @@
         document.getElementById('certificateModal').style.display = 'block';
         loadCertificates();
     }
-
     function closeCertificateModal() {
         document.getElementById('certificateModal').style.display = 'none';
     }
-
     function loadCertificates() {
         fetch('{% url "get_certificates_for_batch" %}')
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
                 const container = document.getElementById('certificateList');
-
-                if (data.error) {
-                    container.innerHTML = `<div class="error-message">${data.error}</div>`;
-                    return;
-                }
-
-                if (data.certificates.length === 0) {
-                    container.innerHTML = '<div class="error-message">Brak dostępnych certyfikatów</div>';
-                    return;
-                }
-
-                let html = '';
-
-                data.certificates.forEach(cert => {
-                    html += `
-                        <div class="cert-item" onclick="selectCertificate('${cert.id}', '${cert.number}', '${cert.company}', '${cert.valid_to}')">
-                            <div class="cert-header">
-                                <div>
-                                    <div class="cert-number">${cert.number}</div>
-                                    <div class="cert-info">Firma: ${cert.company}</div>
-                                    <div class="cert-info">Jednostka: ${cert.issued_by}</div>
-                                    <div class="cert-info">Ważny do: ${cert.valid_to}</div>
-                                </div>
-                                <span class="cert-status">${cert.status}</span>
+                if (data.error) { container.innerHTML = `<div class="error-message">${data.error}</div>`; return; }
+                if (data.certificates.length === 0) { container.innerHTML = '<div class="error-message">Brak dostępnych certyfikatów</div>'; return; }
+                container.innerHTML = data.certificates.map(cert => `
+                    <div class="cert-item" onclick="selectCertificate('${cert.id}','${cert.number}','${cert.company}','${cert.valid_to}')">
+                        <div class="cert-header">
+                            <div>
+                                <div class="cert-number">${cert.number}</div>
+                                <div class="cert-info">Firma: ${cert.company}</div>
+                                <div class="cert-info">Jednostka: ${cert.issued_by}</div>
+                                <div class="cert-info">Ważny do: ${cert.valid_to}</div>
                             </div>
+                            <span class="cert-status">${cert.status}</span>
                         </div>
-                    `;
-                });
-
-                container.innerHTML = html;
+                    </div>`).join('');
             })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('certificateList').innerHTML =
-                    '<div class="error-message">Błąd ładowania certyfikatów</div>';
+            .catch(() => {
+                document.getElementById('certificateList').innerHTML = '<div class="error-message">Błąd ładowania certyfikatów</div>';
             });
     }
-
     function selectCertificate(id, number, company, validTo) {
         document.getElementById('certificate_id').value = id;
         document.getElementById('certificate_display').value = `${number} - ${company} (ważny do: ${validTo})`;
         closeCertificateModal();
     }
-
-    window.onclick = function(event) {
+    window.onclick = function(e) {
         const modal = document.getElementById('certificateModal');
-        if (event.target === modal) {
-            closeCertificateModal();
+        if (e.target === modal) closeCertificateModal();
+    };
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
         }
-    }
+    });
     </script>
 </body>
 </html>

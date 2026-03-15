@@ -8,13 +8,52 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        @keyframes shakeSoft {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            20%  { transform: translateX(-5px) rotate(-2deg); }
+            40%  { transform: translateX(5px)  rotate(2deg); }
+            60%  { transform: translateX(-4px) rotate(-1deg); }
+            80%  { transform: translateX(4px)  rotate(1deg); }
+        }
+
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         .container {
             max-width: 600px;
             margin: 120px auto 32px;
             padding: 0 24px;
             text-align: center;
         }
-        .error-icon { font-size: 64px; margin-bottom: 24px; }
+        .error-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+            display: inline-block;
+            opacity: 0;
+            animation: revealDown 0.4s ease-out 0.1s both, shakeSoft 0.7s ease-in-out 0.55s both;
+        }
         h1.main-title {
             font-size: 28px;
             font-weight: 700;
@@ -23,13 +62,12 @@
         }
         .error-msg {
             font-size: 16px;
-            color: #757575;
-            margin-bottom: 36px;
             padding: 16px 20px;
             background-color: #f8d7da;
             border: 1px solid #f5c2c7;
             border-radius: 10px;
             color: #842029;
+            margin-bottom: 36px;
         }
         .btn-back {
             padding: 13px 28px;
@@ -41,9 +79,12 @@
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
         }
-        .btn-back:hover { background-color: #5aa000; }
+        .btn-back:hover {
+            background-color: #5aa000;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -56,12 +97,37 @@
     {% endif %}
 
     <main class="main-content centered">
-        <div class="container">
-            <div class="error-icon">X</div>
-            <h1 class="main-title">Brak dostępu</h1>
-            <div class="error-msg">{{ msg }}</div>
-            <a href="{% url 'list_product_batches' %}" class="btn-back">← Wróć do listy partii</a>
+        <div class="page-wrapper">
+            <div class="container">
+
+                <h1 class="main-title stagger-child" style="--delay:.22s">Brak dostępu</h1>
+
+                <div class="error-msg stagger-child" style="--delay:.34s">{{ msg }}</div>
+
+                <a href="{% url 'list_product_batches' %}" class="btn-back stagger-child" style="--delay:.46s">
+                    ← Wróć do listy partii
+                </a>
+
+            </div>
         </div>
     </main>
+
+    <script>
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.startsWith('mailto') || link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => { window.location.href = href; }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
+    </script>
 </body>
 </html>
