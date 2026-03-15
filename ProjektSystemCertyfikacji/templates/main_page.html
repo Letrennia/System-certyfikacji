@@ -181,6 +181,18 @@ WAŻNE:
             color: #757575;
         }
 
+        .wave span {
+            display: inline-block;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0); }
+        }
+
+
         @media (max-width: 768px) {
             .result-grid {
                 grid-template-columns: 1fr;
@@ -301,9 +313,19 @@ WAŻNE:
 
             resultDiv.innerHTML = `
                 <div class="loading-spinner">
-                    <p>Wyszukiwanie certyfikatu...</p>
+                    <p id="loading-text" class="wave">Wyszukiwanie certyfikatu...</p>
                 </div>
             `;
+
+            const text = document.getElementById("loading-text");
+            const letters = text.textContent.split("");
+
+            text.innerHTML = letters
+                .map((char, i) => {
+                    const safeChar = char === " " ? "&nbsp;" : char;
+                    return `<span style="animation-delay:${i * 0.08}s">${safeChar}</span>`;
+                })
+                .join("");
 
             fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
                 .then(response => response.json())

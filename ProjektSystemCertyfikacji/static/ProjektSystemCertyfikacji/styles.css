@@ -60,6 +60,11 @@ body.white-bg {
   background-color: #f5f5f5;
 }
 
+.nav-item a {
+   text-decoration: none;
+   color: black;
+}
+
 .auth-buttons {
   display: flex;
   gap: 16px;
