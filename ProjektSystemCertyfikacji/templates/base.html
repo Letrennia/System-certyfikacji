@@ -1,0 +1,607 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}System Certyfikacji{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+    <style>
+        .header {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: linear-gradient(
+                120deg,
+                #1f2d1b,
+                #2f4f24,
+                #1f2d1b
+            );
+            background-size: 200% 200%;
+            animation: headerMove 12s ease infinite;
+            border-bottom: 3px solid #77c320;
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: -200px;
+            background:
+                radial-gradient(
+                    circle at 30% 70%,
+                    rgba(119,195,32,0.25),
+                    transparent 40%
+                ),
+                radial-gradient(
+                    circle at 80% 20%,
+                    rgba(119,195,32,0.18),
+                    transparent 40%
+                );
+            filter: blur(60px);
+            animation: headerGlow 14s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    rgba(255,255,255,0.02) 0px,
+                    rgba(255,255,255,0.02) 1px,
+                    transparent 1px,
+                    transparent 140px
+                );
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        @keyframes headerGlow {
+            0% {
+                transform: translateX(-40px) translateY(0px) scale(1);
+            }
+            50% {
+                transform: translateX(20px) translateY(-20px) scale(1.05);
+            }
+            100% {
+                transform: translateX(60px) translateY(10px) scale(1.1);
+            }
+        }
+        @keyframes headerMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .header-energy-bar {
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(
+                90deg,
+                #77c320,
+                #9be03b,
+                #77c320,
+                #4a8f00
+            );
+            background-size: 300% 100%;
+            animation: ecoFlow 6s linear infinite;
+        }
+        @keyframes ecoFlow {
+            0% { background-position: 0% 0; }
+            100% { background-position: 300% 0; }
+        }
+        .header-inner {
+            position: relative;
+            z-index: 5;
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 20px;
+            min-height: 76px;
+            gap: 0;
+        }
+        .logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            padding-right: 16px;
+        }
+        .logo a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff !important;
+            border: none;
+            padding: 7px 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.3);
+            transition: box-shadow 0.18s, transform 0.18s;
+            text-decoration: none !important;
+            animation: breathe 5s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .logo a:hover,
+        .logo a:focus {
+            background: #ffffff !important;
+            box-shadow: 0 2px 12px rgba(119,195,32,0.5);
+            transform: scale(1.03);
+            animation: none;
+        }
+        .logo img {
+            height: 56px;
+            display: block;
+        }
+        .nav-menu {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            position: relative;
+        }
+        .nav-item a {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            outline: none;
+            color: #cccccc !important;
+            background-color: transparent !important;
+            background: transparent !important;
+            text-decoration: none !important;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.2px;
+            border: none;
+            box-sizing: border-box;
+            white-space: nowrap;
+            position: relative;
+            z-index: 1;
+            transition: color 0.18s;
+        }
+        .nav-item a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background-color: #77c320;
+            transition: height 0.4s ease-out;
+            z-index: -1;
+        }
+        .nav-item a:hover::before,
+        .nav-item a:focus::before {
+            height: 100%;
+        }
+        .nav-item a:hover,
+        .nav-item a:focus {
+            color: #ffffff !important;
+            text-decoration: none !important;
+        }
+        .nav-item a:focus {
+            outline: none;
+        }
+        .nav-item.active a {
+            color: #ffffff !important;
+            background-color: #5a9918 !important;
+            background: #5a9918 !important;
+        }
+        .nav-item.active a::before {
+            display: none;
+        }
+        .auth-buttons {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            padding-left: 16px;
+            gap: 10px;
+        }
+        .auth-buttons a,
+        .auth-buttons .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 22px;
+            background-color: transparent !important;
+            border: 2px solid #cc4444;
+            color: #ff9999 !important;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 17px;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none !important;
+            transition: background-color 0.18s, color 0.18s, box-shadow 0.18s;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .auth-buttons a:hover,
+        .auth-buttons .btn-secondary:hover {
+            background-color: #cc4444;
+            box-shadow: 0 2px 10px rgba(200,60,60,0.4);
+        }
+        @media (max-width: 1100px) {
+            .nav-item a { font-size: 14px; }
+        }
+        @media (max-width: 768px) {
+            .header-inner { flex-wrap: wrap; padding: 10px 16px; min-height: auto; align-items: center; }
+            .logo { padding-right: 0; }
+            .logo img { height: 44px; }
+            .nav-menu { order: 3; width: 100%; border-top: 1px solid rgba(255,255,255,0.07); }
+            .nav-item a { font-size: 13px; padding: 12px 4px; border-left: none !important; border-right: none !important; }
+            .nav-item a::before { height: 0; }
+            .nav-item a:hover::before { height: 100%; }
+            .auth-buttons { margin-left: auto; padding-left: 12px; }
+            .auth-buttons a, .auth-buttons .btn-secondary { font-size: 14px; padding: 8px 14px; }
+        }
+        .ticker-bar {
+            background-color: #0f1a0f;
+            border-top: 1px solid rgba(119,195,32,0.2);
+            border-bottom: 1px solid rgba(119,195,32,0.2);
+            padding: 10px 0;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        .ticker-content {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            animation: tickerMove 40s linear infinite;
+            font-size: 15px;
+            color: #d0ffb0;
+            font-family: 'Inter', sans-serif;
+            gap: 40px;
+            padding-left: 20px;
+        }
+        .ticker-content span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ticker-content i {
+            font-style: normal;
+            color: #77c320;
+            font-weight: 600;
+        }
+        .ticker-bar:hover .ticker-content {
+            animation-play-state: paused;
+        }
+        @keyframes tickerMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .footer {
+            margin-top: 0;
+            position: relative;
+            overflow: hidden;
+            background-color: #1a2e1a;
+        }
+        .footer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 10% 80%, rgba(119,195,32,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 20%, rgba(56,142,60,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(27,94,32,0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .footer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cellipse cx='60' cy='60' rx='22' ry='38' fill='none' stroke='rgba(119,195,32,0.07)' stroke-width='1.5' transform='rotate(-30 60 60)'/%3E%3Cellipse cx='60' cy='60' rx='22' ry='38' fill='none' stroke='rgba(119,195,32,0.05)' stroke-width='1' transform='rotate(30 60 60)'/%3E%3Ccircle cx='60' cy='60' r='2' fill='rgba(119,195,32,0.08)'/%3E%3C/svg%3E");
+            background-size: 120px 120px;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .footer-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            padding: 6px 40px 32px;
+            box-sizing: border-box;
+            gap: 8px;
+        }
+        .footer-section {
+            flex: 1 1 200px;
+            padding: 0 24px 24px 0;
+        }
+        .footer-section h3 {
+            color: #77c320;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0 0 16px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(119,195,32,0.25);
+        }
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .footer-link {
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: color 0.2s, background-color 0.2s, padding-left 0.2s;
+            display: inline-block;
+        }
+        .footer-link:hover {
+            color: #ffffff;
+            background-color: rgba(119,195,32,0.12);
+            padding-left: 14px;
+            text-decoration: underline;
+            text-decoration-color: rgba(119,195,32,0.6);
+            text-underline-offset: 3px;
+        }
+        .footer-bottom {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(119,195,32,0.2);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .footer-bottom p {
+            color: rgba(255,255,255,0.35);
+            font-size: 12px;
+            margin: 0;
+        }
+        @media (max-width: 640px) {
+            .footer-content { padding: 32px 20px 16px; }
+            .footer-section { flex: 1 1 100%; padding-right: 0; }
+            .ticker-content { font-size: 13px; gap: 20px; animation-duration: 30s; }
+            .footer-bottom { padding: 16px 20px; flex-direction: column; align-items: flex-start; }
+        }
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to   { opacity: 0; transform: translateY(-12px); }
+        }
+        .page-wrapper {
+            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .page-wrapper.exiting {
+            animation: pageExit 0.3s ease-in forwards;
+            pointer-events: none;
+        }
+        .stagger-child {
+            opacity: 0;
+            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: var(--delay, 0s);
+        }
+        .nav-item a,
+        .nav-item a:focus,
+        .nav-item a:active,
+        .nav-item a:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .btn-add {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-add::before {
+            content: "";
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: 50%;
+            left: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 70%);
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.4s ease;
+        }
+        .btn-add:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: none;
+            box-sizing: border-box;
+        }
+
+        .main-content > .page-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <img src="{% static 'ProjektSystemCertyfikacji/images/logo-2-166.svg' %}" alt="Logo">
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <a href="{% url 'home' %}">Strona główna</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'list_product_batches' %}">Produkty</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'list_cert' %}">Certyfikaty</a>
+                </div>
+                {% if user.is_superuser %}
+                <div class="nav-item">
+                    <a href="{% url 'control_dashboard' %}">Dashboard</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{% url 'dashboard_fraud_reports' %}">Zgłoszenia fraudów</a>
+                </div>
+                {% endif %}
+            </nav>
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}">Wyloguj</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-secondary">Zaloguj</a>
+                    <a href="{% url 'register' %}" class="btn-secondary">Zarejestruj</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <div class="header-energy-bar"></div>
+
+    <main class="main-content {% block main_class %}{% endblock %}">
+        <div class="page-wrapper">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <div class="ticker-bar">
+        <div class="ticker-content">
+            <span>🌱 Dbamy o bezpieczną żywność</span>
+            <span>✅ W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
+            <span>🤝 Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
+            <span>📢 Opinie klientów są dla nas ważne</span>
+            <span>🔍 Transparentność od pola do stołu</span>
+            <span>🌍 Wspieramy rolnictwo ekologiczne</span>
+            <span>📈 Śledź swoją partię w czasie rzeczywistym</span>
+            <span>🛡️ Certyfikaty zgodne z UE 848/2018</span>
+            <span>🌱 Dbamy o bezpieczną żywność</span>
+            <span>✅ W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
+            <span>🤝 Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
+            <span>📢 Opinie klientów są dla nas ważne</span>
+            <span>🔍 Transparentność od pola do stołu</span>
+            <span>🌍 Wspieramy rolnictwo ekologiczne</span>
+            <span>📈 Śledź swoją partię w czasie rzeczywistym</span>
+            <span>🛡️ Certyfikaty zgodne z UE 848/2018</span>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Produkty i certyfikaty</h3>
+                <div class="footer-links">
+                    <a href="{% url 'home' %}" class="footer-link">Strona główna</a>
+                    <a href="{% url 'list_product_batches' %}" class="footer-link">Lista produktów</a>
+                    <a href="{% url 'list_cert' %}" class="footer-link">Lista certyfikatów</a>
+                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>System</h3>
+                <div class="footer-links">
+                    {% if user.is_superuser %}
+                    <a href="{% url 'control_dashboard' %}" class="footer-link">Dashboard</a>
+                    <a href="{% url 'dashboard_fraud_reports' %}" class="footer-link">Zgłoszenia fraudów</a>
+                    {% endif %}
+                    <a href="{% url 'notifications' %}" class="footer-link">Powiadomienia</a>
+                    <a class="footer-link">Track &amp; Trace</a>
+                    <a class="footer-link">Historia</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Dokumentacja</h3>
+                <div class="footer-links">
+                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" target="_blank" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
+                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" target="_blank" class="footer-link">Standardy GIJHARS</a>
+                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" target="_blank" class="footer-link">EU Organic Label</a>
+                    <a href="https://eur-lex.europa.eu/legal-content/PL/TXT/?uri=CELEX%3A32018R0848" target="_blank" class="footer-link">Przepisy UE (Rozp. 848/2018)</a>
+                    <a href="mailto:support@example.com" class="footer-link">Pomoc techniczna</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© {% now "Y" %} System Certyfikacji Ekologicznej. Wszelkie prawa zastrzeżone.</p>
+            <p>🌿 Wspieramy transparentność w rolnictwie ekologicznym</p>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            let audioCtx = null;
+            function getCtx() {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                return audioCtx;
+            }
+            function playClick() {
+                try {
+                    const ac = getCtx();
+                    const osc = ac.createOscillator();
+                    const gain = ac.createGain();
+                    osc.connect(gain);
+                    gain.connect(ac.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, ac.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(440, ac.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.12, ac.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.12);
+                    osc.start(ac.currentTime);
+                    osc.stop(ac.currentTime + 0.12);
+                } catch (e) {}
+            }
+            document.addEventListener('click', function (e) {
+                const el = e.target.closest('button, .btn, .nav-item a, .auth-buttons a');
+                if (el) playClick();
+            });
+        })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href ||
+            href.startsWith('#') ||
+            href.startsWith('http') ||
+            href.startsWith('mailto') ||
+            link.target === '_blank') return;
+        e.preventDefault();
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('exiting');
+            setTimeout(() => {
+                window.location.href = href;
+            }, 280);
+        } else {
+            window.location.href = href;
+        }
+    });
+    </script>
+</body>
+</html>

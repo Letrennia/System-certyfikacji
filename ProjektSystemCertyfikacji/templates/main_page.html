@@ -1,4 +1,7 @@
-<!-- 
+{% extends "base.html" %}
+{% load static %}
+
+{% comment %}
 INFORMACJE DLA FRONTENDU:
 
 DANE W SZABLONIE:
@@ -21,411 +24,526 @@ WAŻNE:
 - POST wymaga CSRF token: headers: {'X-CSRFToken': csrftoken, 'Content-Type': 'application/json'}
 - Endpointy można testować w przeglądarce (np. /api/system-stats/)
 - Certyfikaty mają gotowe linki: detail_url, report_url
--->
+{% endcomment %}
 
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wyszukaj produkt - System Certyfikacji</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        .search-results {
-            max-width: 800px;
-            margin: 32px auto 0;
-        }
+{% block title %}Wyszukaj certyfikat - System Certyfikacji{% endblock %}
 
-        .result-card {
-            background-color: white;
-            border: 1px solid #cac4d0;
-            border-radius: 12px;
-            padding: 32px;
-            margin-top: 24px;
-        }
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-        .result-header {
-            border-bottom: 2px solid #f5f5f5;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
+    .main-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5.5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+        text-align: center;
+    }
 
-        .result-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 8px;
-        }
+    .main-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.5rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 2.5rem;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+        text-align: center;
+    }
 
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+    .result-header {
+        background: linear-gradient(145deg, #f9f9f9, #ffffff);
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(119,195,32,0.2);
+        padding: 20px 24px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        position: relative;
+    }
 
-        .result-item {
-            padding: 12px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        }
+    .result-header::after {
+        content: '';
+        position: absolute;
+        top: 8px;
+        right: 16px;
+        font-size: 48px;
+        color: rgba(119,195,32,0.1);
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        pointer-events: none;
+        transform: rotate(5deg);
+    }
 
-        .result-label {
-            font-size: 14px;
-            color: #757575;
-            margin-bottom: 4px;
-        }
+    .result-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e3a1e;
+        text-shadow: 1px 1px 0 rgba(119,195,32,0.2);
+        letter-spacing: -0.3px;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .result-value {
-            font-size: 16px;
-            font-weight: 500;
-            color: #1e1e1e;
-        }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px 6px 12px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border: 1px solid transparent;
+    }
 
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 600;
-        }
+    .status-badge::before {
+        content: '';
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
 
-        .status-active {
-            background-color: #d4edda;
-            color: #155724;
-        }
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #a3d9a5;
+    }
+    .status-active::before {
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23155724"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>');
+    }
 
-        .status-verified {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
+    .status-verified {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-color: #a8d4e0;
+    }
+    .status-verified::before {
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%230c5460"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>');
+    }
 
-        .status-unverified {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+    .status-unverified {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f1b0b7;
+    }
+    .status-unverified::before {
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23721c24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>');
+        filter: hue-rotate(0deg) brightness(0.8);
+    }
 
-        .section-divider {
-            border-top: 2px solid #f5f5f5;
-            margin: 24px 0;
-            padding-top: 24px;
-        }
+    .qr-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #f0f7e8, #e0efd0);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(119,195,32,0.3);
+    }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 12px;
-        }
+    .qr-icon:hover {
+        transform: scale(1.1) rotate(8deg);
+        box-shadow: 0 8px 16px rgba(119,195,32,0.3);
+        border-color: #77c320;
+    }
 
-        .rating-display {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        }
+    .qr-icon img {
+        width: 40px;
+        height: 40px;
+        transition: transform 0.3s ease;
+    }
 
-        .rating-number {
-            font-size: 32px;
-            font-weight: 700;
-            color: #77c320;
-        }
+    .qr-icon:hover img {
+        transform: scale(1.1);
+    }
 
-        .rating-text {
-            color: #757575;
-            font-size: 14px;
-        }
+    .btn-primary {
+        position: relative;
+        overflow: hidden;
+        background-color: #77c320;
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
 
-        .batch-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+    .btn-primary::before {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: 50%;
+        left: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 80%);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.5s ease;
+        border-radius: 50%;
+        z-index: 0;
+    }
 
-        .batch-item {
-            padding: 12px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .btn-primary:hover::before {
+        transform: translate(-50%, -50%) scale(1);
+    }
 
-        .batch-name {
-            font-weight: 500;
-            color: #1e1e1e;
-        }
+    .btn-primary:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.25);
+        transform: translateY(-1px);
+    }
 
-        .batch-category {
-            color: #757575;
-            font-size: 14px;
-        }
+    .btn-primary:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(119,195,32,0.2);
+    }
 
-        .error-message {
-            background-color: #f8d7da;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-        }
+    .btn-primary span {
+        position: relative;
+        z-index: 1;
+    }
 
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
-            color: #757575;
-        }
+    .search-section {
+        position: relative;
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+    }
 
-        .wave span {
-            display: inline-block;
-            animation: wave 1.2s ease-in-out infinite;
-        }
+    .search-input {
+        border: 2px solid #c0ccb0;
+        border-radius: 16px;
+        padding: 14px 20px;
+        font-size: 16px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: rgba(255,255,255,0.9);
+    }
 
-        @keyframes wave {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-            100% { transform: translateY(0); }
-        }
+    .search-input:focus {
+        border-color: #77c320;
+        box-shadow: 0 0 0 3px rgba(119,195,32,0.1);
+        outline: none;
+        background-color: #ffffff;
+    }
 
+    .search-label {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        color: #2a4a2a;
+        margin-bottom: 8px;
+    }
 
-        @media (max-width: 768px) {
-            .result-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    {% if user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% else %}
-        {% include "navbars/customer_navbar.html" %}
-    {% endif %}
-    <main class="main-content centered">
-        <h1 class="main-title">Wyszukaj certyfikat</h1>
-        <p class="main-subtitle">Sprawdź autentyczność i szczegóły certyfikatu</p>
+    .qr-code-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        color: #4d6b4d;
+    }
 
-        <div class="search-section">
-            <div class="search-label">Wpisz numer certyfikatu</div>
-            <input
-                type="text"
-                id="certificate_number"
-                class="search-input"
-                placeholder="np. PL-BIO-123456"
-                onkeypress="handleKeyPress(event)"
-            >
-            <button
-                class="btn btn-primary"
-                style="width: 100%; padding: 12px;"
-                onclick="searchCertificate()"
-            >
-                Szukaj
-            </button>
+    @media (max-width: 768px) {
+        .main-title { font-size: 3.5rem; }
+        .main-subtitle { font-size: 1.8rem; }
+        .result-title { font-size: 24px; }
+    }
 
-            <div class="qr-code-section">
-                <span>lub</span>
-                <div class="qr-icon" onclick="alert('Funkcja skanowania QR będzie dostępna wkrótce')">
-                    <img src="{% static 'ProjektSystemCertyfikacji/images/icon-205.svg' %}" alt="Camera">
-                </div>
+    /* ===== NOWE STYLE DLA KART WYNIKÓW ===== */
+    .result-card {
+        background-color: white;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        padding: 32px;
+        margin-top: 32px;
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 24px 0;
+    }
+
+    .result-item {
+        background-color: #f8faf5;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #e8f0e0;
+    }
+
+    .result-item[style*="grid-column: 1 / -1"] {
+        grid-column: 1 / -1;
+    }
+
+    .result-label {
+        font-size: 14px;
+        color: #6a7a6a;
+        margin-bottom: 6px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+
+    .result-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e3a1e;
+    }
+
+    .section-divider {
+        border-top: 2px solid #eef5e9;
+        margin: 32px 0 0;
+        padding-top: 32px;
+    }
+
+    .section-title {
+        font-size: 24px !important;
+        font-weight: 600;
+        color: #1e3a1e;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: linear-gradient(145deg, #f4faf0, #e8f2e0);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid #d0e4c0;
+    }
+
+    .rating-number {
+        font-size: 48px;
+        font-weight: 700;
+        color: #77c320;
+        line-height: 1;
+    }
+
+    .rating-text {
+        color: #4d6b4d;
+        font-size: 15px;
+    }
+
+    .batch-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .batch-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8faf5;
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        border: 1px solid #e0ecd0;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .batch-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(119,195,32,0.1);
+        border-color: #77c320;
+    }
+
+    .batch-name {
+        font-weight: 600;
+        color: #1e3a1e;
+        font-size: 16px;
+    }
+
+    .batch-category {
+        color: #6a7a6a;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+
+    .btn-primary {
+        border-radius: 40px;
+        padding: 14px 36px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="main-title">Wyszukaj certyfikat</h1>
+    <p class="main-subtitle">Sprawdź autentyczność i szczegóły certyfikatu</p>
+
+    <div class="search-section">
+        <div class="search-label">Wpisz numer certyfikatu</div>
+        <input
+            type="text"
+            id="certificate_number"
+            class="search-input"
+            placeholder="np. PL-BIO-123456"
+            onkeypress="handleKeyPress(event)"
+        >
+        <button
+            class="btn btn-primary"
+            style="width: 100%; padding: 12px;"
+            onclick="searchCertificate()"
+        >
+            Szukaj
+        </button>
+
+        <div class="qr-code-section">
+            <span>lub</span>
+            <div class="qr-icon" onclick="alert('Funkcja skanowania QR będzie dostępna wkrótce')">
+                <img src="{% static 'ProjektSystemCertyfikacji/images/icon-205.svg' %}" alt="Camera">
             </div>
         </div>
+    </div>
 
-        <div id="result" class="search-results"></div>
-    </main>
+    <div id="result" class="search-results"></div>
+{% endblock %}
 
-    <footer class="footer top-margin-large">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+{% block extra_js %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
+        }
+        return cookieValue;
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') searchCertificate();
+    }
+
+    function getStatusClass(status) {
+        const s = status.toLowerCase();
+        if (s.includes('aktywny') || s.includes('active')) return 'status-active';
+        if (s.includes('zweryfikowany') || s.includes('verified')) return 'status-verified';
+        return 'status-unverified';
+    }
+
+    function searchCertificate() {
+        const number = document.getElementById('certificate_number').value.trim();
+        const resultDiv = document.getElementById('result');
+
+        if (!number) {
+            resultDiv.innerHTML = '<div class="error-message">Proszę podać numer certyfikatu</div>';
+            return;
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                searchCertificate();
-            }
-        }
+        resultDiv.innerHTML = '<div class="loading-spinner"><p>Wyszukiwanie certyfikatu...</p></div>';
 
-        function searchCertificate() {
-            const number = document.getElementById('certificate_number').value.trim();
-            const resultDiv = document.getElementById('result');
+        fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    resultDiv.innerHTML = `<div class="error-message">${data.error || 'Nie znaleziono certyfikatu'}</div>`;
+                    return;
+                }
+                const c = data.certificate;
+                const ratings = data.ratings || { total: 0, average: 0 };
+                const batches = data.batches || { total: 0, list: [] };
+                const qrCodeUrl = data.certificate.qr_code_url;
 
-            if (!number) {
+                const statusClass = getStatusClass(c.status);
+
                 resultDiv.innerHTML = `
-                    <div class="error-message">
-                        Proszę podać numer certyfikatu
-                    </div>
-                `;
-                return;
-            }
-
-            resultDiv.innerHTML = `
-                <div class="loading-spinner">
-                    <p id="loading-text" class="wave">Wyszukiwanie certyfikatu...</p>
-                </div>
-            `;
-
-            const text = document.getElementById("loading-text");
-            const letters = text.textContent.split("");
-
-            text.innerHTML = letters
-                .map((char, i) => {
-                    const safeChar = char === " " ? "&nbsp;" : char;
-                    return `<span style="animation-delay:${i * 0.08}s">${safeChar}</span>`;
-                })
-                .join("");
-
-            fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        resultDiv.innerHTML = `
-                            <div class="error-message">
-                                ${data.error || 'Nie znaleziono certyfikatu'}
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h2 class="result-title">Certyfikat ${c.number}</h2>
+                            <span class="status-badge ${statusClass}">${c.status}</span>
+                        </div>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <div class="result-label">Ważny od</div>
+                                <div class="result-value">${c.valid_from}</div>
                             </div>
-                        `;
-                        return;
-                    }
-                    const c = data.certificate;
-                    const ratings = data.ratings || { total: 0, average: 0 };
-                    const batches = data.batches || { total: 0, list: [] };
-                    const qrCodeUrl = data.certificate.qr_code_url;
-
-                    resultDiv.innerHTML = `
-                        <div class="result-card">
-                            <div class="result-header">
-                                <h2 class="result-title">Certyfikat ${c.number}</h2>
-                                <span class="status-badge status-active">${c.status}</span>
+                            <div class="result-item">
+                                <div class="result-label">Ważny do</div>
+                                <div class="result-value">${c.valid_to}</div>
                             </div>
-
-                            <div class="result-grid">
-                                <div class="result-item">
-                                    <div class="result-label">Ważny od</div>
-                                    <div class="result-value">${c.valid_from}</div>
+                            <div class="result-item" style="grid-column: 1 / -1;">
+                                <div class="result-label">Weryfikacja blockchain</div>
+                                <div class="result-value">
+                                    <span class="status-badge ${c.blockchain_verified ? 'status-verified' : 'status-unverified'}">
+                                        ${c.blockchain_verified ? '✓ Zweryfikowany' : '✗ Brak weryfikacji'}
+                                    </span>
                                 </div>
-                                <div class="result-item">
-                                    <div class="result-label">Ważny do</div>
-                                    <div class="result-value">${c.valid_to}</div>
-                                </div>
-                                <div class="result-item" style="grid-column: 1 / -1;">
-                                    <div class="result-label">Weryfikacja blockchain</div>
-                                    <div class="result-value">
-                                        <span class="status-badge ${c.blockchain_verified ? 'status-verified' : 'status-unverified'}">
-                                            ${c.blockchain_verified ? '✓ Zweryfikowany' : '✗ Brak weryfikacji'}
-                                        </span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 24px; text-align: center;">
+                            <a href="/certificate/${encodeURIComponent(qrCodeUrl)}"
+                               class="btn btn-primary"
+                               style="text-decoration: none; display: inline-block; padding: 12px 32px; font-size: 16px;">
+                                Szczegóły certyfikatu
+                            </a>
+                        </div>
+                        <div class="section-divider">
+                            <h3 class="section-title">Oceny konsumentów</h3>
+                            ${ratings.total > 0 ? `
+                                <div class="rating-display">
+                                    <div class="rating-number">${ratings.average.toFixed(1)}</div>
+                                    <div>
+                                        <div style="color:#1e1e1e;font-weight:500;">na 5.0</div>
+                                        <div class="rating-text">${ratings.total} ${ratings.total === 1 ? 'ocena' : 'ocen'}</div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div style="margin-top: 24px; text-align: center;">
-                                <a href="/certificate/${encodeURIComponent(qrCodeUrl)}"
-                                   class="btn btn-primary"
-                                   style="text-decoration: none; display: inline-block; padding: 12px 32px; font-size: 16px;">
-                                    Szczegóły certyfikatu
-                                </a>
-                            </div>
-
-                            <div class="section-divider">
-                                <h3 class="section-title">Oceny konsumentów</h3>
-                                ${ratings.total > 0 ? `
-                                    <div class="rating-display">
-                                        <div class="rating-number">${ratings.average.toFixed(1)}</div>
-                                        <div>
-                                            <div style="color: #1e1e1e; font-weight: 500;">na 5.0</div>
-                                            <div class="rating-text">${ratings.total} ${ratings.total === 1 ? 'ocena' : 'ocen'}</div>
-                                        </div>
-                                    </div>
-                                ` : `
-                                    <p style="color: #757575; text-align: center; padding: 20px;">
-                                        Brak ocen dla tego certyfikatu
-                                    </p>
-                                `}
-                            </div>
-
-                            <div class="section-divider">
-                                <h3 class="section-title">Partie produktu (${batches.total})</h3>
-                                ${batches.total > 0 ? `
-                                    <ul class="batch-list">
-                                        ${batches.list.map(b => `
+                                </div>` :
+                                '<p style="color:#757575;text-align:center;padding:20px;">Brak ocen dla tego certyfikatu</p>'
+                            }
+                        </div>
+                        <div class="section-divider">
+                            <h3 class="section-title">Partie produktu (${batches.total})</h3>
+                            ${batches.total > 0 ? `
+                                <ul class="batch-list">
+                                    ${batches.list.map(b => {
+                                        const batchStatusClass = getStatusClass(b.status);
+                                        return `
                                             <li class="batch-item">
                                                 <div>
                                                     <div class="batch-name">${b.name}</div>
                                                     <div class="batch-category">${b.category}</div>
                                                 </div>
-                                                <span class="status-badge status-active">${b.status}</span>
-                                            </li>
-                                        `).join('')}
-                                    </ul>
-                                ` : `
-                                    <p style="color: #757575; text-align: center; padding: 20px;">
-                                        Brak przypisanych partii produktu
-                                    </p>
-                                `}
-                            </div>
+                                                <span class="status-badge ${batchStatusClass}">${b.status}</span>
+                                            </li>`;
+                                    }).join('')}
+                                </ul>` :
+                                '<p style="color:#757575;text-align:center;padding:20px;">Brak przypisanych partii produktu</p>'
+                            }
                         </div>
-                    `;
-                })
-                .catch(err => {
-                    console.error('Błąd wyszukiwania:', err);
-                    resultDiv.innerHTML = `
-                        <div class="error-message">
-                            Wystąpił błąd podczas wyszukiwania. Spróbuj ponownie później.
-                        </div>
-                    `;
-                });
-        }
-    </script>
-</body>
-</html>
+                    </div>`;
+            })
+            .catch(err => {
+                console.error('Błąd:', err);
+                resultDiv.innerHTML = '<div class="error-message">Wystąpił błąd podczas wyszukiwania. Spróbuj ponownie.</div>';
+            });
+    }
+</script>
+{% endblock %}
