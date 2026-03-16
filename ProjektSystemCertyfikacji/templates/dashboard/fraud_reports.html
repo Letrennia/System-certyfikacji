@@ -1,142 +1,486 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Zgłoszenia fraudów - Dashboard</title>
-    <style>
-        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { background: #2c2c2c; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-        .stat-value { font-size: 32px; font-weight: bold; }
-        .stat-label { color: #757575; font-size: 14px; }
-        .table-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f0f0f0; padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .status-new { background: #ffc107; color: #000; }
-        .status-investigating { background: #17a2b8; color: #fff; }
-        .status-resolved { background: #28a745; color: #fff; }
-        .status-rejected { background: #dc3545; color: #fff; }
-        .btn { display: inline-block; padding: 8px 16px; background: #2c2c2c; color: white; text-decoration: none; border-radius: 5px; }
-        .btn-small { padding: 4px 8px; font-size: 12px; }
-        .section-title { margin-top: 0; color: #2c2c2c; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Dashboard zgłoszeń fraudów</h1>
-            <p>Panel zarządzania zgłoszeniami od konsumentów</p>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Zgłoszenia fraudów - Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --dark-dark: #2e3d2b;
+        --medium: #78bd49;
+        --light: #9add6e;
+        --text-color: #1b211a;
+    }
+
+    .fraud-dashboard {
+        padding: 40px 0 80px;
+    }
+
+    .fraud-dashboard h1 {
+        font-size: 2.2em;
+        font-weight: 700;
+        color: var(--dark-dark);
+        margin-bottom: 4px;
+    }
+
+    .fraud-dashboard .subtitle {
+        color: #5a6e57;
+        margin-bottom: 32px;
+        font-size: 1rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: var(--dark-dark);
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2em;
+        font-weight: 700;
+        color: var(--light);
+        line-height: 1;
+        transition: all 0.3s ease;
+    }
+
+    .stat-label {
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.65);
+        margin-top: 6px;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(46,61,43,0.1);
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .table-header {
+        background: var(--dark-dark);
+        color: #fff;
+        padding: 14px 20px;
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .count-badge {
+        background: var(--medium);
+        color: var(--dark-dark);
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+        table-layout: auto;
+    }
+
+    thead th {
+        background: #f7faf3;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #4a5e47;
+        border-bottom: 1px solid #e0ecd0;
+        white-space: nowrap;
+    }
+
+    thead th:last-child {
+        min-width: 200px;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #f0f4eb;
+        transition: background-color 0.15s;
+    }
+
+    tbody tr:hover { background-color: #f7faf3; }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+        padding: 12px 16px;
+        vertical-align: middle;
+        color: var(--text-color);
+    }
+
+    .status-select {
+        padding: 5px 10px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(46,61,43,0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text-color);
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+
+    .status-select:focus { outline: none; border-color: var(--dark-dark); }
+
+    .btn-save {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: none;
+        background: var(--medium);
+        color: var(--dark-dark);
+        font-weight: 600;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-save:hover { background: var(--light); }
+
+    .btn-detail {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(46,61,43,0.2);
+        background: transparent;
+        color: var(--dark-dark);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-detail:hover { background: #e8f5d8; }
+
+    .btn-expand {
+        background: none;
+        border: 1.5px solid rgba(46,61,43,0.2);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: background 0.15s, border-color 0.15s;
+        color: var(--dark-dark);
+        white-space: nowrap;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-expand:hover { background: #e8f5d8; border-color: var(--medium); }
+    .btn-expand.open { background: #e8f5d8; border-color: var(--medium); }
+
+    .detail-row { display: none; background: #f7faf3; }
+    .detail-row.open { display: table-row; }
+
+    .detail-cell {
+        padding: 16px 20px 20px 36px;
+        border-bottom: 2px solid #e0ecd0;
+    }
+
+    .detail-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #5a6e57;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 6px;
+        margin-top: 14px;
+    }
+
+    .detail-label:first-child { margin-top: 0; }
+
+    .description-box, .notes-box {
+        background: #fff;
+        border: 1px solid #ddebc8;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.88rem;
+        color: var(--text-color);
+        white-space: pre-wrap;
+    }
+
+    .notes-box {
+        font-size: 0.85rem;
+        color: #4a5e47;
+        font-style: italic;
+        margin-bottom: 10px;
+    }
+
+    .notes-area {
+        width: 100%;
+        min-height: 72px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(46,61,43,0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.88rem;
+        color: var(--text-color);
+        resize: vertical;
+        box-sizing: border-box;
+        margin-bottom: 8px;
+    }
+
+    .notes-area:focus { outline: none; border-color: var(--dark-dark); }
+
+    .btn-note {
+        padding: 7px 18px;
+        border-radius: 8px;
+        border: none;
+        background: var(--dark-dark);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-note:hover { background: #1e2b1c; }
+
+    .empty-row td {
+        text-align: center;
+        padding: 32px;
+        color: #8a9e87;
+        font-size: 0.9rem;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        background: var(--dark-dark);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s, transform 0.3s;
+        pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fraud-dashboard">
+
+    <h1>Zgłoszenia oszustw</h1>
+    <p class="subtitle">Panel administracyjny — zarządzanie zgłoszeniami</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="stat-total">{{ stats.total }}</div>
+            <div class="stat-label">Wszystkie</div>
         </div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value">{{ stats.total }}</div>
-                <div class="stat-label">Wszystkie</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #ffc107;">{{ stats.new }}</div>
-                <div class="stat-label">Nowe</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #17a2b8;">{{ stats.investigating }}</div>
-                <div class="stat-label">W trakcie</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #28a745;">{{ stats.resolved }}</div>
-                <div class="stat-label">Rozwiązane</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" style="color: #dc3545;">{{ stats.rejected }}</div>
-                <div class="stat-label">Odrzucone</div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-new">{{ stats.new }}</div>
+            <div class="stat-label">Nowe</div>
         </div>
-        
-        <div class="table-container">
-            <h2 class="section-title">Do weryfikacji ({{ pending_reports|length }})</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Data</th>
-                        <th>Typ</th>
-                        <th>Email</th>
-                        <th>Certyfikat</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in pending_reports %}
-                    <tr>
-                        <td>#{{ report.report_id }}</td>
-                        <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
-                        <td>{{ report.get_fraud_type_display }}</td>
-                        <td>{{ report.reporter_email }}</td>
-                        <td>{{ report.certificate_id.certificate_number|default:"-" }}</td>
-                        <td>
-                            <span class="status-badge status-{{ report.status }}">
-                                {{ report.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn btn-small">Szczegóły</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" style="text-align: center;">Brak zgłoszeń do weryfikacji</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-investigating">{{ stats.investigating }}</div>
+            <div class="stat-label">W trakcie</div>
         </div>
-        
-        <div class="table-container">
-            <h2 class="section-title">Ostatnie zgłoszenia</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Data</th>
-                        <th>Typ</th>
-                        <th>Email</th>
-                        <th>Certyfikat</th>
-                        <th>Status</th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for report in recent_reports %}
-                    <tr>
-                        <td>#{{ report.report_id }}</td>
-                        <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
-                        <td>{{ report.get_fraud_type_display }}</td>
-                        <td>{{ report.reporter_email }}</td>
-                        <td>{{ report.certificate_id.certificate_number|default:"-" }}</td>
-                        <td>
-                            <span class="status-badge status-{{ report.status }}">
-                                {{ report.get_status_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn btn-small">Szczegóły</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" style="text-align: center;">Brak zgłoszeń</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-resolved">{{ stats.resolved }}</div>
+            <div class="stat-label">Rozwiązane</div>
         </div>
-        
-        <div style="text-align: right; margin-top: 20px;">
-            <a href="/api/fraud-reports/" target="_blank" class="btn">Zobacz API</a>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-rejected">{{ stats.rejected }}</div>
+            <div class="stat-label">Odrzucone</div>
         </div>
     </div>
-</body>
-</html>
+
+    {% for section_reports, section_title in reports_sections %}
+    <div class="table-container">
+        <div class="table-header">
+            {{ section_title }}
+            <span class="count-badge">{{ section_reports|length }}</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Typ</th>
+                    <th>Email</th>
+                    <th>Certyfikat</th>
+                    <th>Zmień status</th>
+                    <th style="min-width:200px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in section_reports %}
+                <tr>
+                    <td style="color:#8a9e87;font-size:0.82rem">#{{ report.report_id }}</td>
+                    <td style="font-size:0.82rem;white-space:nowrap">{{ report.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ report.get_fraud_type_display }}</td>
+                    <td style="font-size:0.85rem">{{ report.reporter_email }}</td>
+                    <td style="font-family:monospace;font-size:0.82rem">{{ report.certificate_id.certificate_number|default:"—" }}</td>
+                    <td style="white-space:nowrap">
+                        <div style="display:flex;gap:6px;align-items:center">
+                            <select class="status-select" id="sel-{{ report.report_id }}">
+                                <option value="new"           {% if report.status == "new" %}selected{% endif %}>Nowe</option>
+                                <option value="investigating"  {% if report.status == "investigating" %}selected{% endif %}>W trakcie weryfikacji</option>
+                                <option value="resolved"      {% if report.status == "resolved" %}selected{% endif %}>Rozwiązane</option>
+                                <option value="rejected"      {% if report.status == "rejected" %}selected{% endif %}>Odrzucone</option>
+                            </select>
+                            <button class="btn-save" onclick="saveStatus({{ report.report_id }})">Zapisz</button>
+                        </div>
+                    </td>
+                    <td style="white-space:nowrap">
+                        <div style="display:flex;gap:6px;align-items:center">
+                            <button class="btn-expand" id="expand-{{ report.report_id }}" onclick="toggleDetail({{ report.report_id }})">↓</button>
+                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn-detail">Szczegóły</a>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="detail-row" id="detail-{{ report.report_id }}">
+                    <td colspan="7" class="detail-cell">
+                        <div class="detail-label">Opis zgłoszenia</div>
+                        <div class="description-box">{{ report.description|default:"(brak opisu)" }}</div>
+
+                        <div class="detail-label">Notatki śledcze</div>
+                        <div class="notes-box" id="notes-text-{{ report.report_id }}">{% if report.investigation_notes %}{{ report.investigation_notes }}{% else %}<span style="color:#bbb">(brak notatek)</span>{% endif %}</div>
+
+                        <div class="detail-label">Dodaj notatkę</div>
+                        <textarea class="notes-area" id="note-input-{{ report.report_id }}" placeholder="Wpisz notatkę..."></textarea>
+                        <button class="btn-note" onclick="addNote({{ report.report_id }})">Dodaj notatkę</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row"><td colspan="7">Brak zgłoszeń</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+
+</div>
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const STATUS_LABELS = {
+        'new': 'Nowe',
+        'investigating': 'W trakcie weryfikacji',
+        'resolved': 'Rozwiązane',
+        'rejected': 'Odrzucone'
+    };
+
+    function getCookie(name) {
+        let value = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) value = decodeURIComponent(c.slice(name.length + 1));
+        });
+        return value;
+    }
+
+    function showToast(msg, ok = true) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.background = ok ? '#2e3d2b' : '#842029';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function toggleDetail(id) {
+        const row = document.getElementById('detail-' + id);
+        const btn = document.getElementById('expand-' + id);
+        row.classList.toggle('open');
+        btn.classList.toggle('open');
+        btn.textContent = row.classList.contains('open') ? '↑' : '↓';
+    }
+
+    async function refreshStats() {
+        try {
+            const r = await fetch('/api/fraud-reports/stats/');
+            const d = await r.json();
+
+            const byStatus = {};
+            (d.by_status || []).forEach(s => byStatus[s.status] = s.count);
+
+            document.getElementById('stat-total').textContent = d.total;
+            document.getElementById('stat-new').textContent = byStatus['new'] || 0;
+            document.getElementById('stat-investigating').textContent = byStatus['investigating'] || 0;
+            document.getElementById('stat-resolved').textContent = byStatus['resolved'] || 0;
+            document.getElementById('stat-rejected').textContent = byStatus['rejected'] || 0;
+        } catch (e) {}
+    }
+
+    setInterval(refreshStats, 10000);
+
+    async function saveStatus(reportId) {
+        const sel = document.getElementById('sel-' + reportId);
+        const newStatus = sel.value;
+        try {
+            const r = await fetch('/api/fraud-reports/' + reportId + '/', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (r.ok) {
+                showToast('✓ Status: ' + STATUS_LABELS[newStatus]);
+                refreshStats();
+            } else {
+                showToast('Błąd zapisu statusu', false);
+            }
+        } catch (e) {
+            showToast('Błąd połączenia', false);
+        }
+    }
+
+    async function addNote(reportId) {
+        const input = document.getElementById('note-input-' + reportId);
+        const note = input.value.trim();
+        if (!note) { showToast('Notatka nie może być pusta', false); return; }
+        try {
+            const r = await fetch('/api/fraud-reports/' + reportId + '/add_note/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ note })
+            });
+            const d = await r.json();
+            if (r.ok) {
+                document.getElementById('notes-text-' + reportId).textContent = d.investigation_notes;
+                input.value = '';
+                showToast('✓ Notatka dodana');
+            } else {
+                showToast(d.error || 'Błąd dodawania notatki', false);
+            }
+        } catch (e) {
+            showToast('Błąd połączenia', false);
+        }
+    }
+</script>
+{% endblock %}

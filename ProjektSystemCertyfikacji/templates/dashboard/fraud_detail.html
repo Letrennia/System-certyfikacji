@@ -1,89 +1,386 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Zgłoszenie #{{ report.report_id }}</title>
-    <style>
-        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .header { background: #2c2c2c; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .info-row { display: flex; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .info-label { width: 150px; font-weight: bold; color: #757575; }
-        .info-value { flex: 1; }
-        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
-        .status-new { background: #ffc107; }
-        .status-investigating { background: #17a2b8; color: white; }
-        .status-resolved { background: #28a745; color: white; }
-        .status-rejected { background: #dc3545; color: white; }
-        .btn { display: inline-block; padding: 10px 20px; background: #2c2c2c; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; }
-        .btn-secondary { background: #6c757d; }
-        .notes-box { background: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Zgłoszenie #{{ report.report_id }}</h1>
-            <p>Szczegóły zgłoszenia fraudu</p>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Zgłoszenie #{{ report.report_id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --dark-dark: #2e3d2b;
+        --medium: #78bd49;
+        --light: #9add6e;
+        --text-color: #1b211a;
+    }
+
+    .detail-page {
+        max-width: 760px;
+        margin: 40px auto 80px;
+        padding: 0 20px;
+    }
+
+    .detail-page h1 {
+        font-size: 2em;
+        font-weight: 700;
+        color: var(--dark-dark);
+        margin-bottom: 4px;
+    }
+
+    .detail-page .subtitle {
+        color: #5a6e57;
+        font-size: 0.95rem;
+        margin-bottom: 28px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(46,61,43,0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .card-header {
+        background: var(--dark-dark);
+        color: #fff;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    .card-body {
+        padding: 24px;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f4eb;
+        gap: 16px;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        width: 160px;
+        flex-shrink: 0;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #5a6e57;
+        padding-top: 2px;
+    }
+
+    .info-value {
+        flex: 1;
+        font-size: 0.95rem;
+        color: var(--text-color);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-new          { background: #fff3cd; color: #856404; }
+    .status-investigating { background: #cfe2ff; color: #084298; }
+    .status-resolved     { background: #d1e7dd; color: #0a3622; }
+    .status-rejected     { background: #f8d7da; color: #842029; }
+
+    .notes-box {
+        background: #f7faf3;
+        border: 1px solid #ddebc8;
+        border-radius: 10px;
+        padding: 12px 16px;
+        white-space: pre-wrap;
+        font-size: 0.88rem;
+        color: #4a5e47;
+        font-style: italic;
+    }
+
+    /* Status change */
+    .status-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .status-select {
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(46,61,43,0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        color: var(--text-color);
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+
+    .status-select:focus { outline: none; border-color: var(--dark-dark); }
+
+    .btn-save {
+        padding: 8px 18px;
+        border-radius: 10px;
+        border: none;
+        background: var(--medium);
+        color: var(--dark-dark);
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-save:hover { background: var(--light); }
+
+    /* Note form */
+    .notes-area {
+        width: 100%;
+        min-height: 90px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(46,61,43,0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        color: var(--text-color);
+        resize: vertical;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+
+    .notes-area:focus { outline: none; border-color: var(--dark-dark); }
+
+    .btn-note {
+        padding: 9px 22px;
+        border-radius: 10px;
+        border: none;
+        background: var(--dark-dark);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-note:hover { background: #1e2b1c; }
+
+    /* Bottom buttons */
+    .action-row {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 28px;
+    }
+
+    .btn-back {
+        padding: 11px 28px;
+        border-radius: 10px;
+        border: 1.5px solid rgba(46,61,43,0.25);
+        background: transparent;
+        color: var(--dark-dark);
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+
+    .btn-back:hover { background: #e8f5d8; }
+
+    .toast {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        background: var(--dark-dark);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s, transform 0.3s;
+        pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+
+    <h1>Zgłoszenie #{{ report.report_id }}</h1>
+    <p class="subtitle">Szczegóły zgłoszenia oszustwa</p>
+
+    <!-- Informacje podstawowe -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Informacje podstawowe</h2>
+            <span class="status-badge status-{{ report.status }}">{{ report.get_status_display }}</span>
         </div>
-        
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0;">Informacje podstawowe</h2>
-                <span class="status-badge status-{{ report.status }}">
-                    {{ report.get_status_display }}
-                </span>
-            </div>
-            
+        <div class="card-body">
             <div class="info-row">
-                <div class="info-label">Data zgłoszenia:</div>
-                <div class="info-value">{{ report.created_at|date:"Y-m-d H:i:s" }}</div>
+                <div class="info-label">Data zgłoszenia</div>
+                <div class="info-value">{{ report.created_at|date:"d.m.Y H:i:s" }}</div>
             </div>
-            
             <div class="info-row">
-                <div class="info-label">Typ fraudu:</div>
+                <div class="info-label">Typ oszustwa</div>
                 <div class="info-value">{{ report.get_fraud_type_display }}</div>
             </div>
-            
             <div class="info-row">
-                <div class="info-label">Zgłaszający:</div>
+                <div class="info-label">Zgłaszający</div>
                 <div class="info-value">{{ report.reporter_email }}</div>
             </div>
-            
             <div class="info-row">
-                <div class="info-label">Opis:</div>
+                <div class="info-label">Opis</div>
                 <div class="info-value">{{ report.description|linebreaks }}</div>
             </div>
-            
             {% if report.certificate_id %}
             <div class="info-row">
-                <div class="info-label">Certyfikat:</div>
+                <div class="info-label">Certyfikat</div>
                 <div class="info-value">
-                    {{ report.certificate_id.certificate_number }}<br>
-                    <small>Posiadacz: {{ report.certificate_id.holder_company_id.name|default:"-" }}</small>
+                    <span style="font-family:monospace;font-weight:600">{{ report.certificate_id.certificate_number }}</span><br>
+                    <small style="color:#5a6e57">Posiadacz: {{ report.certificate_id.holder_company_id.name|default:"—" }}</small>
                 </div>
             </div>
             {% endif %}
-            
             {% if report.batch_id %}
             <div class="info-row">
-                <div class="info-label">Partia produktu:</div>
+                <div class="info-label">Partia produktu</div>
                 <div class="info-value">{{ report.batch_id.name }}</div>
             </div>
             {% endif %}
-            
-            {% if report.investigation_notes %}
-            <div class="info-row">
-                <div class="info-label">Notatki:</div>
-                <div class="info-value notes-box">{{ report.investigation_notes|linebreaks }}</div>
-            </div>
-            {% endif %}
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="{% url 'dashboard_fraud_reports' %}" class="btn btn-secondary">Powrót do listy</a>
-            <a href="/api/fraud-reports/{{ report.report_id }}/" target="_blank" class="btn">Zobacz w API</a>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Zmiana statusu -->
+    <div class="card">
+        <div class="card-header"><h2>Zmień status</h2></div>
+        <div class="card-body">
+            <div class="status-form">
+                <select class="status-select" id="status-select">
+                    <option value="new"          {% if report.status == "new" %}selected{% endif %}>Nowe</option>
+                    <option value="investigating" {% if report.status == "investigating" %}selected{% endif %}>W trakcie weryfikacji</option>
+                    <option value="resolved"     {% if report.status == "resolved" %}selected{% endif %}>Rozwiązane</option>
+                    <option value="rejected"     {% if report.status == "rejected" %}selected{% endif %}>Odrzucone</option>
+                </select>
+                <button class="btn-save" onclick="saveStatus()">Zapisz status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notatki śledcze -->
+    <div class="card">
+        <div class="card-header"><h2>Notatki śledcze</h2></div>
+        <div class="card-body">
+            <div class="notes-box" id="notes-display">
+                {% if report.investigation_notes %}{{ report.investigation_notes }}{% else %}<span style="color:#bbb">(brak notatek)</span>{% endif %}
+            </div>
+            <div style="margin-top:16px">
+                <div style="font-size:0.82rem;font-weight:700;color:#5a6e57;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Dodaj notatkę</div>
+                <textarea class="notes-area" id="note-input" placeholder="Wpisz notatkę..."></textarea>
+                <button class="btn-note" onclick="addNote()">Dodaj notatkę</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-row">
+        <a href="{% url 'dashboard_fraud_reports' %}" class="btn-back">← Powrót do listy</a>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const REPORT_ID = {{ report.report_id }};
+
+    const STATUS_LABELS = {
+        'new': 'Nowe',
+        'investigating': 'W trakcie weryfikacji',
+        'resolved': 'Rozwiązane',
+        'rejected': 'Odrzucone'
+    };
+
+    function getCookie(name) {
+        let value = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) value = decodeURIComponent(c.slice(name.length + 1));
+        });
+        return value;
+    }
+
+    function showToast(msg, ok = true) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.background = ok ? '#2e3d2b' : '#842029';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    async function saveStatus() {
+        const newStatus = document.getElementById('status-select').value;
+        try {
+            const r = await fetch('/api/fraud-reports/' + REPORT_ID + '/', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (r.ok) {
+                showToast('✓ Status: ' + STATUS_LABELS[newStatus]);
+            } else {
+                showToast('Błąd zapisu statusu', false);
+            }
+        } catch (e) {
+            showToast('Błąd połączenia', false);
+        }
+    }
+
+    async function addNote() {
+        const input = document.getElementById('note-input');
+        const note = input.value.trim();
+        if (!note) { showToast('Notatka nie może być pusta', false); return; }
+        try {
+            const r = await fetch('/api/fraud-reports/' + REPORT_ID + '/add_note/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ note })
+            });
+            const d = await r.json();
+            if (r.ok) {
+                document.getElementById('notes-display').textContent = d.investigation_notes;
+                input.value = '';
+                showToast('✓ Notatka dodana');
+            } else {
+                showToast(d.error || 'Błąd dodawania notatki', false);
+            }
+        } catch (e) {
+            showToast('Błąd połączenia', false);
+        }
+    }
+</script>
+{% endblock %}

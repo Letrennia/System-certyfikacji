@@ -19,7 +19,7 @@ from ..forms.report_form import FraudReportForm
 def main_page(request):
     
     # Statystyki dla dashboardu
-    total_certificates = Certificate.objects.count()
+    total_certificates = Certificate.objects.filter(status='valid').count()
     active_certificates = Certificate.objects.filter(status='valid').count()
     total_batches = Product_batch.objects.count()
     active_alerts = Alert.objects.filter(status__in=['new', 'waiting']).count()

@@ -124,41 +124,42 @@ def revoke_certificate(request, cert_id):
 
 @staff_member_required
 def dashboard_fraud_reports(request):
-    
-    total = Fraud_report.objects.count()
-    new = Fraud_report.objects.filter(status='new').count()
-    investigating = Fraud_report.objects.filter(status='investigating').count()
-    resolved = Fraud_report.objects.filter(status='resolved').count()
-    rejected = Fraud_report.objects.filter(status='rejected').count()
-    
-    recent_reports = Fraud_report.objects.all().select_related(
+    all_reports = Fraud_report.objects.select_related(
         'certificate_id', 'batch_id'
-    ).order_by('-created_at')[:10]
-    
-    pending_reports = Fraud_report.objects.filter(
-        status__in=['new', 'investigating']
-    ).select_related('certificate_id', 'batch_id').order_by('-created_at')[:5]
-    
-    context = {
-        'stats': {
-            'total': total,
-            'new': new,
-            'investigating': investigating,
-            'resolved': resolved,
-            'rejected': rejected,
-        },
-        'recent_reports': recent_reports,
-        'pending_reports': pending_reports,
+    ).order_by('-created_at')
+
+    stats = {
+        'total':         all_reports.count(),
+        'new':           all_reports.filter(status='new').count(),
+        'investigating': all_reports.filter(status='investigating').count(),
+        'resolved':      all_reports.filter(status='resolved').count(),
+        'rejected':      all_reports.filter(status='rejected').count(),
     }
-    
-    return render(request, 'dashboard/fraud_reports.html', context)
+
+    pending_reports = all_reports.filter(status__in=['new', 'investigating'])
+    recent_reports  = all_reports.exclude(status__in=['new', 'investigating'])
+
+    reports_sections = [
+        (pending_reports, 'Do weryfikacji'),
+        (recent_reports,  'Ostatnie zgłoszenia'),
+    ]
+
+    return render(request, 'dashboard/fraud_reports.html', {
+        'stats': stats,
+        'reports_sections': reports_sections,
+        'pending_reports': pending_reports,
+        'recent_reports':  recent_reports,
+    })
 
 @staff_member_required
 def dashboard_fraud_detail(request, report_id):
     report = Fraud_report.objects.select_related(
-        'certificate_id', 
+        'certificate_id',
         'batch_id',
         'certificate_id__holder_company_id'
     ).get(report_id=report_id)
-    
-    return render(request, 'dashboard/fraud_detail.html', {'report': report})
+
+    return render(request, 'dashboard/fraud_detail.html', {
+        'report': report,
+        'total_certificates': Certificate.objects.filter(status='valid').count(),
+    })

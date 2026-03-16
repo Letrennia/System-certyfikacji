@@ -8,6 +8,16 @@
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main.main-content {
+            flex: 1;
+         }
+
         .header {
             position: relative;
             width: 100%;
@@ -488,22 +498,22 @@
 
     <div class="ticker-bar">
         <div class="ticker-content">
-            <span>🌱 Dbamy o bezpieczną żywność</span>
-            <span>✅ W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
-            <span>🤝 Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
-            <span>📢 Opinie klientów są dla nas ważne</span>
-            <span>🔍 Transparentność od pola do stołu</span>
-            <span>🌍 Wspieramy rolnictwo ekologiczne</span>
-            <span>📈 Śledź swoją partię w czasie rzeczywistym</span>
-            <span>🛡️ Certyfikaty zgodne z UE 848/2018</span>
-            <span>🌱 Dbamy o bezpieczną żywność</span>
-            <span>✅ W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
-            <span>🤝 Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
-            <span>📢 Opinie klientów są dla nas ważne</span>
-            <span>🔍 Transparentność od pola do stołu</span>
-            <span>🌍 Wspieramy rolnictwo ekologiczne</span>
-            <span>📈 Śledź swoją partię w czasie rzeczywistym</span>
-            <span>🛡️ Certyfikaty zgodne z UE 848/2018</span>
+            <span>Dbamy o bezpieczną żywność</span>
+            <span>W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
+            <span>Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
+            <span>Opinie klientów są dla nas ważne</span>
+            <span>Transparentność od pola do stołu</span>
+            <span>Wspieramy rolnictwo ekologiczne</span>
+            <span>Śledź swoją partię w czasie rzeczywistym</span>
+            <span>Certyfikaty zgodne z UE 848/2018</span>
+            <span>Dbamy o bezpieczną żywność</span>
+            <span>W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
+            <span>Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
+            <span>Opinie klientów są dla nas ważne</span>
+            <span>Transparentność od pola do stołu</span>
+            <span>Wspieramy rolnictwo ekologiczne</span>
+            <span>Śledź swoją partię w czasie rzeczywistym</span>
+            <span>Certyfikaty zgodne z UE 848/2018</span>
         </div>
     </div>
 
