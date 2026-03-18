@@ -1,384 +1,394 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historia zmian - {{ certificate.certificate_number }}</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        .history-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+{% extends "base.html" %}
 
-        .certificate-summary {
-            background-color: white;
-            border-radius: 12px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+{% block title %}Historia zmian - {{ certificate.certificate_number }}{% endblock %}
 
-        .summary-header {
-            border-bottom: 2px solid #f5f5f5;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    /* Tło strony – zgodne z innymi widokami */
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-        .summary-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 8px;
-        }
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.8rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .history-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .certificate-summary {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+
+    .summary-header {
+        border-bottom: 2px solid rgba(119,195,32,0.25);
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .summary-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e3a1e;
+        margin-bottom: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .summary-item {
+        padding: 16px;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .summary-label {
+        font-size: 12px;
+        color: #4d6b4d;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .summary-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e3a1e;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: #77c320;
+        color: white;
+        border: 1px solid #5a9918;
+        box-shadow: 0 2px 6px rgba(119,195,32,0.2);
+    }
+
+    .history-section {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        padding: 32px;
+    }
+
+    .history-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1e3a1e;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid rgba(119,195,32,0.25);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 40px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 16px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: rgba(119,195,32,0.2);
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 32px;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -32px;
+        top: 24px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #77c320;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px rgba(119,195,32,0.3);
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-date {
+        font-size: 14px;
+        color: #4d6b4d;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    .timeline-content {
+        display: grid;
+        gap: 12px;
+    }
+
+    .change-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+    }
+
+    .change-label {
+        font-weight: 600;
+        color: #1e3a1e;
+        min-width: 80px;
+    }
+
+    .change-value {
+        color: #1e3a1e;
+    }
+
+    .status-change {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background-color: white;
+        border-radius: 30px;
+        border: 1px solid rgba(119,195,32,0.2);
+        width: fit-content;
+    }
+
+    .status-old {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .status-arrow {
+        color: #4d6b4d;
+        font-weight: 700;
+    }
+
+    .status-new {
+        color: #77c320;
+        font-weight: 600;
+    }
+
+    .reason-box {
+        background-color: rgba(255,255,255,0.9);
+        padding: 12px;
+        border-radius: 12px;
+        border-left: 4px solid #2196F3;
+        margin-top: 8px;
+        border: 1px solid rgba(33,150,243,0.2);
+    }
+
+    .reason-label {
+        font-size: 12px;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .reason-text {
+        font-size: 14px;
+        color: #1e3a1e;
+        line-height: 1.5;
+    }
+
+    .empty-history {
+        text-align: center;
+        padding: 60px 40px;
+        background-color: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        border: 1px dashed rgba(119,195,32,0.3);
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        font-size: 16px;
+        color: #4d6b4d;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 16px;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        font-weight: 600;
+        background-color: rgba(255,255,255,0.8);
+        border: 2px solid #c0ccb0;
+        color: #4d6b4d;
+        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+        margin-top: 32px;
+    }
+
+    .back-button:hover {
+        border-color: #77c320;
+        background-color: #ffffff;
+        box-shadow: 0 6px 14px rgba(119,195,32,0.1);
+        transform: translateY(-1px);
+    }
+
+    .back-button:active {
+        transform: translateY(1px);
+    }
+
+    @media (max-width: 768px) {
+        .page-title { font-size: 3.5rem; }
+        .page-subtitle { font-size: 2.2rem; }
 
         .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .summary-item {
-            padding: 12px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        }
-
-        .summary-label {
-            font-size: 12px;
-            color: #757575;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .summary-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1e1e1e;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 600;
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .history-section {
-            background-color: white;
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .history-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #f5f5f5;
+            grid-template-columns: 1fr;
         }
 
         .timeline {
-            position: relative;
-            padding-left: 40px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 16px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: #d9d9d9;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 32px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            padding: 20px;
+            padding-left: 32px;
         }
 
         .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -32px;
-            top: 24px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #2c2c2c;
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px #d9d9d9;
+            left: -24px;
         }
+    }
+</style>
+{% endblock %}
 
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
+{% block content %}
+<div class="history-container">
+    <div class="product-header">
+        <h1 class="page-title">Historia Zmian Certyfikatu</h1>
+        <p class="page-subtitle">Pełna historia modyfikacji statusu certyfikatu</p>
+    </div>
 
-        .timeline-date {
-            font-size: 14px;
-            color: #757575;
-            margin-bottom: 12px;
-            font-weight: 500;
-        }
+    <div class="certificate-summary">
+        <div class="summary-header">
+            <div class="summary-title">{{ certificate.certificate_number }}</div>
+            <span class="status-badge">{{ certificate.get_status_display }}</span>
+        </div>
 
-        .timeline-content {
-            display: grid;
-            gap: 12px;
-        }
-
-        .change-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 15px;
-        }
-
-        .change-label {
-            font-weight: 600;
-            color: #1e1e1e;
-            min-width: 80px;
-        }
-
-        .change-value {
-            color: #1e1e1e;
-        }
-
-        .status-change {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background-color: white;
-            border-radius: 6px;
-        }
-
-        .status-old {
-            color: #dc3545;
-            font-weight: 600;
-        }
-
-        .status-arrow {
-            color: #757575;
-            font-weight: 700;
-        }
-
-        .status-new {
-            color: #77c320;
-            font-weight: 600;
-        }
-
-        .reason-box {
-            background-color: white;
-            padding: 12px;
-            border-radius: 6px;
-            border-left: 4px solid #2196F3;
-            margin-top: 8px;
-        }
-
-        .reason-label {
-            font-size: 12px;
-            color: #757575;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .reason-text {
-            font-size: 14px;
-            color: #1e1e1e;
-            line-height: 1.5;
-        }
-
-        .empty-history {
-            text-align: center;
-            padding: 60px 40px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-text {
-            font-size: 16px;
-            color: #757575;
-        }
-
-        .back-button {
-            display: inline-block;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: #e3e3e3;
-            border: 1px solid #767676;
-            color: #1e1e1e;
-            text-decoration: none;
-            transition: opacity 0.2s;
-            font-weight: 600;
-            margin-top: 32px;
-        }
-
-        .back-button:hover {
-            opacity: 0.9;
-        }
-
-        @media (max-width: 768px) {
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .timeline {
-                padding-left: 32px;
-            }
-
-            .timeline-item::before {
-                left: -24px;
-            }
-        }
-    </style>
-</head>
-<body class="white-bg">
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
-    <main class="main-content">
-        <div class="history-container">
-            <div class="product-header">
-                <h1 class="page-title">Historia Zmian Certyfikatu</h1>
-                <p class="page-subtitle">Pełna historia modyfikacji statusu certyfikatu</p>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Firma Posiadająca</div>
+                <div class="summary-value">{{ certificate.holder_company_id.name }}</div>
             </div>
 
-            <div class="certificate-summary">
-                <div class="summary-header">
-                    <div class="summary-title">{{ certificate.certificate_number }}</div>
-                    <span class="status-badge">{{ certificate.get_status_display }}</span>
-                </div>
-
-                <div class="summary-grid">
-                    <div class="summary-item">
-                        <div class="summary-label">Firma Posiadająca</div>
-                        <div class="summary-value">{{ certificate.holder_company_id.name }}</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="summary-label">Jednostka Wydająca</div>
-                        <div class="summary-value">{{ certificate.issued_by_certifying_unit_id.name }}</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="summary-label">Ważny Od</div>
-                        <div class="summary-value">{{ certificate.valid_from }}</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="summary-label">Ważny Do</div>
-                        <div class="summary-value">{{ certificate.valid_to }}</div>
-                    </div>
-                </div>
+            <div class="summary-item">
+                <div class="summary-label">Jednostka Wydająca</div>
+                <div class="summary-value">{{ certificate.issued_by_certifying_unit_id.name }}</div>
             </div>
 
-            <div class="history-section">
-                <h2 class="history-title">Historia Zmian Statusu</h2>
+            <div class="summary-item">
+                <div class="summary-label">Ważny Od</div>
+                <div class="summary-value">{{ certificate.valid_from }}</div>
+            </div>
 
-                {% if history_records %}
-                    <div class="timeline">
-                        {% for record in history_records %}
-                            <div class="timeline-item">
-                                <div class="timeline-date">
-                                    {{ record.changed_date|date:"d.m.Y, H:i" }}
-                                </div>
+            <div class="summary-item">
+                <div class="summary-label">Ważny Do</div>
+                <div class="summary-value">{{ certificate.valid_to }}</div>
+            </div>
+        </div>
+    </div>
 
-                                <div class="timeline-content">
-                                    <div class="status-change">
-                                        <span class="status-old">{{ record.get_old_status_display }}</span>
-                                        <span class="status-arrow">→</span>
-                                        <span class="status-new">{{ record.get_new_status_display }}</span>
-                                    </div>
+    <div class="history-section">
+        <h2 class="history-title">Historia Zmian Statusu</h2>
 
-                                    <div class="change-row">
-                                        <span class="change-label">Kto zmienił:</span>
-                                        <span class="change-value">{{ record.changed_by_user_id.name }}</span>
-                                    </div>
+        {% if history_records %}
+            <div class="timeline">
+                {% for record in history_records %}
+                    <div class="timeline-item">
+                        <div class="timeline-date">
+                            {{ record.changed_date|date:"d.m.Y, H:i" }}
+                        </div>
 
-                                    {% if record.reason %}
-                                        <div class="reason-box">
-                                            <div class="reason-label">Powód Zmiany</div>
-                                            <div class="reason-text">{{ record.reason }}</div>
-                                        </div>
-                                    {% endif %}
-                                </div>
+                        <div class="timeline-content">
+                            <div class="status-change">
+                                <span class="status-old">{{ record.get_old_status_display }}</span>
+                                <span class="status-arrow">→</span>
+                                <span class="status-new">{{ record.get_new_status_display }}</span>
                             </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="empty-history">
-                        <div class="empty-icon">📋</div>
-                        <div class="empty-text">Brak historii zmian dla tego certyfikatu.</div>
-                    </div>
-                {% endif %}
-            </div>
 
-            <div style="text-align: center;">
-                <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy certyfikatów</a>
-            </div>
-        </div>
-    </main>
+                            <div class="change-row">
+                                <span class="change-label">Kto zmienił:</span>
+                                <span class="change-value">{{ record.changed_by_user_id.name }}</span>
+                            </div>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
+                            {% if record.reason %}
+                                <div class="reason-box">
+                                    <div class="reason-label">Powód Zmiany</div>
+                                    <div class="reason-text">{{ record.reason }}</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
+        {% else %}
+            <div class="empty-history">
+                <div class="empty-icon">📋</div>
+                <div class="empty-text">Brak historii zmian dla tego certyfikatu.</div>
             </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+        {% endif %}
+    </div>
+
+    <div style="text-align: center;">
+        <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy certyfikatów</a>
+    </div>
+</div>
+{% endblock %}

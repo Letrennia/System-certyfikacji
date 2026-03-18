@@ -1,335 +1,656 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista Certyfikatów - System Certyfikacji</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
+{% extends "base.html" %}
+
+{% block title %}Lista Certyfikatów - System Certyfikacji{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 4rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 1.8rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .add-button {
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #77c320;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .add-button:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+        transform: translateY(-1px);
+    }
+
+    .add-button:active {
+        transform: translateY(1px);
+    }
+
+    .messages-container {
+        margin-bottom: 24px;
+    }
+
+    .alert {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        position: relative;
+        padding-right: 48px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-error,
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+        color: #842029;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+    }
+
+    .alert-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        line-height: 1;
+    }
+
+    .alert-close:hover {
+        opacity: 1;
+    }
+
+    .filter-form {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        padding: 28px 32px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        color: #2a4a2a;
+        font-size: 14px;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 11px 16px;
+        border: 2px solid #c0ccb0;
+        border-radius: 16px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        background-color: rgba(255,255,255,0.9);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        color: #1e3a1e;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        border-color: #77c320;
+        box-shadow: 0 0 0 3px rgba(119,195,32,0.1);
+        outline: none;
+        background-color: #ffffff;
+    }
+
+    .filter-group input {
+        width: 240px;
+    }
+
+    .clear-btn {
+        padding: 11px 20px;
+        background-color: rgba(255,255,255,0.8);
+        border: 2px solid #c0ccb0;
+        border-radius: 16px;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #4d6b4d;
+        font-weight: 500;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .clear-btn:hover {
+        border-color: #77c320;
+        background-color: #ffffff;
+    }
+
+    .active-filters {
+        margin-top: 16px;
+        font-size: 14px;
+        color: #4d6b4d;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .active-filters span {
+        background: rgba(119,195,32,0.12);
+        border: 1px solid rgba(119,195,32,0.3);
+        color: #2a4a2a;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-left: 8px;
+        font-size: 13px;
+    }
+
+    .table-container {
+        background-color: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .certificate-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .certificate-table thead {
+        background-color: #1e3a1e;
+        color: white;
+    }
+
+    .certificate-table th {
+        padding: 16px 20px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        white-space: nowrap;
+    }
+
+    .certificate-table tbody tr {
+        border-bottom: 1px solid #eef5e9;
+        transition: background-color 0.2s;
+    }
+
+    .certificate-table tbody tr:hover {
+        background-color: #f4faf0;
+    }
+
+    .certificate-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .certificate-table td {
+        padding: 16px 20px;
+        color: #1e3a1e;
+        font-size: 15px;
+    }
+
+    .certificate-table td:nth-child(4),
+    .certificate-table td:nth-child(5),
+    .certificate-table th:nth-child(4),
+    .certificate-table th:nth-child(5) {
+        white-space: nowrap;
+        min-width: 130px;
+    }
+
+    .cert-number {
+        font-weight: 600;
+        color: #1e3a1e;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 14px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        border: 1px solid transparent;
+    }
+
+    .status-valid {
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #a3d9a5;
+    }
+
+    .status-expired {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f1b0b7;
+    }
+
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+        border-color: #ffc107;
+    }
+
+    .status-revoked {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f1b0b7;
+    }
+
+    .status-other {
+        background-color: #e3e3e3;
+        color: #4d4d4d;
+        border-color: #bbb;
+    }
+
+    .details-button {
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #1e3a1e;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .details-button:hover {
+        background-color: #2f5a2f;
+        box-shadow: 0 4px 10px rgba(30,58,30,0.2);
+        transform: translateY(-1px);
+    }
+
+    .main-content > .page-wrapper {
+        max-width: 1600px;
+        width: 95%;
+    }
+
+    .empty-state {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border: 2px dashed rgba(119,195,32,0.4);
+        border-radius: 24px;
+        padding: 60px 40px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-family: 'Caveat', cursive;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a3a1a;
+        margin-bottom: 12px;
+    }
+
+    .empty-message {
+        font-size: 16px;
+        color: #4d6b4d;
+        margin-bottom: 24px;
+    }
+
+    .empty-action {
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #77c320;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .empty-action:hover {
+        background-color: #8fd43b;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .page-title { font-size: 2.8rem; }
+        .page-subtitle { font-size: 1.4rem; }
+
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-            gap: 16px;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .page-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            width: 100%;
         }
 
         .add-button {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #77c320;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-            font-weight: 600;
-        }
-
-        .add-button:hover {
-            opacity: 0.9;
-        }
-
-        .logout-button {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #e3e3e3;
-            border: 1px solid #767676;
-            color: #1e1e1e;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-            font-weight: 600;
-        }
-
-        .logout-button:hover {
-            opacity: 0.9;
-        }
-
-        .messages-container {
-            margin-bottom: 24px;
-        }
-
-        .alert {
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            position: relative;
-            padding-right: 48px;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .alert-error,
-        .alert-danger {
-            background-color: #f8d7da;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-        }
-
-        .alert-warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-        }
-
-        .alert-info {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-        }
-
-        .alert-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: inherit;
-            opacity: 0.7;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            line-height: 1;
-        }
-
-        .alert-close:hover {
-            opacity: 1;
-        }
-
-        .table-container {
-            background-color: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .certificate-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .certificate-table thead {
-            background-color: #2c2c2c;
-            color: white;
-        }
-
-        .certificate-table th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .certificate-table tbody tr {
-            border-bottom: 1px solid #e5e5e5;
-            transition: background-color 0.2s;
-        }
-
-        .certificate-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .certificate-table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .certificate-table td {
-            padding: 16px;
-            color: #1e1e1e;
-            font-size: 15px;
-        }
-
-        .cert-number {
-            font-weight: 600;
-            color: #2c2c2c;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .status-valid {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-expired {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .status-revoked {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-other {
-            background-color: #e3e3e3;
-            color: #1e1e1e;
-        }
-
-        .details-button {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #2c2c2c;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-            font-weight: 500;
-        }
-
-        .details-button:hover {
-            opacity: 0.9;
-        }
-
-        .empty-state {
-            background: linear-gradient(135deg, #e7f3ff 0%, #f5f9ff 100%);
-            border: 2px dashed #2196F3;
-            border-radius: 12px;
-            padding: 60px 40px;
+            flex: 1;
             text-align: center;
         }
 
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
+        .table-container {
+            overflow-x: auto;
         }
 
-        .empty-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 12px;
+        .certificate-table {
+            min-width: 800px;
         }
 
-        .empty-message {
-            font-size: 16px;
-            color: #757575;
-            margin-bottom: 24px;
+        .empty-state {
+            padding: 40px 20px;
         }
 
-        .empty-action {
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #2196F3;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-            font-weight: 600;
+        .filter-group input {
+            width: 100%;
         }
+    }
+</style>
+{% endblock %}
 
-        .empty-action:hover {
-            opacity: 0.9;
-        }
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Lista Certyfikatów</h1>
+        <p class="page-subtitle">Zarządzaj certyfikatami w systemie</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'add_cert' %}" class="add-button">+ Dodaj Certyfikat</a>
+    </div>
+</div>
 
-        .filter-form {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
+{% if messages %}
+    <div class="messages-container">
+        {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }}">
+                {{ msg }}
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
-        .filter-row {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+<div class="filters-container" style="margin-bottom: 30px;">
+    <form method="get" id="filter-form" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="search-input">Certyfikat:</label>
+                <input type="text"
+                    id="search-input"
+                    name="search"
+                    value="{{ current_search }}"
+                    list="certificate-numbers"
+                    placeholder="Wpisz numer/nazwę...">
+                <datalist id="certificate-numbers">
+                    {% for cert in certy %}
+                    <option value="{{ cert.certificate_number }}">
+                    {% endfor %}
+                </datalist>
+            </div>
 
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-        }
+            <div class="filter-group">
+                <label for="status-select">Status:</label>
+                <select id="status-select" name="status">
+                    <option value="">Wszystkie</option>
+                    {% for status_key, status_display in status_choices %}
+                    <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>
+                        {{ status_display }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        .active-filters span {
-            background: #e3e3e3;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-left: 8px;
-            font-size: 14px;
-        }
+            <div class="filter-group">
+                <label for="sort-select">Sortuj według:</label>
+                <select id="sort-select" name="sort_by">
+                    <option value="valid_from" {% if current_sort == 'valid_from' %}selected{% endif %}>Data od</option>
+                    <option value="valid_to" {% if current_sort == 'valid_to' %}selected{% endif %}>Data do</option>
+                    <option value="certificate_number" {% if current_sort == 'certificate_number' %}selected{% endif %}>Numer</option>
+                </select>
+            </div>
 
-        @media (max-width: 768px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            <div class="filter-group">
+                <label for="order-select">Kolejność:</label>
+                <select id="order-select" name="sort_order">
+                    <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Rosnąco</option>
+                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
+                </select>
+            </div>
 
-            .page-actions {
-                width: 100%;
-            }
+            <div class="filter-group">
+                <label for="company-search-input">Firma:</label>
+                <input type="text"
+                    id="company-search-input"
+                    name="company_search"
+                    value="{{ current_company_search }}"
+                    list="company-names"
+                    placeholder="Wpisz nazwę firmy...">
+                <datalist id="company-names">
+                    {% for company in companies %}
+                    <option value="{{ company.name }}">
+                    {% endfor %}
+                </datalist>
+            </div>
 
-            .add-button,
-            .logout-button {
-                flex: 1;
-            }
+            {% if is_admin %}
+            <div class="filter-group">
+                <label for="issued-by-search-input">Jednostka Wydająca:</label>
+                <input type="text"
+                    id="issued-by-search-input"
+                    name="issued_by_search"
+                    value="{{ current_issued_by_search }}"
+                    list="certifying-unit-names"
+                    placeholder="Wpisz nazwę jednostki...">
+                <datalist id="certifying-unit-names">
+                    {% for unit in certifying_units %}
+                    <option value="{{ unit.name }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            {% endif %}
 
-            .table-container {
-                overflow-x: auto;
-            }
+            <div class="filter-group" style="justify-content: flex-end;">
+                <button type="button" id="clear-filters" class="clear-btn">
+                    Wyczyść filtry
+                </button>
+            </div>
+        </div>
+    </form>
 
-            .certificate-table {
-                min-width: 800px;
-            }
+    {% if current_search or current_status or current_company_search or current_issued_by_search %}
+    <div class="active-filters">
+        <strong>Aktywne filtry:</strong>
+        {% if current_search %}<span>Certyfikat: "{{ current_search }}"</span>{% endif %}
+        {% if current_status %}<span>Status: {{ current_status }}</span>{% endif %}
+        {% if current_company_search %}<span>Firma: "{{ current_company_search }}"</span>{% endif %}
+        {% if is_admin and current_issued_by_search %}<span>Jednostka: "{{ current_issued_by_search }}"</span>{% endif %}
+    </div>
+    {% endif %}
+</div>
 
-            .empty-state {
-                padding: 40px 20px;
-            }
+{% if certy %}
+    <div class="table-container">
+        <table class="certificate-table">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?sort_by=certificate_number&sort_order={% if current_sort == 'certificate_number' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}"
+                        style="color: white; text-decoration: none;">
+                            Certyfikat
+                            {% if current_sort == 'certificate_number' %}
+                                {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Rodzaj podmiotu</th>
+                    <th>Firma</th>
+                    <th>
+                        <a href="?sort_by=valid_from&sort_order={% if current_sort == 'valid_from' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}"
+                        style="color: white; text-decoration: none;">
+                            Ważny od
+                            {% if current_sort == 'valid_from' %}
+                                {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort_by=valid_to&sort_order={% if current_sort == 'valid_to' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}"
+                        style="color: white; text-decoration: none;">
+                            Ważny do
+                            {% if current_sort == 'valid_to' %}
+                                {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Obszary Działalności</th>
+                    {% if is_admin %}
+                        <th>Jednostka Wydająca</th>
+                    {% endif %}
+                    <th>Status</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for crt in certy %}
+                    <tr>
+                        <td class="cert-number">
+                            <a href="{% url 'cert_detail' crt.certificate_id %}" style="color: #1e3a1e; text-decoration: none; font-weight: 600;">
+                                {{ crt.certificate_number }}
+                            </a>
+                        </td>
+                        <td>{{ crt.get_subject_type_display }}</td>
+                        <td>{{ crt.holder_company_id.name }}</td>
+                        <td>{{ crt.valid_from }}</td>
+                        <td>{{ crt.valid_to }}</td>
+                        <td>
+                            {% for area in crt.activity_areas.all %}
+                                {{ area.get_name_display }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                Brak
+                            {% endfor %}
+                        </td>
+                        {% if is_admin %}
+                            <td>{{ crt.issued_by_certifying_unit_id.name }}</td>
+                        {% endif %}
+                        <td>
+                            {% if crt.status == 'valid' %}
+                                <span class="status-badge status-valid">{{ crt.get_status_display }}</span>
+                            {% elif crt.status == 'expired' %}
+                                <span class="status-badge status-expired">{{ crt.get_status_display }}</span>
+                            {% elif crt.status == 'pending' %}
+                                <span class="status-badge status-pending">{{ crt.get_status_display }}</span>
+                            {% elif crt.status == 'revoked' %}
+                                <span class="status-badge status-revoked">{{ crt.get_status_display }}</span>
+                            {% else %}
+                                <span class="status-badge status-other">{{ crt.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'cert_detail' crt.certificate_id %}" class="details-button">Szczegóły</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h2 class="empty-title">Brak certyfikatów</h2>
+        <p class="empty-message">W systemie nie ma jeszcze żadnych certyfikatów. Dodaj pierwszy certyfikat, aby rozpocząć.</p>
+        <a href="{% url 'add_cert' %}" class="empty-action">+ Dodaj pierwszy certyfikat</a>
+    </div>
+{% endif %}
+{% endblock %}
 
-            .empty-icon {
-                font-size: 48px;
-            }
-
-            .empty-title {
-                font-size: 20px;
-            }
-        }
-    </style>
-</head><script>
+{% block extra_js %}
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
     const statusSelect = document.getElementById('status-select');
@@ -339,18 +660,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const issuedBySearchInput = document.getElementById('issued-by-search-input');
     const filterForm = document.getElementById('filter-form');
     const clearFiltersBtn = document.getElementById('clear-filters');
-    
+
     function submitForm() {
         filterForm.submit();
     }
-    
+
     if (searchInput) searchInput.addEventListener('input', submitForm);
     if (statusSelect) statusSelect.addEventListener('change', submitForm);
     if (sortSelect) sortSelect.addEventListener('change', submitForm);
     if (orderSelect) orderSelect.addEventListener('change', submitForm);
     if (companySearchInput) companySearchInput.addEventListener('input', submitForm);
     if (issuedBySearchInput) issuedBySearchInput.addEventListener('input', submitForm);
-    
+
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', function() {
             window.location.href = window.location.pathname;
@@ -358,276 +679,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-<body class="white-bg">
-{#powielenie navbaru jednostki certyfikujacej#}
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
-
-    <main class="main-content">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title" style="margin-bottom: 8px;">Lista Certyfikatów</h1>
-                <p class="page-subtitle" style="margin-bottom: 0;">Zarządzaj certyfikatami w systemie</p>
-            </div>
-            <div class="page-actions">
-                <a href="{% url 'add_cert' %}" class="add-button">+ Dodaj Certyfikat</a>
-{#                <a href="{% url 'logout' %}" class="logout-button">Wyloguj</a>#}
-            </div>
-        </div>
-
-        {% if messages %}
-            <div class="messages-container">
-                {% for msg in messages %}
-                    <div class="alert alert-{{ msg.tags }}">
-                        {{ msg }}
-                        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-            <div class="filters-container" style="margin-bottom: 30px;">
-                <form method="get" id="filter-form" class="filter-form">
-                    <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="filter-group">
-                            <label for="search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Certyfikat:</label>
-                            <input type="text" 
-                                id="search-input" 
-                                name="search" 
-                                value="{{ current_search }}" 
-                                list="certificate-numbers"
-                                placeholder="Wpisz numer/nazwę..."
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
-                            <datalist id="certificate-numbers">
-                                {% for cert in certy %}
-                                <option value="{{ cert.certificate_number }}">
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
-                            <select id="status-select" name="status" style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="">Wszystkie</option>
-                                {% for status_key, status_display in status_choices %}
-                                <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>
-                                    {{ status_display }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
-                            <select id="sort-select" name="sort_by" style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="valid_from" {% if current_sort == 'valid_from' %}selected{% endif %}>Data od</option>
-                                <option value="valid_to" {% if current_sort == 'valid_to' %}selected{% endif %}>Data do</option>
-                                <option value="certificate_number" {% if current_sort == 'certificate_number' %}selected{% endif %}>Numer</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
-                            <select id="order-select" name="sort_order" style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Rosnąco</option>
-                                <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
-                            </select>
-                        </div>
-                        
-                        <!-- FILTR FIRMA - DLA WSZYSTKICH -->
-                        <div class="filter-group">
-                            <label for="company-search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Firma:</label>
-                            <input type="text" 
-                                id="company-search-input" 
-                                name="company_search" 
-                                value="{{ current_company_search }}" 
-                                list="company-names"
-                                placeholder="Wpisz nazwę firmy..."
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
-                            <datalist id="company-names">
-                                {% for company in companies %}
-                                <option value="{{ company.name }}">
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        
-                        <!-- FILTR JEDNOSTKA WYDAJĄCA - TYLKO DLA ADMINA -->
-                        {% if is_admin %}
-                        <div class="filter-group">
-                            <label for="issued-by-search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Jednostka Wydająca:</label>
-                            <input type="text" 
-                                id="issued-by-search-input" 
-                                name="issued_by_search" 
-                                value="{{ current_issued_by_search }}" 
-                                list="certifying-unit-names"
-                                placeholder="Wpisz nazwę jednostki..."
-                                style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
-                            <datalist id="certifying-unit-names">
-                                {% for unit in certifying_units %}
-                                <option value="{{ unit.name }}">
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="filter-group">
-                            <button type="button" id="clear-filters" style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer;">
-                                Wyczyść filtry
-                            </button>
-                        </div>
-                    </div>
-                </form>
-                
-                <!-- SEKCJA AKTYWNYCH FILTRÓW -->
-                {% if current_search or current_status or current_company_search or current_issued_by_search %}
-                <div class="active-filters" style="margin-top: 15px; font-size: 14px; color: #666;">
-                    <strong>Aktywne filtry:</strong>
-                    {% if current_search %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Certyfikat: "{{ current_search }}"</span>{% endif %}
-                    {% if current_status %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Status: {{ current_status }}</span>{% endif %}
-                    {% if current_company_search %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Firma: "{{ current_company_search }}"</span>{% endif %}
-                    {% if is_admin and current_issued_by_search %}<span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Jednostka: "{{ current_issued_by_search }}"</span>{% endif %}
-                </div>
-                {% endif %}
-            </div>
-
-        {% if certy %}
-            <div class="table-container">
-                <table class="certificate-table">
-                    <thead>
-                        <tr>
-                            <th>
-                                <a href="?sort_by=certificate_number&sort_order={% if current_sort == 'certificate_number' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}" 
-                                style="color: white; text-decoration: none;">
-                                    Certyfikat
-                                    {% if current_sort == 'certificate_number' %}
-                                        {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
-                                    {% endif %}
-                                </a>
-                            </th>
-                            <th>Rodzaj podmiotu</th>
-                            <th>Firma</th>
-                            <th>
-                                <a href="?sort_by=valid_from&sort_order={% if current_sort == 'valid_from' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}" 
-                                style="color: white; text-decoration: none;">
-                                    Ważny od
-                                    {% if current_sort == 'valid_from' %}
-                                        {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
-                                    {% endif %}
-                                </a>
-                            </th>
-                            <th>
-                                <a href="?sort_by=valid_to&sort_order={% if current_sort == 'valid_to' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&company_search={{ current_company_search }}&status={{ current_status }}{% if is_admin %}&issued_by_search={{ current_issued_by_search }}{% endif %}" 
-                                style="color: white; text-decoration: none;">
-                                    Ważny do
-                                    {% if current_sort == 'valid_to' %}
-                                        {% if current_order == 'asc' %}↑{% else %}↓{% endif %}
-                                    {% endif %}
-                                </a>
-                            </th>
-                            <th>Obszary Działalności</th>
-                            {% if is_admin %}
-                                <th>Jednostka Wydająca</th>
-                            {% endif %}
-                            <th>Status</th>
-                            <th>Akcje</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for crt in certy %}
-                            <tr>
-                                <td class="cert-number">
-                                    <a href="{% url 'cert_detail' crt.certificate_id %}" style="color: #2c2c2c; text-decoration: none; font-weight: 600;">
-                                        {{ crt.certificate_number }}
-                                    </a>
-                                </td>
-                                <td>{{ crt.get_subject_type_display }}</td>
-                                <td>{{ crt.holder_company_id.name }}</td>
-                                <td>{{ crt.valid_from }}</td>
-                                <td>{{ crt.valid_to }}</td>
-                                <td>
-                                    {% for area in crt.activity_areas.all %}
-                                        {{ area.get_name_display }}{% if not forloop.last %}, {% endif %}
-                                    {% empty %}
-                                        Brak
-                                    {% endfor %}
-                                </td>
-                                {% if is_admin %}
-                                    <td>{{ crt.issued_by_certifying_unit_id.name }}</td>
-                                {% endif %}
-                                <td>
-                                    {% if crt.status == 'valid' %}
-                                        <span class="status-badge status-valid">{{ crt.get_status_display }}</span>
-                                    {% elif crt.status == 'expired' %}
-                                        <span class="status-badge status-expired">{{ crt.get_status_display }}</span>
-                                    {% elif crt.status == 'pending' %}
-                                        <span class="status-badge status-pending">{{ crt.get_status_display }}</span>
-                                    {% elif crt.status == 'revoked' %}
-                                        <span class="status-badge status-revoked">{{ crt.get_status_display }}</span>
-                                    {% else %}
-                                        <span class="status-badge status-other">{{ crt.get_status_display }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'cert_detail' crt.certificate_id %}" class="details-button">Szczegóły</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">📋</div>
-                <h2 class="empty-title">Brak certyfikatów</h2>
-                <p class="empty-message">W systemie nie ma jeszcze żadnych certyfikatów. Dodaj pierwszy certyfikat, aby rozpocząć.</p>
-                <a href="{% url 'add_cert' %}" class="empty-action">+ Dodaj pierwszy certyfikat</a>
-            </div>
-        {% endif %}
-    </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

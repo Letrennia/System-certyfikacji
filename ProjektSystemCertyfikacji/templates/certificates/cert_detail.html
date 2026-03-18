@@ -1,429 +1,465 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Szczegóły Certyfikatu - {{ cert.certificate_number }}</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        .details-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+{% extends "base.html" %}
 
-        .certificate-card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-top: 32px;
+{% block title %}Szczegóły Certyfikatu - {{ cert.certificate_number }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    /* Tło strony – zgodne z list_cert.html */
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    /* Nagłówki z czcionką Caveat – jeszcze większe */
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;  /* zwiększone */
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.8rem;  /* zwiększone */
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    /* Karta certyfikatu – styl jak filtr w list_cert.html */
+    .certificate-card {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        overflow: hidden;
+        margin-top: 32px;
+    }
+
+    .card-header {
+        background-color: #1e3a1e;
+        color: white;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .card-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Przyciski akcji w nagłówku (mniejsze, pasujące do ciemnego tła) */
+    .header-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-edit-header, .btn-delete-header {
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn-edit-header {
+        background-color: #77c320;
+        color: white;
+    }
+
+    .btn-edit-header:hover {
+        background-color: #8fd43b;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(119,195,32,0.3);
+    }
+
+    .btn-delete-header {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete-header:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(220,53,69,0.25);
+    }
+
+    .btn-edit-header:active, .btn-delete-header:active {
+        transform: translateY(1px);
+    }
+
+    .card-body {
+        padding: 32px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .detail-item {
+        padding: 20px;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        border: 1px solid rgba(119,195,32,0.15);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .detail-label {
+        font-size: 14px;
+        color: #4d6b4d;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .detail-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e3a1e;
+    }
+
+    .full-width-item {
+        grid-column: 1 / -1;
+    }
+
+    /* Status badge – zgodny z list_cert.html */
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: #77c320;
+        color: white;
+        border: 1px solid #5a9918;
+        box-shadow: 0 2px 6px rgba(119,195,32,0.2);
+    }
+
+    /* Sekcja partii – styl jak wiersze tabeli */
+    .batches-section {
+        padding: 0 32px 32px;
+    }
+
+    .batches-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e3a1e;
+        margin-bottom: 16px;
+        padding-top: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .batch-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        margin-bottom: 10px;
+        gap: 12px;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .batch-row:hover {
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(119,195,32,0.1);
+    }
+
+    .batch-name {
+        font-weight: 600;
+        color: #1e3a1e;
+        font-size: 15px;
+    }
+
+    .batch-meta {
+        font-size: 13px;
+        color: #4d6b4d;
+        margin-top: 3px;
+    }
+
+    .batch-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
+
+    .batch-status-waiting { background-color: #fff3cd; color: #856404; border-color: #ffc107; }
+    .batch-status-in_circulation { background-color: #d4edda; color: #155724; border-color: #a3d9a5; }
+    .batch-status-delivered { background-color: #cce5ff; color: #004085; border-color: #7abaff; }
+    .batch-status-recalled { background-color: #f8d7da; color: #842029; border-color: #f1b0b7; }
+
+    /* Przycisk "Łańcuch dostaw" – styl jak .add-button z list_cert.html */
+    .btn-chain {
+        padding: 8px 20px;
+        border-radius: 40px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        background-color: #77c320;
+        color: white;
+        border: none;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-chain:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-chain:active {
+        transform: translateY(1px);
+    }
+
+    .no-batches {
+        text-align: center;
+        padding: 24px;
+        color: #4d6b4d;
+        background-color: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 16px;
+        font-size: 14px;
+        border: 1px dashed rgba(119,195,32,0.3);
+    }
+
+    .section-divider {
+        border: none;
+        border-top: 1px solid rgba(119,195,32,0.15);
+        margin: 0 32px;
+    }
+
+    /* Przyciski w stopce (Powrót do listy, Historia zmian) – styl jak .clear-btn z list_cert.html */
+    .back-button, .history-button {
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+        background-color: rgba(255,255,255,0.8);
+        border: 2px solid #c0ccb0;
+        color: #4d6b4d;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    }
+
+    .back-button:hover, .history-button:hover {
+        border-color: #77c320;
+        background-color: #ffffff;
+        box-shadow: 0 6px 14px rgba(119,195,32,0.1);
+        transform: translateY(-1px);
+    }
+
+    .back-button:active, .history-button:active {
+        transform: translateY(1px);
+    }
+
+    .card-footer {
+        padding: 24px 32px;
+        background-color: rgba(245,245,245,0.5);
+        border-top: 1px solid rgba(119,195,32,0.15);
+        display: flex;
+        gap: 16px;
+        justify-content: flex-start;
+    }
+
+    /* Responsywność */
+    @media (max-width: 768px) {
+        .page-title { font-size: 3.5rem; }
+        .page-subtitle { font-size: 2.2rem; }
+
+        .details-grid {
+            grid-template-columns: 1fr;
         }
 
         .card-header {
-            background-color: #2c2c2c;
-            color: white;
-            padding: 24px 32px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .card-header,
+        .card-body,
+        .card-footer {
+            padding: 20px;
         }
 
         .card-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .card-body {
-            padding: 32px;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        .detail-item {
-            padding: 16px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        }
-
-        .detail-label {
-            font-size: 14px;
-            color: #757575;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .detail-value {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1e1e1e;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            background-color: #77c320;
-            color: white;
-        }
-
-        .status-badge.inactive {
-            background-color: #dc3545;
-        }
-
-        .status-badge.pending {
-            background-color: #ffc107;
-            color: #1e1e1e;
+            font-size: 22px;
         }
 
         .card-footer {
-            padding: 24px 32px;
-            background-color: #f5f5f5;
-            border-top: 1px solid #d9d9d9;
-            display: flex;
-            gap: 16px;
+            flex-direction: column;
         }
 
-        .back-button {
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #e3e3e3;
-            border: 1px solid #767676;
-            color: #1e1e1e;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
+        .back-button,
+        .history-button {
+            width: 100%;
+            text-align: center;
         }
 
-        .back-button:hover {
-            opacity: 0.9;
-        }
-
-        .edit-button {
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #2c2c2c;
-            color: #f5f5f5;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-        }
-
-        .edit-button:hover {
-            opacity: 0.9;
-        }
-
-        .full-width-item {
-            grid-column: 1 / -1;
-        }
-
-        /* Sekcja partii */
         .batches-section {
-            padding: 0 32px 32px;
-        }
-
-        .batches-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 16px;
-            padding-top: 8px;
+            padding: 0 20px 20px;
         }
 
         .batch-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 16px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            gap: 12px;
-            transition: background-color 0.2s;
+            flex-direction: column;
+            align-items: flex-start;
         }
-
-        .batch-row:hover {
-            background-color: #eeeeee;
-        }
-
-        .batch-name {
-            font-weight: 600;
-            color: #1e1e1e;
-            font-size: 15px;
-        }
-
-        .batch-meta {
-            font-size: 13px;
-            color: #757575;
-            margin-top: 3px;
-        }
-
-        .batch-status {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .batch-status-waiting { background-color: #fff3cd; color: #856404; }
-        .batch-status-in_circulation { background-color: #d4edda; color: #155724; }
-        .batch-status-delivered { background-color: #cce5ff; color: #004085; }
-        .batch-status-recalled { background-color: #f8d7da; color: #842029; }
 
         .btn-chain {
-            padding: 8px 18px;
-            background-color: #77c320;
-            color: white;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            white-space: nowrap;
-            flex-shrink: 0;
-            transition: background-color 0.2s;
-        }
-
-        .btn-chain:hover {
-            background-color: #5aa000;
-        }
-
-        .no-batches {
+            width: 100%;
             text-align: center;
-            padding: 24px;
-            color: #757575;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-            font-size: 14px;
         }
+    }
+</style>
+{% endblock %}
 
-        .section-divider {
-            border: none;
-            border-top: 1px solid #e0e0e0;
-            margin: 0 32px;
-        }
+{% block content %}
+<div class="details-container">
+    <div class="product-header">
+        <h1 class="page-title">Szczegóły Certyfikatu</h1>
+        <p class="page-subtitle">Pełne informacje o certyfikacie</p>
+    </div>
 
-        @media (max-width: 768px) {
-            .details-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .card-header,
-            .card-body,
-            .card-footer {
-                padding: 20px;
-            }
-
-            .card-title {
-                font-size: 22px;
-            }
-
-            .card-footer {
-                flex-direction: column;
-            }
-
-            .back-button,
-            .edit-button {
-                width: 100%;
-                text-align: center;
-            }
-
-            .batches-section {
-                padding: 0 20px 20px;
-            }
-
-            .batch-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .btn-chain {
-                width: 100%;
-                text-align: center;
-            }
-        }
-    </style>
-</head>
-<body class="white-bg">
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
-    <main class="main-content">
-        <div class="details-container">
-            <div class="product-header">
-                <h1 class="page-title">Szczegóły Certyfikatu</h1>
-                <p class="page-subtitle">Pełne informacje o certyfikacie</p>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 32px;">
-                <a href="/certificates/{{ cert.certificate_id }}/edit/"
-                   style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer;
-                          font-family: 'Inter', sans-serif; background-color: #2c2c2c; color: white;
-                          text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
-                    Edytuj
-                </a>
+    <div class="certificate-card">
+        <div class="card-header">
+            <h2 class="card-title">{{ cert.certificate_number }}</h2>
+            <div class="header-actions">
+                <a href="/certificates/{{ cert.certificate_id }}/edit/" class="btn-edit-header">Edytuj</a>
                 <a href="/certificates/{{ cert.certificate_id }}/delete/"
                    onclick="return confirm('Czy na pewno chcesz usunąć ten certyfikat?');"
-                   style="padding: 10px 20px; border-radius: 8px; font-size: 14px; border: none; cursor: pointer;
-                          font-family: 'Inter', sans-serif; background-color: #dc3545; color: white;
-                          text-decoration: none; display: inline-block; transition: opacity 0.2s; font-weight: 600;">
-                    Usuń
-                </a>
+                   class="btn-delete-header">Usuń</a>
             </div>
+        </div>
 
-            <div class="certificate-card">
-                <div class="card-header">
-                    <h2 class="card-title">{{ cert.certificate_number }}</h2>
+        <div class="card-body">
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Rodzaj Podmiotu</div>
+                    <div class="detail-value">{{ cert.get_subject_type_display }}</div>
                 </div>
 
-                <div class="card-body">
-                    <div class="details-grid">
-                        <div class="detail-item">
-                            <div class="detail-label">Rodzaj Podmiotu</div>
-                            <div class="detail-value">{{ cert.get_subject_type_display }}</div>
-                        </div>
-
-                        <div class="detail-item">
-                            <div class="detail-label">Status Certyfikatu</div>
-                            <div class="detail-value">
-                                <span class="status-badge">{{ cert.get_status_display }}</span>
-                            </div>
-                        </div>
-
-                        <div class="detail-item">
-                            <div class="detail-label">Ważny Od</div>
-                            <div class="detail-value">{{ cert.valid_from }}</div>
-                        </div>
-
-                        <div class="detail-item">
-                            <div class="detail-label">Ważny Do</div>
-                            <div class="detail-value">{{ cert.valid_to }}</div>
-                        </div>
-
-                        <div class="detail-item">
-                            <div class="detail-label">Firma Posiadająca</div>
-                            <div class="detail-value">{{ cert.holder_company_id.name }}</div>
-                        </div>
-
-                        <div class="detail-item">
-                            <div class="detail-label">Jednostka Wydająca</div>
-                            <div class="detail-value">{{ cert.issued_by_certifying_unit_id.name }}</div>
-                        </div>
-
-                        <div class="detail-item full-width-item">
-                            <div class="detail-label">Obszary Działalności</div>
-                            <div class="detail-value">
-                                {% if cert.activity_areas.all %}
-                                    <ul style="list-style: none; padding: 0; margin: 8px 0 0 0;">
-                                        {% for activity in cert.activity_areas.all %}
-                                            <li style="padding: 4px 0;">• {{ activity.get_name_display }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span style="color: #757575; font-weight: normal;">Brak przypisanych działalności</span>
-                                {% endif %}
-                            </div>
-                        </div>
+                <div class="detail-item">
+                    <div class="detail-label">Status Certyfikatu</div>
+                    <div class="detail-value">
+                        <span class="status-badge">{{ cert.get_status_display }}</span>
                     </div>
                 </div>
-                <hr class="section-divider">
-                <div class="batches-section">
-                    <h3 class="batches-title">
-                        Partie produktów{% if batches %} ({{ batches.count }}){% endif %}
-                    </h3>
 
-                    {% if batches %}
-                        {% for batch in batches %}
-                        <div class="batch-row">
-                            <div>
-                                <div class="batch-name">{{ batch.name }}</div>
-                                <div class="batch-meta">
-                                    {{ batch.category }}
-                                    &nbsp;|&nbsp;
-                                    {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}
-                                    &nbsp;|&nbsp;
-                                    <span class="batch-status batch-status-{{ batch.status }}">
-                                        {{ batch.get_status_display }}
-                                    </span>
-                                </div>
-                            </div>
-                            <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-chain">
-                                🗺 Łańcuch dostaw
-                            </a>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="no-batches">
-                            Brak przypisanych partii produktów dla tego certyfikatu.
-                        </div>
-                    {% endif %}
+                <div class="detail-item">
+                    <div class="detail-label">Ważny Od</div>
+                    <div class="detail-value">{{ cert.valid_from }}</div>
                 </div>
 
-                <div class="card-footer">
-                    <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
-                    <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}"
-                       class="edit-button" style="background-color: #4a6fa5;">
-                        Historia zmian
+                <div class="detail-item">
+                    <div class="detail-label">Ważny Do</div>
+                    <div class="detail-value">{{ cert.valid_to }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Firma Posiadająca</div>
+                    <div class="detail-value">{{ cert.holder_company_id.name }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Jednostka Wydająca</div>
+                    <div class="detail-value">{{ cert.issued_by_certifying_unit_id.name }}</div>
+                </div>
+
+                <div class="detail-item full-width-item">
+                    <div class="detail-label">Obszary Działalności</div>
+                    <div class="detail-value">
+                        {% if cert.activity_areas.all %}
+                            <ul style="list-style: none; padding: 0; margin: 8px 0 0 0;">
+                                {% for activity in cert.activity_areas.all %}
+                                    <li style="padding: 4px 0;">• {{ activity.get_name_display }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span style="color: #4d6b4d; font-weight: normal;">Brak przypisanych działalności</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="section-divider">
+        <div class="batches-section">
+            <h3 class="batches-title">
+                Partie produktów{% if batches %} ({{ batches.count }}){% endif %}
+            </h3>
+
+            {% if batches %}
+                {% for batch in batches %}
+                <div class="batch-row">
+                    <div>
+                        <div class="batch-name">{{ batch.name }}</div>
+                        <div class="batch-meta">
+                            {{ batch.category }}
+                            &nbsp;|&nbsp;
+                            {{ batch.quantity }} {{ batch.get_unit_of_measure_display }}
+                            &nbsp;|&nbsp;
+                            <span class="batch-status batch-status-{{ batch.status }}">
+                                {{ batch.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-chain">
+                        🗺 Łańcuch dostaw
                     </a>
                 </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-batches">
+                    Brak przypisanych partii produktów dla tego certyfikatu.
+                </div>
+            {% endif %}
         </div>
-    </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
+        <div class="card-footer">
+            <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
+            <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="history-button">Historia zmian</a>
         </div>
-    </footer>
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}

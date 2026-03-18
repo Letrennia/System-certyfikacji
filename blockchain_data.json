@@ -437,5 +437,21 @@
         },
         "previous_hash": "6005d002cd81b7ec92dc7ee15f704909123074d4c39d51ef62fb8aa59969724d",
         "hash": "4dde7e496af7635a284ef2eb171b5a598c98cf681f669c089fb15695988ec5ab"
+    },
+    {
+        "index": 28,
+        "timestamp": "2026-03-18T13:39:28.044958",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 81,
+            "certificate_number": "orangutan",
+            "holder_entity_id": null,
+            "valid_from": "2000-12-01",
+            "valid_to": "2012-12-12",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "4dde7e496af7635a284ef2eb171b5a598c98cf681f669c089fb15695988ec5ab",
+        "hash": "f03c17212a26e71c8a1d4270f9a11f1c79df89b73ba921ae608f13a0f1559185"
     }
 ]

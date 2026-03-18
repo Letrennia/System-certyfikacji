@@ -1,41 +1,166 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Potwierdź usunięcie</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-</head>
-<body class="white-bg">
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
-    <main class="main-content" style="max-width: 600px; margin: 50px auto; text-align: center;">
-        <h1>Potwierdź usunięcie</h1>
-        <p style="font-size: 18px; margin: 20px 0;">Czy na pewno chcesz usunąć certyfikat:</p>
-        <h2 style="color: #dc3545;">{{ certificate.certificate_number }}</h2>
-        <p style="margin: 20px 0;">Firma: {{ certificate.holder_company_id.name }}</p>
-        
-        <form method="post" style="margin: 30px 0;">
-            {% csrf_token %}
-            <button type="submit" style="padding: 12px 24px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
-                Tak, usuń certyfikat
-            </button>
-            <a href="{% url 'cert_detail' certificate.certificate_id %}" style="padding: 12px 24px; background-color: #6c757d; color: white; border-radius: 6px; text-decoration: none; display: inline-block;">
-                Anuluj
-            </a>
-        </form>
-        
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px; text-align: left;">
-            <h3 style="color: #dc3545;">Uwaga!</h3>
-            <p>Operacja usunięcia certyfikatu jest nieodwracalna.</p>
-            <p>Jeśli certyfikat ma powiązane partie produktów, usunięcie nie będzie możliwe.</p>
-        </div>
-    </main>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Potwierdź usunięcie - System Certyfikacji{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    /* Tło strony – zgodne z innymi widokami */
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    /* Kontener główny */
+    .delete-container {
+        max-width: 600px;
+        margin: 50px auto;
+        text-align: center;
+    }
+
+    /* Nagłówki z czcionką Caveat */
+    .delete-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 4rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .delete-subtitle {
+        font-size: 18px;
+        color: #2f4d2f;
+        margin: 20px 0;
+    }
+
+    .certificate-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: #dc3545;
+        margin: 20px 0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .company-name {
+        font-size: 16px;
+        color: #4d6b4d;
+        margin: 20px 0;
+    }
+
+    /* Przyciski */
+    .delete-button {
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #dc3545;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 8px 16px rgba(220,53,69,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+        margin-right: 10px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .delete-button:hover {
+        background-color: #c82333;
+        box-shadow: 0 4px 14px rgba(220,53,69,0.35);
+        transform: translateY(-1px);
+    }
+
+    .delete-button:active {
+        transform: translateY(1px);
+    }
+
+    .cancel-button {
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 16px;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        background-color: rgba(255,255,255,0.8);
+        border: 2px solid #c0ccb0;
+        color: #4d6b4d;
+        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .cancel-button:hover {
+        border-color: #77c320;
+        background-color: #ffffff;
+        box-shadow: 0 6px 14px rgba(119,195,32,0.1);
+        transform: translateY(-1px);
+    }
+
+    .cancel-button:active {
+        transform: translateY(1px);
+    }
+
+    /* Ostrzeżenie */
+    .warning-box {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        border: 1px solid rgba(220,53,69,0.2);
+        padding: 20px;
+        margin-top: 30px;
+        text-align: left;
+    }
+
+    .warning-title {
+        color: #dc3545;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .warning-text {
+        color: #1e3a1e;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .delete-title {
+            font-size: 3rem;
+        }
+        .certificate-number {
+            font-size: 22px;
+        }
+        .delete-button, .cancel-button {
+            width: 100%;
+            margin: 10px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <h1 class="delete-title">Potwierdź usunięcie</h1>
+    <p class="delete-subtitle">Czy na pewno chcesz usunąć certyfikat:</p>
+    <h2 class="certificate-number">{{ certificate.certificate_number }}</h2>
+    <p class="company-name">Firma: {{ certificate.holder_company_id.name }}</p>
+
+    <form method="post" style="margin: 30px 0;">
+        {% csrf_token %}
+        <button type="submit" class="delete-button">Tak, usuń certyfikat</button>
+        <a href="{% url 'cert_detail' certificate.certificate_id %}" class="cancel-button">Anuluj</a>
+    </form>
+
+    <div class="warning-box">
+        <h3 class="warning-title">Uwaga!</h3>
+        <p class="warning-text">Operacja usunięcia certyfikatu jest nieodwracalna.</p>
+        <p class="warning-text">Jeśli certyfikat ma powiązane partie produktów, usunięcie nie będzie możliwe.</p>
+    </div>
+</div>
+{% endblock %}
