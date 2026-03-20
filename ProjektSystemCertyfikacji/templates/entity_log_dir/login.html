@@ -1,13 +1,24 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logowanie - System Certyfikacji</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+{% extends "base_sans.html" %}
+{% load static %}
+{% block content %}
+
+
+
     <style>
+
+        .main-content {
+            background: linear-gradient(270deg, #f5f7fa, #e0f2f1, #fff9c4);
+            background-size: 600% 600%;
+            animation: gradientShift 15s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        {#.main-content {#}
+        {#    background-color: rgb(245,247,240);#}
+        {#}#}
         .login-container {
             max-width: 450px;
             margin: 0 auto;
@@ -18,6 +29,8 @@
             padding: 40px;
             border-radius: 12px;
             margin-top: 32px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
         }
 
         .form-title {
@@ -222,9 +235,9 @@
             }
         }
     </style>
-</head>
-<body class="white-bg">
-    {% include "navbars/customer_navbar_sans.html" %}
+{#</head>#}
+{#<body class="white-bg">#}
+{#    {% include "navbars/customer_navbar_sans.html" %}#}
     <main class="main-content">
         <div class="login-container">
             <div class="product-header">
@@ -245,7 +258,7 @@
             <div class="login-form">
                 <form method="post" novalidate>
                     {% csrf_token %}
-                    
+
                     {% if form.non_field_errors %}
                         <div class="error-alert">
                             {{ form.non_field_errors }}
@@ -258,11 +271,11 @@
                                 {{ field.label }}
                             </label>
                             {{ field }}
-                            
+
                             {% if field.help_text %}
                                 <div class="form-helper-text">{{ field.help_text }}</div>
                             {% endif %}
-                            
+
                             {% if field.errors %}
                                 {{ field.errors }}
                             {% endif %}
@@ -285,43 +298,4 @@
             </div>
         </div>
     </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}

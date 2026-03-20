@@ -1,10 +1,13 @@
+{#WERSJA BASE.HTML BEZ PASKA NAD FOOTEREM I OPCJI LOGOWANIA/REJESTRACJI W NAVBARZE#}
+{#POTRZEBNE PRZY LOGOWANIU/REJESTRACJI#}
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}System Certyfikacji{% endblock %}</title>
+    <title>{% block title %}Wybierz Typ Rejestracji - System Certyfikacji{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
     <style>
@@ -477,14 +480,14 @@
                 </div>
                 {% endif %}
             </nav>
-            <div class="auth-buttons">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'logout' %}">Wyloguj</a>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn-secondary">Zaloguj</a>
-                    <a href="{% url 'account_type' %}" class="btn-secondary">Zarejestruj</a>
-                {% endif %}
-            </div>
+{#            <div class="auth-buttons">#}
+{#                {% if user.is_authenticated %}#}
+{#                    <a href="{% url 'logout' %}">Wyloguj</a>#}
+{#                {% else %}#}
+{#                    <a href="{% url 'login' %}" class="btn-secondary">Zaloguj</a>#}
+{#                    <a href="{% url 'account_type' %}" class="btn-secondary">Zarejestruj</a>#}
+{#                {% endif %}#}
+{#            </div>#}
         </div>
     </header>
     <div class="header-energy-bar"></div>
@@ -496,26 +499,26 @@
         </div>
     </main>
 
-    <div class="ticker-bar">
-        <div class="ticker-content">
-            <span>Dbamy o bezpieczną żywność</span>
-            <span>W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
-            <span>Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
-            <span>Opinie klientów są dla nas ważne</span>
-            <span>Transparentność od pola do stołu</span>
-            <span>Wspieramy rolnictwo ekologiczne</span>
-            <span>Śledź swoją partię w czasie rzeczywistym</span>
-            <span>Certyfikaty zgodne z UE 848/2018</span>
-            <span>Dbamy o bezpieczną żywność</span>
-            <span>W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>
-            <span>Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>
-            <span>Opinie klientów są dla nas ważne</span>
-            <span>Transparentność od pola do stołu</span>
-            <span>Wspieramy rolnictwo ekologiczne</span>
-            <span>Śledź swoją partię w czasie rzeczywistym</span>
-            <span>Certyfikaty zgodne z UE 848/2018</span>
-        </div>
-    </div>
+{#    <div class="ticker-bar">#}
+{#        <div class="ticker-content">#}
+{#            <span>Dbamy o bezpieczną żywność</span>#}
+{#            <span>W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>#}
+{#            <span>Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>#}
+{#            <span>Opinie klientów są dla nas ważne</span>#}
+{#            <span>Transparentność od pola do stołu</span>#}
+{#            <span>Wspieramy rolnictwo ekologiczne</span>#}
+{#            <span>Śledź swoją partię w czasie rzeczywistym</span>#}
+{#            <span>Certyfikaty zgodne z UE 848/2018</span>#}
+{#            <span>Dbamy o bezpieczną żywność</span>#}
+{#            <span>W bazie posiadamy <i>{{ total_certificates|default:"1,337" }}</i> aktywnych certyfikatów</span>#}
+{#            <span>Zaufało nam już <i>{{ total_companies|default:"530" }}</i> firm</span>#}
+{#            <span>Opinie klientów są dla nas ważne</span>#}
+{#            <span>Transparentność od pola do stołu</span>#}
+{#            <span>Wspieramy rolnictwo ekologiczne</span>#}
+{#            <span>Śledź swoją partię w czasie rzeczywistym</span>#}
+{#            <span>Certyfikaty zgodne z UE 848/2018</span>#}
+{#        </div>#}
+{#    </div>#}
 
     <footer class="footer">
         <div class="footer-content">

@@ -1,13 +1,18 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wybierz Typ Rejestracji - System Certyfikacji</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+{% extends "base_sans.html" %}
+{% load static %}
+
+{% block content %}
     <style>
+        .main-content {
+            background: linear-gradient(270deg, #f5f7fa, #e0f2f1, #fff9c4);
+            background-size: 600% 600%;
+            animation: gradientShift 15s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         .choice-container {
             max-width: 600px;
             margin: 0 auto;
@@ -64,10 +69,8 @@
             }
         }
     </style>
-</head>
-<body class="white-bg">
-    {% include "navbars/customer_navbar_sans.html" %}
-    <main class="main-content centered">
+
+    <main class="main-content">
         <div class="choice-container">
             <h1 class="main-title">Wybierz Typ Konta</h1>
             <p class="main-subtitle">Wybierz odpowiedni rodzaj rejestracji</p>
@@ -91,44 +94,5 @@
             </div>
         </div>
     </main>
-
-    <footer class="footer top-margin-large">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+{% endblock %}
             

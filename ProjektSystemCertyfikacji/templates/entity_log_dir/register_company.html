@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base_sans.html" %}
+{% load static %}
+{% block content %}
+
     <title>Rejestracja Firmy - System Certyfikacji</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
+
     <style>
+        .main-content {
+            background-color: rgb(245,247,240);
+        }
         /* Dodatkowe style specyficzne dla rejestracji firmy */
         .company-form-container {
             max-width: 700px;
@@ -19,6 +19,8 @@
             padding: 40px;
             border-radius: 12px;
             margin-top: 32px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
         }
 
         .form-title {
@@ -103,6 +105,7 @@
             opacity: 0.9;
         }
 
+
         .login-link-section {
             text-align: center;
             margin-top: 24px;
@@ -140,10 +143,31 @@
                 font-size: 24px;
             }
         }
+
+
+        {#    progress bar#}
+        .progress-vertical-container {
+            width: 16px;
+            min-height: 400px;
+            background: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            position: sticky;
+            top: 20px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .progress-vertical-bar {
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, #76ff03, #2c2c2c);
+            position: absolute;
+            bottom: 0;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: height 0.3s ease, background 0.3s ease;
+        }
     </style>
-</head>
-<body class="white-bg">
-    {% include "navbars/customer_navbar.html" %}
 
     <main class="main-content">
         <div class="company-form-container">
@@ -152,7 +176,8 @@
                 <p class="page-subtitle">Zarejestruj swoją firmę w systemie certyfikacji</p>
             </div>
 
-            <div class="company-form">
+        <div class="company-bar-container" style="display: flex; align-items: flex-start; gap: 20px">
+            <div class="company-form" style="flex: 1">
                 <form method="post">
                     {% csrf_token %}
 
@@ -174,51 +199,43 @@
 
                     <button type="submit" class="submit-button">Zarejestruj firmę</button>
                 </form>
-
                 <div class="login-link-section">
                     <p>Masz już konto?</p>
                     <a href="/login" class="login-link">Zaloguj się</a>
                 </div>
             </div>
+                <div class="progress-vertical-container">
+                    <div class="progress-vertical-bar"></div>
+                </div>
         </div>
+    </div>
+
+
     </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const fields = document.querySelectorAll(".company-form input:not([type=hidden]):not([type=submit]), .company-form select, .company-form textarea");
+        const progressBar = document.querySelector(".progress-vertical-bar");
+
+        function updateVerticalProgress() {
+            const total = fields.length;
+            let filled = 0;
+
+            fields.forEach(f => {
+                if (f.value.trim() !== "") filled++;
+            });
+
+            const percent = Math.round((filled / total) * 100);
+            progressBar.style.height = percent + "%";
+        }
+
+        fields.forEach(field => {
+            field.addEventListener("input", updateVerticalProgress);
+        });
+
+        updateVerticalProgress();
+    });
+    </script>
+
+{% endblock %}
