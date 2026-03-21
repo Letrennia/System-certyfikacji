@@ -4,6 +4,7 @@
 {% block title %}Zgłoszenia fraudów - Dashboard{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
     :root {
         --dark-dark: #2e3d2b;
@@ -17,16 +18,23 @@
     }
 
     .fraud-dashboard h1 {
-        font-size: 2.2em;
-        font-weight: 700;
-        color: var(--dark-dark);
-        margin-bottom: 4px;
+        font-family: 'Caveat', cursive;
+        font-size: 5.0rem;
+        font-weight: 705;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
     }
 
     .fraud-dashboard .subtitle {
-        color: #5a6e57;
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
         margin-bottom: 32px;
-        font-size: 1rem;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
     }
 
     .stats-grid {

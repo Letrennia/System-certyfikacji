@@ -4,6 +4,7 @@
 {% block title %}Zgłoszenie #{{ report.report_id }}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
     :root {
         --dark-dark: #2e3d2b;
@@ -19,16 +20,23 @@
     }
 
     .detail-page h1 {
-        font-size: 2em;
+        font-family: 'Caveat', cursive;
+        font-size: 5.0rem;
         font-weight: 700;
-        color: var(--dark-dark);
-        margin-bottom: 4px;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
     }
 
     .detail-page .subtitle {
-        color: #5a6e57;
-        font-size: 0.95rem;
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
         margin-bottom: 28px;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
     }
 
     .card {
