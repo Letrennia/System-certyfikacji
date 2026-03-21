@@ -273,7 +273,18 @@ WAŻNE:
         padding: 32px;
         margin-top: 32px;
         border: 1px solid rgba(119,195,32,0.15);
+        opacity: 1;
+        transform: translateY(0);
+        transition: transform 800ms ease-out, opacity 800ms linear;
+        will-change: transform, opacity;
+        transform-origin: center bottom;
     }
+
+    .result-card--hidden {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
 
     .result-grid {
         display: grid;
@@ -387,13 +398,29 @@ WAŻNE:
         letter-spacing: 0.5px;
         box-shadow: 0 8px 16px rgba(119,195,32,0.2);
     }
+
+    .wave-text {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 600;
+    }
+
+    .wave-text span {
+        display: inline-block;
+        animation: wave 1s infinite;
+        animation-delay: calc(0.1s * var(--i));
+    }
+
+    @keyframes wave {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
     <h1 class="main-title">Wyszukaj certyfikat</h1>
     <p class="main-subtitle">Sprawdź autentyczność i szczegóły certyfikatu</p>
-
     <div class="search-section">
         <div class="search-label">Wpisz numer certyfikatu</div>
         <input
@@ -450,6 +477,13 @@ WAŻNE:
         return 'status-unverified';
     }
 
+    function createWaveText(text) {
+        return Array.from(text).map((char, i) => {
+            const content = char === ' ' ? '&nbsp;' : (char === '\n' ? '<br>' : char);
+            return `<span style="--i:${i}">${content}</span>`;
+        }).join('');
+    }
+
     function searchCertificate() {
         const number = document.getElementById('certificate_number').value.trim();
         const resultDiv = document.getElementById('result');
@@ -459,7 +493,10 @@ WAŻNE:
             return;
         }
 
-        resultDiv.innerHTML = '<div class="loading-spinner"><p>Wyszukiwanie certyfikatu...</p></div>';
+        resultDiv.innerHTML = `
+        <div class="loading-spinner">
+            <p class="wave-text">${createWaveText('Wyszukiwanie certyfikatu...')}</p>
+        </div>`;
 
         fetch(`/api/certificate-details/?certificate_number=${encodeURIComponent(number)}`)
             .then(r => r.json())
@@ -476,7 +513,7 @@ WAŻNE:
                 const statusClass = getStatusClass(c.status);
 
                 resultDiv.innerHTML = `
-                    <div class="result-card">
+                    <div class="result-card result-card--hidden aria-live="polite">
                         <div class="result-header">
                             <h2 class="result-title">Certyfikat ${c.number}</h2>
                             <span class="status-badge ${statusClass}">${c.status}</span>
@@ -539,6 +576,15 @@ WAŻNE:
                             }
                         </div>
                     </div>`;
+
+                const card = resultDiv.querySelector('.result-card');
+                if (card) {
+                  requestAnimationFrame(() => {
+                    card.classList.remove('result-card--hidden');
+                  });
+                  card.setAttribute('tabindex', '-1');
+                  card.focus({ preventScroll: true });
+                }
             })
             .catch(err => {
                 console.error('Błąd:', err);
