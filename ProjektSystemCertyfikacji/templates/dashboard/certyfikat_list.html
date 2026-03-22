@@ -1,318 +1,276 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Kontrolny - Certyfikaty</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 20px;
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel Kontrolny - Certyfikaty{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .header-left {
+        flex: 1;
+    }
+    
+    .fraud-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        border: none;
+    }
+    
+    .fraud-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .table-wrapper {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 32px;
+    }
+    
+    .certificates-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .certificates-table thead {
+        background: linear-gradient(135deg, #1a2e1a 0%, #2c4a2c 100%);
+    }
+    
+    .certificates-table th {
+        padding: 18px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: white;
+    }
+    
+    .certificates-table tbody tr {
+        border-bottom: 1px solid #eef2f0;
+        transition: all 0.2s ease;
+    }
+    
+    .certificates-table tbody tr:hover {
+        background: linear-gradient(90deg, #f8fff4 0%, #ffffff 100%);
+        transform: scale(1.01);
+    }
+    
+    .certificates-table td {
+        padding: 16px;
+        color: #2c3e2c;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+    
+    .cert-number {
+        font-weight: 700;
+        color: #1a2e1a;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 13px;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    .status-valid {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        border-left: 3px solid #28a745;
+    }
+    
+    .status-revoked {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+        border-left: 3px solid #dc3545;
+    }
+    
+    .status-suspended {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+        color: #856404;
+        border-left: 3px solid #ffc107;
+    }
+    
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+        font-weight: 700;
+        background: rgba(255, 193, 7, 0.1);
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 13px;
+    }
+    
+    .rating-count {
+        color: #6c757d;
+        font-size: 12px;
+    }
+    
+    .btn-view {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #77c320 0%, #5d9b1a 100%);
+        color: white;
+        border-radius: 25px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(119, 195, 32, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+ 
+    .empty-state {
+        text-align: center;
+        padding: 80px 40px;
+        background: linear-gradient(135deg, #fafaf5 0%, #ffffff 100%);
+    }
+    
+    .empty-icon {
+        font-size: 72px;
+        margin-bottom: 20px;
+        opacity: 0.6;
+    }
+    
+    .empty-text {
+        font-size: 16px;
+        color: #6c757d;
+    }
+    
+    @media (max-width: 1024px) {
+        .table-wrapper {
+            overflow-x: auto;
         }
         
-        .header-left {
-            flex: 1;
+        .certificates-table {
+            min-width: 1000px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
         
         .fraud-button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #dc3545;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-        
-        .fraud-button:hover {
-            background-color: #c82333;
-        }
-        
-        .fraud-button i {
-            margin-right: 8px;
-        }
-        
-        .table-container {
-            background-color: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .certificates-table {
             width: 100%;
-            border-collapse: collapse;
+            justify-content: center;
         }
+    }
+</style>
+{% endblock %}
 
-        .certificates-table thead {
-            background-color: #2c2c2c;
-            color: white;
-        }
+{% block content %}
+<div class="dashboard-header">
+    <div class="header-left">
+        <h1 class="page-title" style="text-align: left; margin-bottom: 8px;">Panel Kontrolny</h1>
+        <p class="page-subtitle" style="text-align: left; margin-bottom: 0; color: #6c757d;">Lista wszystkich certyfikatów w systemie</p>
+    </div>
+    <a href="{% url 'dashboard_fraud_reports' %}" class="fraud-button">
+        ⚠️ Zarządzaj zgłoszeniami fraudów
+    </a>
+</div>
 
-        .certificates-table th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .certificates-table tbody tr {
-            border-bottom: 1px solid #e5e5e5;
-            transition: background-color 0.2s;
-        }
-
-        .certificates-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .certificates-table tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .certificates-table td {
-            padding: 16px;
-            color: #1e1e1e;
-            font-size: 15px;
-        }
-
-        .cert-number {
-            font-weight: 600;
-            color: #2c2c2c;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .status-valid {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-revoked {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-suspended {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .rating-display {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .rating-stars {
-            color: #ffc107;
-            font-weight: 700;
-        }
-
-        .rating-count {
-            color: #757575;
-            font-size: 13px;
-        }
-
-        .btn-view {
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #2c2c2c;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-            font-weight: 500;
-        }
-
-        .btn-view:hover {
-            opacity: 0.9;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 40px;
-            background-color: #f5f5f5;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-text {
-            font-size: 16px;
-            color: #757575;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 32px;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: #e3e3e3;
-            border: 1px solid #767676;
-            color: #1e1e1e;
-            text-decoration: none;
-            transition: opacity 0.2s;
-            font-weight: 600;
-        }
-
-        .back-link:hover {
-            opacity: 0.9;
-        }
-
-        @media (max-width: 768px) {
-            .table-container {
-                overflow-x: auto;
-            }
-
-            .certificates-table {
-                min-width: 1000px;
-            }
-        }
-    </style>
-</head>
-<body class="white-bg">
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
-
-    <main class="main-content">
-        <div class="dashboard-header">
-            <div class="header-left">
-                <h1 class="page-title">Panel Kontrolny</h1>
-                <p class="page-subtitle">Lista wszystkich certyfikatów w systemie</p>
-            </div>
-            <a href="{% url 'dashboard_fraud_reports' %}" class="fraud-button">
-                ⚠️ Zarządzaj zgłoszeniami fraudów
-            </a>
-        </div>
-
-        <div class="table-container">
-            <table class="certificates-table">
-                <thead>
-                    <tr>
-                        <th>Numer certyfikatu</th>
-                        <th>Status</th>
-                        <th>Ważny od</th>
-                        <th>Ważny do</th>
-                        <th>Posiadacz</th>
-                        <th>Jednostka wydająca</th>
-                        <th>Średnia ocena</th>
-                        <th>Liczba ocen</th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cert in certificates %}
-                    <tr>
-                        <td class="cert-number">{{ cert.certificate_number }}</td>
-                        <td>
-                            <span class="status-badge {% if cert.status == 'valid' %}status-valid{% elif cert.status == 'revoked' %}status-revoked{% else %}status-suspended{% endif %}">
-                                {{ cert.get_status_display }}
-                            </span>
-                        </td>
-                        <td>{{ cert.valid_from }}</td>
-                        <td>{{ cert.valid_to }}</td>
-                        <td>{{ cert.holder_company_id.name }}</td>
-                        <td>{{ cert.issued_by_certifying_unit_id.name }}</td>
-                        <td>
-                            {% if cert.avg_rating %}
-                                <div class="rating-display">
-                                    <span class="rating-stars">{{ cert.avg_rating|floatformat:1 }}/5</span>
-                                </div>
-                            {% else %}
-                                <span style="color: #757575;">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="rating-count">{{ cert.ratings_count }}</span>
-                        </td>
-                        <td>
-                            <a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn-view">Zobacz</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9">
-                            <div class="empty-state">
-                                <div class="empty-icon">📋</div>
-                                <div class="empty-text">Brak certyfikatów w systemie.</div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div style="text-align: center;">
-            <a href="{% url 'home' %}" class="back-link">Powrót na stronę główną</a>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+<div class="table-wrapper">
+    <table class="certificates-table">
+        <thead>
+            <tr>
+                <th>Numer certyfikatu</th>
+                <th>Status</th>
+                <th>Ważny od</th>
+                <th>Ważny do</th>
+                <th>Posiadacz</th>
+                <th>Jednostka wydająca</th>
+                <th>Średnia ocena</th>
+                <th>Liczba ocen</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cert in certificates %}
+            <tr>
+                <td class="cert-number">{{ cert.certificate_number }}</td>
+                <td>
+                    <span class="status-badge {% if cert.status == 'valid' %}status-valid{% elif cert.status == 'revoked' %}status-revoked{% else %}status-suspended{% endif %}">
+                        {{ cert.get_status_display }}
+                    </span>
+                </td>
+                <td>{{ cert.valid_from|date:"d.m.Y" }}</td>
+                <td>{{ cert.valid_to|date:"d.m.Y" }}</td>
+                <td><strong>{{ cert.holder_company_id.name }}</strong></td>
+                <td>{{ cert.issued_by_certifying_unit_id.name }}</td>
+                <td>
+                    {% if cert.avg_rating %}
+                        <div class="rating-display">
+                            <span class="rating-stars">★ {{ cert.avg_rating|floatformat:1 }}/5</span>
+                        </div>
+                    {% else %}
+                        <span style="color: #adb5bd;">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="rating-count">{{ cert.ratings_count }}</span>
+                </td>
+                <td>
+                    <a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn-view">Zobacz</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-text">Brak certyfikatów w systemie.</div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
