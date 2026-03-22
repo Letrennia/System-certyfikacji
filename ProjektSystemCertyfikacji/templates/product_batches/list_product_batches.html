@@ -1,346 +1,559 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista partii produktów - System Certyfikacji</title>
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        @keyframes pageEnter {
-            from { opacity: 0; transform: translateY(-18px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes revealDown {
-            from { opacity: 0; transform: translateY(-14px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pageExit {
-            from { opacity: 1; transform: translateY(0); }
-            to   { opacity: 0; transform: translateY(-12px); }
-        }
-        .page-wrapper {
-            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .page-wrapper.exiting {
-            animation: pageExit 0.3s ease-in forwards;
-            pointer-events: none;
-        }
-        .stagger-child {
-            opacity: 0;
-            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            animation-delay: var(--delay, 0s);
-        }
+{% extends "base.html" %}
 
-        .container {
-            max-width: 1200px;
-            margin: 32px auto 32px;
-            padding: 0 24px;
-        }
-        h1.main-title { font-size: 32px; font-weight: 700; color: #1e1e1e; }
+{% block title %}Lista Partii Produktów - System Certyfikacji{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5.5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .add-button {
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #77c320;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .add-button:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+        transform: translateY(-1px);
+    }
+
+    .add-button:active {
+        transform: translateY(1px);
+    }
+
+    /* Messages */
+    .messages-container { margin-bottom: 24px; }
+
+    .alert {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        position: relative;
+        padding-right: 48px;
+    }
+    .alert-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .alert-error,
+    .alert-danger  { background-color: #f8d7da; border: 1px solid #f5c2c7; color: #842029; }
+    .alert-warning { background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; }
+    .alert-info    { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+
+    .alert-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        line-height: 1;
+    }
+    .alert-close:hover { opacity: 1; }
+
+    /* Filters */
+    .filter-form {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        padding: 28px 32px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .filter-group { display: flex; flex-direction: column; }
+
+    .filter-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        color: #2a4a2a;
+        font-size: 14px;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 11px 16px;
+        border: 2px solid #c0ccb0;
+        border-radius: 16px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        background-color: rgba(255,255,255,0.9);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        color: #1e3a1e;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        border-color: #77c320;
+        box-shadow: 0 0 0 3px rgba(119,195,32,0.1);
+        outline: none;
+        background-color: #ffffff;
+    }
+
+    .filter-group input { width: 220px; }
+
+    .clear-btn {
+        padding: 11px 20px;
+        background-color: rgba(255,255,255,0.8);
+        border: 2px solid #c0ccb0;
+        border-radius: 16px;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #4d6b4d;
+        font-weight: 500;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+    .clear-btn:hover { border-color: #77c320; background-color: #ffffff; }
+
+    .active-filters {
+        margin-top: 16px;
+        font-size: 14px;
+        color: #4d6b4d;
+        font-family: 'Inter', sans-serif;
+    }
+    .active-filters span {
+        background: rgba(119,195,32,0.12);
+        border: 1px solid rgba(119,195,32,0.3);
+        color: #2a4a2a;
+        padding: 4px 10px;
+        border-radius: 20px;
+        margin-left: 8px;
+        font-size: 13px;
+    }
+
+    /* Table */
+    .table-container {
+        background-color: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(119,195,32,0.15);
+    }
+
+    .batch-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .batch-table thead {
+        background-color: #1e3a1e;
+        color: white;
+    }
+
+    .batch-table th {
+        padding: 14px 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        white-space: nowrap;
+    }
+
+    .batch-table tbody tr {
+        border-bottom: 1px solid #eef5e9;
+        transition: background-color 0.2s;
+    }
+
+    .batch-table tbody tr:hover { background-color: #f4faf0; }
+    .batch-table tbody tr:last-child { border-bottom: none; }
+
+    .batch-table td {
+        padding: 14px 12px;
+        color: #1e3a1e;
+        font-size: 15px;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 14px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        border: 1px solid transparent;
+    }
+
+    .status-waiting        { background-color: #fff3cd; color: #856404; border-color: #ffc107; }
+    .status-in_circulation { background-color: #cfe2ff; color: #084298; border-color: #9ec5fe; }
+    .status-delivered      { background-color: #d4edda; color: #155724; border-color: #a3d9a5; }
+    .status-recalled       { background-color: #f8d7da; color: #721c24; border-color: #f1b0b7; }
+
+    /* Action buttons */
+    .action-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .action-links a {
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 6px 14px;
+        border-radius: 20px;
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+        white-space: nowrap;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .action-links a:hover { transform: translateY(-1px); }
+
+    .action-detail {
+        background-color: #1e3a1e;
+        color: white !important;
+    }
+    .action-detail:hover {
+        background-color: #2f5a2f;
+        box-shadow: 0 4px 10px rgba(30,58,30,0.2);
+    }
+
+    .action-edit {
+        background-color: rgba(119,195,32,0.12);
+        border: 1px solid rgba(119,195,32,0.3);
+        color: #2a4a2a !important;
+    }
+    .action-edit:hover {
+        background-color: rgba(119,195,32,0.22);
+        box-shadow: 0 4px 10px rgba(119,195,32,0.15);
+    }
+
+    .action-chain {
+        background-color: #77c320;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(119,195,32,0.2);
+    }
+    .action-chain:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+    }
+
+    .action-delete {
+        background-color: #f8d7da;
+        color: #721c24 !important;
+        border: 1px solid #f1b0b7;
+    }
+    .action-delete:hover {
+        background-color: #f1aeb5;
+        box-shadow: 0 4px 10px rgba(114,28,36,0.1);
+    }
+
+    /* Empty state */
+    .empty-state {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border: 2px dashed rgba(119,195,32,0.4);
+        border-radius: 24px;
+        padding: 60px 40px;
+        text-align: center;
+    }
+
+    .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+
+    .empty-title {
+        font-family: 'Caveat', cursive;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a3a1a;
+        margin-bottom: 12px;
+    }
+
+    .empty-message { font-size: 16px; color: #4d6b4d; margin-bottom: 24px; }
+
+    .empty-action {
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #77c320;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, transform 0.1s;
+    }
+    .empty-action:hover { background-color: #8fd43b; transform: translateY(-1px); }
+
+    @media (max-width: 768px) {
+        .page-title { font-size: 2.8rem; }
+        .page-subtitle { font-size: 1.4rem; }
+
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
+            flex-direction: column;
+            align-items: flex-start;
         }
-        .btn-add {
-            padding: 12px 24px;
-            background-color: #77c320;
-            color: #fff;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-add:hover { background-color: #5aa000; transform: translateY(-1px); }
 
-        .batch-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-        }
-        .batch-table th,
-        .batch-table td { padding: 14px 16px; text-align: left; font-size: 14px; }
-        .batch-table th { background-color: #f5f5f5; font-weight: 600; color: #1e1e1e; }
-        .batch-table tr { border-bottom: 1px solid #e0e0e0; transition: background-color 0.15s; }
-        .batch-table tr:last-child { border-bottom: none; }
-        .batch-table tbody tr:hover { background-color: #fafafa; }
+        .page-actions { width: 100%; }
+        .add-button { flex: 1; text-align: center; }
 
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-waiting        { background-color: #fff3cd; color: #856404; }
-        .status-in_circulation { background-color: #cfe2ff; color: #084298; }
-        .status-delivered      { background-color: #d1e7dd; color: #0f5132; }
-        .status-recalled       { background-color: #f8d7da; color: #842029; }
+        .table-container { overflow-x: auto; }
+        .batch-table { min-width: 800px; }
 
-        .action-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-        .action-links a {
-            font-size: 13px; font-weight: 600; text-decoration: none;
-            padding: 5px 12px; border-radius: 6px; transition: 0.2s; white-space: nowrap;
-        }
-        .action-detail  { color: #1e1e1e; background-color: #e0e0e0; }
-        .action-detail:hover  { background-color: #bdbdbd; }
-        .action-edit    { color: #fff; background-color: #2c2c2c; }
-        .action-edit:hover    { background-color: #1a1a1a; }
-        .action-chain   { color: #fff; background-color: #77c320; }
-        .action-chain:hover   { background-color: #5aa000; }
-        .action-delete  { color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; }
-        .action-delete:hover  { background-color: #f1aeb5; }
+        .empty-state { padding: 40px 20px; }
 
-        .messages { margin-bottom: 24px; }
-        .message {
-            padding: 16px; border-radius: 8px; margin-bottom: 12px;
-            opacity: 0; animation: revealDown 0.35s ease-out 0.05s forwards;
-        }
-        .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
-        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .filter-group input { width: 100%; }
+    }
+</style>
+{% endblock %}
 
-        .empty-state {
-            text-align: center; padding: 64px 24px; color: #757575;
-            opacity: 0; animation: revealDown 0.5s ease-out 0.4s forwards;
-        }
-        .empty-state h2 { font-size: 24px; margin-bottom: 12px; color: #1e1e1e; }
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Partie Produktów</h1>
+        <p class="page-subtitle">Zarządzaj partiami produktów w systemie</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'add_product_batch' %}" class="add-button">+ Dodaj nową partię</a>
+    </div>
+</div>
 
-        @media (max-width: 768px) {
-            .page-header { flex-direction: column; gap: 16px; align-items: flex-start; }
-        }
-    </style>
-</head>
-<body>
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="filters-container" style="margin-bottom: 30px;">
+    <form method="get" id="filter-form" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="batch-search">Nazwa partii:</label>
+                <input type="text"
+                    id="batch-search"
+                    name="search"
+                    value="{{ current_search }}"
+                    placeholder="Wpisz nazwę...">
+            </div>
+
+            <div class="filter-group">
+                <label for="category-select">Kategoria:</label>
+                <select id="category-select" name="category">
+                    <option value="">Wszystkie</option>
+                    {% for cat in category_choices %}
+                        <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status-select">Status:</label>
+                <select id="status-select" name="status">
+                    <option value="">Wszystkie</option>
+                    {% for status_key, status_name in status_choices %}
+                        <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>{{ status_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="sort-select">Sortuj według:</label>
+                <select id="sort-select" name="sort_by">
+                    <option value="production_date" {% if current_sort == 'production_date' %}selected{% endif %}>Data produkcji</option>
+                    <option value="expiration_date" {% if current_sort == 'expiration_date' %}selected{% endif %}>Data ważności</option>
+                    <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Nazwa</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="order-select">Kolejność:</label>
+                <select id="order-select" name="sort_order">
+                    <option value="asc"  {% if current_order == 'asc'  %}selected{% endif %}>Rosnąco</option>
+                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
+                </select>
+            </div>
+
+            <div class="filter-group" style="justify-content: flex-end;">
+                <button type="button" id="clear-filters" class="clear-btn">
+                    Wyczyść filtry
+                </button>
+            </div>
+        </div>
+    </form>
+
+    {% if current_search or current_category or current_status %}
+    <div class="active-filters">
+        <strong>Aktywne filtry:</strong>
+        {% if current_search %}<span>Nazwa: "{{ current_search }}"</span>{% endif %}
+        {% if current_category %}<span>Kategoria: "{{ current_category }}"</span>{% endif %}
+        {% if current_status %}<span>Status: "{{ current_status }}"</span>{% endif %}
+    </div>
     {% endif %}
+</div>
 
-    <main class="main-content centered">
-        <div class="page-wrapper">
-            <div class="container">
-                {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="message {{ message.tags }}">{{ message }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <div class="page-header stagger-child" style="--delay:.08s">
-                    <h1 class="main-title">Twoje partie produktów</h1>
-                    <a href="{% url 'add_product_batch' %}" class="btn-add">+ Dodaj nową partię</a>
-                </div>
-
-                <div class="filters-container stagger-child" style="--delay:.18s; margin-bottom: 30px;">
-                    <form method="get" id="filter-form" class="filter-form">
-                        <div class="filter-row" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-                            <div class="filter-group">
-                                <label for="batch-search" style="display: block; margin-bottom: 8px; font-weight: 500;">Nazwa partii:</label>
-                                <input type="text" id="batch-search" name="search" value="{{ current_search }}"
-                                       placeholder="Wpisz nazwę..."
-                                       style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px; width: 250px;">
-                            </div>
-                            <div class="filter-group">
-                                <label for="category-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoria:</label>
-                                <select id="category-select" name="category"
-                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                    <option value="">Wszystkie</option>
-                                    {% for cat in category_choices %}
-                                        <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label for="status-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Status:</label>
-                                <select id="status-select" name="status"
-                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                    <option value="">Wszystkie</option>
-                                    {% for status_key, status_name in status_choices %}
-                                        <option value="{{ status_key }}" {% if current_status == status_key %}selected{% endif %}>{{ status_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label for="sort-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Sortuj według:</label>
-                                <select id="sort-select" name="sort_by"
-                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                    <option value="production_date" {% if current_sort == 'production_date' %}selected{% endif %}>Data produkcji</option>
-                                    <option value="expiration_date" {% if current_sort == 'expiration_date' %}selected{% endif %}>Data ważności</option>
-                                    <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Nazwa</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label for="order-select" style="display: block; margin-bottom: 8px; font-weight: 500;">Kolejność:</label>
-                                <select id="order-select" name="sort_order"
-                                        style="padding: 10px 15px; border: 1px solid #d9d9d9; border-radius: 6px;">
-                                    <option value="asc"  {% if current_order == 'asc'  %}selected{% endif %}>Rosnąco</option>
-                                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Malejąco</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <button type="button" id="clear-filters"
-                                        style="padding: 10px 20px; background-color: #e3e3e3; border: 1px solid #767676; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">
-                                    Wyczyść filtry
-                                </button>
-                            </div>
+{% if product_batches %}
+    <div class="table-container">
+        <table class="batch-table">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?sort_by=name&sort_order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&category={{ current_category }}&status={{ current_status }}"
+                           style="color: white; text-decoration: none;">
+                            Nazwa partii
+                            {% if current_sort == 'name' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>Kategoria</th>
+                    <th>Ilość</th>
+                    <th>
+                        <a href="?sort_by=production_date&sort_order={% if current_sort == 'production_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&category={{ current_category }}&status={{ current_status }}"
+                           style="color: white; text-decoration: none;">
+                            Data produkcji
+                            {% if current_sort == 'production_date' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort_by=expiration_date&sort_order={% if current_sort == 'expiration_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ current_search }}&category={{ current_category }}&status={{ current_status }}"
+                           style="color: white; text-decoration: none;">
+                            Data ważności
+                            {% if current_sort == 'expiration_date' %}{% if current_order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                        </a>
+                    </th>
+                    <th>Status</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for batch in product_batches %}
+                <tr>
+                    <td style="font-weight: 600;">
+                        <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" style="color: #1e3a1e; text-decoration: none; font-weight: 600;">
+                            {{ batch.name }}
+                        </a>
+                    </td>
+                    <td>{{ batch.category }}</td>
+                    <td>{{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</td>
+                    <td style="white-space: nowrap;">{{ batch.production_date|date:"d.m.Y" }}</td>
+                    <td style="white-space: nowrap;">{{ batch.expiration_date|date:"d.m.Y" }}</td>
+                    <td>
+                        <span class="status-badge status-{{ batch.status }}">
+                            {{ batch.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-links">
+                            <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="action-detail">Szczegóły</a>
+                            <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}" class="action-edit">Edytuj</a>
+                            <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="action-chain">🗺 Łańcuch</a>
+                            <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
+                               class="action-delete"
+                               onclick="return confirm('Czy na pewno chcesz usunąć tę partię?');">Usuń</a>
                         </div>
-                    </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h2 class="empty-title">Brak partii produktów</h2>
+        <p class="empty-message">Nie masz jeszcze żadnych dodanych partii produktów. Dodaj pierwszą partię, aby rozpocząć.</p>
+        <a href="{% url 'add_product_batch' %}" class="empty-action">+ Dodaj pierwszą partię</a>
+    </div>
+{% endif %}
+{% endblock %}
 
-                    {% if current_search or current_category or current_status %}
-                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                        <strong>Aktywne filtry:</strong>
-                        {% if current_search %}
-                            <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Nazwa: "{{ current_search }}"</span>
-                        {% endif %}
-                        {% if current_category %}
-                            <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Kategoria: "{{ current_category }}"</span>
-                        {% endif %}
-                        {% if current_status %}
-                            <span style="background: #e3e3e3; padding: 4px 8px; border-radius: 4px; margin-left: 8px;">Status: "{{ current_status }}"</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filter-form');
+    if (!form) return;
 
-                {% if product_batches %}
-                <div class="stagger-child" style="--delay:.28s">
-                    <table class="batch-table">
-                        <thead>
-                            <tr>
-                                <th>Nazwa partii</th>
-                                <th>Kategoria</th>
-                                <th>Ilość</th>
-                                <th>Data produkcji</th>
-                                <th>Data ważności</th>
-                                <th>Status</th>
-                                <th>Akcje</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for batch in product_batches %}
-                            <tr>
-                                <td>{{ batch.name }}</td>
-                                <td>{{ batch.category }}</td>
-                                <td>{{ batch.quantity }} {{ batch.get_unit_of_measure_display }}</td>
-                                <td>{{ batch.production_date|date:"d.m.Y" }}</td>
-                                <td>{{ batch.expiration_date|date:"d.m.Y" }}</td>
-                                <td>
-                                    <span class="status-badge status-{{ batch.status }}">
-                                        {{ batch.get_status_display }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="action-links">
-                                        <a href="{% url 'product_batch_detail' batch_id=batch.batch_id %}" class="action-detail">Szczegóły</a>
-                                        <a href="{% url 'edit_product_batch' batch_id=batch.batch_id %}" class="action-edit">Edytuj</a>
-                                        <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="action-chain">🗺 Łańcuch</a>
-                                        <a href="{% url 'delete_product_batch' batch_id=batch.batch_id %}"
-                                           class="action-delete"
-                                           onclick="return confirm('Czy na pewno chcesz usunąć tę partię?');">Usuń</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                    <div class="empty-state">
-                        <h2>Brak partii produktów</h2>
-                        <p>Nie masz jeszcze żadnych dodanych partii produktów.</p>
-                        <a href="{% url 'add_product_batch' %}" class="btn-add" style="margin-top: 24px; display: inline-block;">Dodaj pierwszą partię</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </main>
+    function debounce(fn, delay) {
+        let timer = null;
+        return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), delay); };
+    }
 
-    <footer class="footer top-margin-large">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="#" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const form = document.getElementById("filter-form");
-        if (!form) return;
-
-        function debounce(fn, delay) {
-            let timer = null;
-            return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), delay); };
-        }
-
-        form.querySelectorAll("select").forEach(sel => {
-            sel.addEventListener("change", () => form.submit());
-        });
-        form.querySelectorAll('input[type="text"]').forEach(inp => {
-            inp.addEventListener("input", debounce(() => form.submit(), 500));
-            inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); form.submit(); } });
-        });
-
-        const clearBtn = document.getElementById("clear-filters");
-        if (clearBtn) {
-            clearBtn.addEventListener("click", () => { window.location.href = window.location.pathname; });
-        }
+    form.querySelectorAll('select').forEach(sel => {
+        sel.addEventListener('change', () => form.submit());
+    });
+    form.querySelectorAll('input[type="text"]').forEach(inp => {
+        inp.addEventListener('input', debounce(() => form.submit(), 500));
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); form.submit(); } });
     });
 
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('a[href]');
-        if (!link) return;
-        const href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('http') ||
-            href.startsWith('mailto') || link.target === '_blank') return;
-        e.preventDefault();
-        const wrapper = document.querySelector('.page-wrapper');
-        if (wrapper) {
-            wrapper.classList.add('exiting');
-            setTimeout(() => { window.location.href = href; }, 280);
-        } else {
-            window.location.href = href;
-        }
-    });
-    </script>
-</body>
-</html>
+    const clearBtn = document.getElementById('clear-filters');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => { window.location.href = window.location.pathname; });
+    }
+});
+</script>
+{% endblock %}

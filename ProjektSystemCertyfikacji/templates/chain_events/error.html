@@ -1,133 +1,82 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Błąd - System Certyfikacji</title>
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        @keyframes pageEnter {
-            from { opacity: 0; transform: translateY(-18px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes revealDown {
-            from { opacity: 0; transform: translateY(-14px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pageExit {
-            from { opacity: 1; transform: translateY(0); }
-            to   { opacity: 0; transform: translateY(-12px); }
-        }
-        @keyframes shakeSoft {
-            0%, 100% { transform: translateX(0) rotate(0deg); }
-            20%  { transform: translateX(-5px) rotate(-2deg); }
-            40%  { transform: translateX(5px)  rotate(2deg); }
-            60%  { transform: translateX(-4px) rotate(-1deg); }
-            80%  { transform: translateX(4px)  rotate(1deg); }
-        }
+{% extends "base.html" %}
 
-        .page-wrapper {
-            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .page-wrapper.exiting {
-            animation: pageExit 0.3s ease-in forwards;
-            pointer-events: none;
-        }
-        .stagger-child {
-            opacity: 0;
-            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            animation-delay: var(--delay, 0s);
-        }
+{% block title %}Błąd dostępu - System Certyfikacji{% endblock %}
 
-        .container {
-            max-width: 600px;
-            margin: 120px auto 32px;
-            padding: 0 24px;
-            text-align: center;
-        }
-        .error-icon {
-            font-size: 72px;
-            margin-bottom: 24px;
-            display: inline-block;
-            opacity: 0;
-            animation: revealDown 0.4s ease-out 0.1s both, shakeSoft 0.7s ease-in-out 0.55s both;
-        }
-        h1.main-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 12px;
-        }
-        .error-msg {
-            font-size: 16px;
-            padding: 16px 20px;
-            background-color: #f8d7da;
-            border: 1px solid #f5c2c7;
-            border-radius: 10px;
-            color: #842029;
-            margin-bottom: 36px;
-        }
-        .btn-back {
-            padding: 13px 28px;
-            background-color: #77c320;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.2s, transform 0.2s;
-        }
-        .btn-back:hover {
-            background-color: #5aa000;
-            transform: translateY(-2px);
-        }
-    </style>
-</head>
-<body>
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-    <main class="main-content centered">
-        <div class="page-wrapper">
-            <div class="container">
+    @keyframes shakeSoft {
+        0%, 100% { transform: translateX(0) rotate(0deg); }
+        20%  { transform: translateX(-6px) rotate(-2deg); }
+        40%  { transform: translateX(6px) rotate(2deg); }
+        60%  { transform: translateX(-4px) rotate(-1deg); }
+        80%  { transform: translateX(4px) rotate(1deg); }
+    }
 
-                <h1 class="main-title stagger-child" style="--delay:.22s">Brak dostępu</h1>
+    .error-wrapper {
+        max-width: 520px;
+        margin: 0 auto;
+        padding-top: 40px;
+        text-align: center;
+    }
+    .error-card {
+        background: rgba(255,255,255,0.85); backdrop-filter: blur(4px);
+        border: 1px solid rgba(248,215,218,0.8); border-radius: 24px;
+        padding: 56px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .error-icon {
+        font-size: 80px; display: block; margin-bottom: 24px; line-height: 1;
+        animation: shakeSoft 0.7s ease-in-out 0.4s both;
+    }
+    .error-title {
+        font-family: 'Caveat', cursive; font-size: 3.5rem; font-weight: 700;
+        color: #842029; margin-bottom: 16px; line-height: 1.1;
+    }
+    .error-message {
+        font-size: 16px; color: #4d6b4d; margin-bottom: 36px;
+        line-height: 1.6; font-family: 'Inter', sans-serif;
+    }
+    .btn-back {
+        display: inline-block; padding: 13px 36px; border-radius: 40px;
+        font-size: 15px; border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+        background-color: #77c320; color: white; text-decoration: none; font-weight: 600;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+    .btn-back:hover {
+        background-color: #8fd43b; box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+        transform: translateY(-1px);
+    }
+    .btn-secondary {
+        display: inline-block; margin-top: 14px; padding: 10px 24px; border-radius: 40px;
+        font-size: 14px; border: 2px solid #c0ccb0; cursor: pointer;
+        font-family: 'Inter', sans-serif; background-color: rgba(255,255,255,0.8);
+        color: #4d6b4d; text-decoration: none; font-weight: 500;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: #77c320; background-color: #ffffff; }
 
-                <div class="error-msg stagger-child" style="--delay:.34s">{{ msg }}</div>
+    @media (max-width: 480px) {
+        .error-card { padding: 40px 20px; }
+        .error-title { font-size: 2.5rem; }
+    }
+</style>
+{% endblock %}
 
-                <a href="{% url 'list_product_batches' %}" class="btn-back stagger-child" style="--delay:.46s">
-                    ← Wróć do listy partii
-                </a>
-
-            </div>
-        </div>
-    </main>
-
-    <script>
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('a[href]');
-        if (!link) return;
-        const href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('http') ||
-            href.startsWith('mailto') || link.target === '_blank') return;
-        e.preventDefault();
-        const wrapper = document.querySelector('.page-wrapper');
-        if (wrapper) {
-            wrapper.classList.add('exiting');
-            setTimeout(() => { window.location.href = href; }, 280);
-        } else {
-            window.location.href = href;
-        }
-    });
-    </script>
-</body>
-</html>
+{% block content %}
+<div class="error-wrapper">
+    <div class="error-card">
+        <h1 class="error-title">Brak dostępu</h1>
+        <p class="error-message">{{ msg }}</p>
+        <a href="{% url 'list_product_batches' %}" class="btn-back">← Wróć do listy partii</a>
+        <br>
+        <a href="javascript:history.back()" class="btn-secondary">Cofnij</a>
+    </div>
+</div>
+{% endblock %}

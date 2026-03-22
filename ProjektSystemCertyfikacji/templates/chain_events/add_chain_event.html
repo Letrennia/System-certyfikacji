@@ -1,276 +1,286 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodaj etap łańcucha dostaw - System Certyfikacji</title>
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        @keyframes pageEnter {
-            from { opacity: 0; transform: translateY(-18px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes revealDown {
-            from { opacity: 0; transform: translateY(-14px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pageExit {
-            from { opacity: 1; transform: translateY(0); }
-            to   { opacity: 0; transform: translateY(-12px); }
-        }
-        @keyframes softPulse {
-            0%   { box-shadow: 0 0 0 0 rgba(119,195,32,0.35); }
-            70%  { box-shadow: 0 0 0 14px rgba(119,195,32,0); }
-            100% { box-shadow: 0 0 0 0 rgba(119,195,32,0); }
-        }
+{% extends "base.html" %}
 
-        .page-wrapper {
-            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .page-wrapper.exiting {
-            animation: pageExit 0.3s ease-in forwards;
-            pointer-events: none;
-        }
-        .stagger-child {
-            opacity: 0;
-            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            animation-delay: var(--delay, 0s);
-        }
+{% block title %}Dodaj etap łańcucha dostaw - System Certyfikacji{% endblock %}
 
-        .container { max-width: 800px; margin: 64px auto 32px; padding: 0 24px; }
-        h1.main-title { font-size: 32px; font-weight: 700; color: #1e1e1e; margin-bottom: 12px; }
-        p.main-subtitle { font-size: 16px; color: #757575; margin-bottom: 32px; }
-        .batch-info-strip {
-            background-color: #f5fdf0; border: 1px solid #c3e6cb; border-radius: 10px;
-            padding: 14px 20px; margin-bottom: 16px; font-size: 14px; color: #2e7d32; font-weight: 600;
-        }
-        .batch-info-strip span { color: #555; font-weight: 400; }
-        .blockchain-info {
-            background-color: #f0f7ff; border: 1px solid #b8d4f0; border-radius: 10px;
-            padding: 14px 18px; margin-bottom: 28px; display: flex; align-items: center;
-            gap: 12px; font-size: 14px; color: #1a4a7a;
-        }
-        .blockchain-info .icon { font-size: 20px; flex-shrink: 0; }
-        .form-card {
-            background-color: #ffffff; border: 1px solid #cac4d0; border-radius: 12px;
-            padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-        }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #1e1e1e; }
-        .form-group input,
-        .form-group select {
-            width: 100%; padding: 12px; border: 1px solid #cac4d0; border-radius: 8px;
-            font-size: 14px; color: #1e1e1e; box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none; border-color: #77c320; box-shadow: 0 0 0 3px rgba(119,195,32,0.15);
-        }
-        .location-row { display: flex; gap: 10px; align-items: center; }
-        .location-row input { flex: 1; }
-        .btn-geocode {
-            padding: 12px 18px; background-color: #2c2c2c; color: white; border: none;
-            border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;
-            white-space: nowrap; transition: background-color 0.2s;
-        }
-        .btn-geocode:hover { background-color: #1a1a1a; }
-        #map-preview {
-            height: 240px; border-radius: 8px; border: 1px solid #cac4d0;
-            margin-top: 12px; display: none;
-        }
-        .geocode-hint { font-size: 12px; color: #757575; margin-top: 6px; }
-        .btn-submit {
-            width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 12px;
-            background-color: #77c320; color: #fff; border: none; cursor: pointer; transition: 0.3s;
-        }
-        .btn-submit:hover {
-            background-color: #5aa000;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.16);
-        }
-        .btn-cancel {
-            width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 12px;
-            background-color: #e0e0e0; color: #1e1e1e; border: none; cursor: pointer;
-            transition: 0.3s; margin-top: 12px; text-decoration: none; display: inline-block; text-align: center;
-        }
-        .btn-cancel:hover {
-            background-color: #bdbdbd;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.10);
-        }
-        .messages { margin-bottom: 24px; }
-        .message { padding: 16px; border-radius: 8px; margin-bottom: 12px; opacity: 0; animation: revealDown 0.35s ease-out 0.05s forwards; }
-        .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
-        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .section-divider { border: none; border-top: 1px solid #e0e0e0; margin: 24px 0; }
-        .section-label {
-            font-size: 13px; font-weight: 700; color: #757575;
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
-        }
-        .optional-tag { font-size: 12px; font-weight: 400; color: #aaa; margin-left: 6px; }
-    </style>
-</head>
-<body>
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
-
-    <main class="main-content centered">
-        <div class="page-wrapper">
-            <div class="container">
-                {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="message {{ message.tags }}">{{ message }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <h1 class="main-title stagger-child" style="--delay:.08s">Dodaj etap łańcucha dostaw</h1>
-                <p class="main-subtitle stagger-child" style="--delay:.16s">Zarejestruj nowy etap dla partii produktów</p>
-
-                <div class="batch-info-strip stagger-child" style="--delay:.24s">
-                    Partia: <span>{{ batch.name }}</span>
-                    &nbsp;&nbsp;|&nbsp;&nbsp;
-                    Certyfikat: <span>{{ batch.certificate_id.certificate_number }}</span>
-                </div>
-
-                <div class="blockchain-info stagger-child" style="--delay:.32s">
-                    <span>Zdarzenie zostanie automatycznie zarejestrowane w blockchain — dane są niezmienne i weryfikowalne.</span>
-                </div>
-
-                <div class="form-card stagger-child" style="--delay:.42s">
-                    <form method="post">
-                        {% csrf_token %}
-
-                        <div class="section-label">Dane zdarzenia</div>
-
-                        <div class="form-group">
-                            <label for="area_id">Obszar działalności *</label>
-                            <select id="area_id" name="area_id" required>
-                                <option value="">Wybierz obszar działalności</option>
-                                {% for area in activity_areas %}
-                                    <option value="{{ area.area_id }}"
-                                        {% if request.POST.area_id == area.area_id|stringformat:"s" %}selected{% endif %}>
-                                        {{ area.get_name_display }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        {% if companies %}
-                        <div class="form-group">
-                            <label for="company_id">Firma (admin) *</label>
-                            <select id="company_id" name="company_id" required>
-                                <option value="">Wybierz firmę</option>
-                                {% for company in companies %}
-                                    <option value="{{ company.company_id }}">
-                                        {{ company.name }} ({{ company.get_company_type_display }})
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        {% endif %}
-
-                        <hr class="section-divider">
-                        <div class="section-label">Lokalizacja <span class="optional-tag">opcjonalnie</span></div>
-
-                        <div class="form-group">
-                            <label for="location">Adres / Lokalizacja</label>
-                            <div class="location-row">
-                                <input type="text" id="location" name="location"
-                                       placeholder="np. Warszawa, ul. Przykładowa 1"
-                                       value="{{ request.POST.location }}">
-                                <button type="button" class="btn-geocode" onclick="previewLocation()">
-                                    Podgląd mapy
-                                </button>
-                            </div>
-                            <div class="geocode-hint">Wpisz adres i kliknij "Podgląd mapy", aby zobaczyć lokalizację.</div>
-                            <div id="map-preview"></div>
-                        </div>
-
-                        <button type="submit" class="btn-submit">Zarejestruj etap</button>
-                        <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-cancel">Anuluj</a>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="footer top-margin-large">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="#" class="footer-link">FAQ</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-    let map = null, marker = null;
-    function previewLocation() {
-        const address = document.getElementById('location').value.trim();
-        if (!address) { alert('Wpisz adres.'); return; }
-        fetch(`{% url 'geocode_location_ajax' %}?address=${encodeURIComponent(address)}`)
-            .then(r => r.json())
-            .then(data => {
-                if (data.error) { alert('Nie znaleziono: ' + address); return; }
-                const mapDiv = document.getElementById('map-preview');
-                mapDiv.style.display = 'block';
-                if (!map) {
-                    map = L.map('map-preview');
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap contributors'
-                    }).addTo(map);
-                }
-                const latlng = [data.latitude, data.longitude];
-                map.setView(latlng, 13);
-                if (marker) map.removeLayer(marker);
-                marker = L.marker(latlng).addTo(map).bindPopup(data.display_name || address).openPopup();
-            })
-            .catch(() => alert('Błąd geokodowania.'));
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
     }
 
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('a[href]');
-        if (!link) return;
-        const href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('http') ||
-            href.startsWith('mailto') || link.target === '_blank') return;
-        e.preventDefault();
-        const wrapper = document.querySelector('.page-wrapper');
-        if (wrapper) {
-            wrapper.classList.add('exiting');
-            setTimeout(() => { window.location.href = href; }, 280);
-        } else {
-            window.location.href = href;
-        }
-    });
-    </script>
-</body>
-</html>
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5.5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+    }
+
+    .page-header { margin-bottom: 28px; }
+
+    .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: #4d8b4d; font-family: 'Inter', sans-serif;
+        font-size: 14px; font-weight: 500; text-decoration: none;
+        margin-bottom: 16px; transition: color 0.2s;
+    }
+    .back-link:hover { color: #77c320; }
+
+    /* Messages */
+    .messages-container { margin-bottom: 24px; }
+    .alert { padding: 16px; border-radius: 12px; margin-bottom: 12px; position: relative; padding-right: 48px; }
+    .alert-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .alert-error, .alert-danger { background-color: #f8d7da; border: 1px solid #f5c2c7; color: #842029; }
+    .alert-close {
+        position: absolute; top: 12px; right: 12px; background: none; border: none;
+        font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7;
+        padding: 0; width: 24px; height: 24px; line-height: 1;
+    }
+    .alert-close:hover { opacity: 1; }
+
+    /* Batch strip */
+    .batch-info-strip {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 16px;
+        padding: 14px 22px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(119,195,32,0.2);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e3a1e;
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    .batch-info-strip span { color: #4d6b4d; font-weight: 400; }
+
+    /* Blockchain info */
+    .blockchain-info {
+        background: rgba(219,234,254,0.5);
+        border: 1px solid rgba(147,197,253,0.5);
+        border-radius: 16px;
+        padding: 14px 20px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        color: #1a4a7a;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Form */
+    .form-card {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        padding: 36px 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(119,195,32,0.15);
+        max-width: 700px;
+    }
+
+    .form-section-title {
+        font-family: 'Caveat', cursive;
+        font-size: 1.8rem; font-weight: 700; color: #1a3a1a;
+        margin: 28px 0 16px; padding-bottom: 8px;
+        border-bottom: 2px solid rgba(119,195,32,0.3);
+    }
+    .form-section-title:first-child { margin-top: 0; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+        display: block; margin-bottom: 8px; font-weight: 500;
+        font-family: 'Inter', sans-serif; color: #2a4a2a; font-size: 14px;
+    }
+    .form-group input,
+    .form-group select {
+        width: 100%; padding: 11px 16px; border: 2px solid #c0ccb0; border-radius: 16px;
+        font-size: 15px; font-family: 'Inter', sans-serif;
+        background-color: rgba(255,255,255,0.9);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        color: #1e3a1e; box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus {
+        border-color: #77c320; box-shadow: 0 0 0 3px rgba(119,195,32,0.1);
+        outline: none; background-color: #ffffff;
+    }
+
+    .location-row { display: flex; gap: 10px; align-items: center; }
+    .location-row input { flex: 1; }
+    .btn-geocode {
+        padding: 11px 20px; background-color: #1e3a1e; color: white;
+        border: none; border-radius: 16px; cursor: pointer;
+        font-weight: 600; font-family: 'Inter', sans-serif; font-size: 14px;
+        white-space: nowrap; transition: background-color 0.2s, transform 0.1s; flex-shrink: 0;
+    }
+    .btn-geocode:hover { background-color: #2f5a2f; transform: translateY(-1px); }
+
+    #map-preview {
+        height: 240px; border-radius: 16px;
+        border: 2px solid rgba(119,195,32,0.2);
+        margin-top: 12px; display: none;
+    }
+    .geocode-hint { font-size: 12px; color: #6b8a6b; margin-top: 6px; font-family: 'Inter', sans-serif; }
+
+    .form-actions { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+
+    .btn-submit {
+        padding: 14px 28px; border-radius: 40px; font-size: 15px; border: none;
+        cursor: pointer; font-family: 'Inter', sans-serif; background-color: #77c320;
+        color: white; font-weight: 600; letter-spacing: 0.5px;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s; width: 100%;
+    }
+    .btn-submit:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+        padding: 14px 28px; border-radius: 40px; font-size: 15px;
+        border: 2px solid #c0ccb0; cursor: pointer; font-family: 'Inter', sans-serif;
+        background-color: rgba(255,255,255,0.8); color: #4d6b4d; font-weight: 600;
+        text-decoration: none; display: block; text-align: center;
+        transition: border-color 0.2s, background-color 0.2s; width: 100%; box-sizing: border-box;
+    }
+    .btn-cancel:hover { border-color: #77c320; background-color: #ffffff; }
+
+    @media (max-width: 768px) {
+        .page-title { font-size: 2.8rem; }
+        .page-subtitle { font-size: 1.4rem; }
+        .form-card { padding: 24px 20px; }
+        .location-row { flex-direction: column; align-items: stretch; }
+        .btn-geocode { text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="back-link">&larr; Powrót do łańcucha</a>
+
+<div class="page-header">
+    <h1 class="page-title">Nowy Etap</h1>
+    <p class="page-subtitle">Zarejestruj etap łańcucha dostaw</p>
+</div>
+
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="batch-info-strip">
+    <span>Partia:</span> {{ batch.name }}
+    <span>Certyfikat:</span> {{ batch.certificate_id.certificate_number }}
+</div>
+
+<div class="blockchain-info">
+    Zdarzenie zostanie automatycznie zarejestrowane w blockchain — dane są niezmienne i weryfikowalne.
+</div>
+
+<div class="form-card">
+    <form method="post">
+        {% csrf_token %}
+
+        <p class="form-section-title">Dane zdarzenia</p>
+        <div class="form-group">
+            <label for="area_id">Obszar działalności *</label>
+            <select id="area_id" name="area_id" required>
+                <option value="">Wybierz obszar działalności</option>
+                {% for area in activity_areas %}
+                    <option value="{{ area.area_id }}"
+                        {% if request.POST.area_id == area.area_id|stringformat:"s" %}selected{% endif %}>
+                        {{ area.get_name_display }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if companies %}
+        <div class="form-group">
+            <label for="company_id">Firma *</label>
+            <select id="company_id" name="company_id" required>
+                <option value="">Wybierz firmę</option>
+                {% for company in companies %}
+                    <option value="{{ company.company_id }}">
+                        {{ company.name }} ({{ company.get_company_type_display }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <p class="form-section-title">Lokalizacja <small style="font-size:1rem; font-weight:400; color:#6b8a6b;">(opcjonalnie)</small></p>
+        <div class="form-group">
+            <label for="location">Adres / Lokalizacja</label>
+            <div class="location-row">
+                <input type="text" id="location" name="location"
+                       placeholder="np. Warszawa, ul. Przykładowa 1"
+                       value="{{ request.POST.location }}">
+                <button type="button" class="btn-geocode" onclick="previewLocation()">
+                    Podgląd mapy
+                </button>
+            </div>
+            <div class="geocode-hint">Wpisz adres i kliknij „Podgląd mapy", aby zobaczyć lokalizację.</div>
+            <div id="map-preview"></div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Zarejestruj etap</button>
+            <a href="{% url 'list_chain_events' batch_id=batch.batch_id %}" class="btn-cancel">Anuluj</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let map = null, marker = null;
+function previewLocation() {
+    const address = document.getElementById('location').value.trim();
+    if (!address) { alert('Wpisz adres.'); return; }
+    fetch(`{% url 'geocode_location_ajax' %}?address=${encodeURIComponent(address)}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert('Nie znaleziono: ' + address); return; }
+            const mapDiv = document.getElementById('map-preview');
+            mapDiv.style.display = 'block';
+            if (!map) {
+                map = L.map('map-preview');
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+            }
+            const latlng = [data.latitude, data.longitude];
+            map.setView(latlng, 13);
+            if (marker) map.removeLayer(marker);
+            marker = L.marker(latlng).addTo(map).bindPopup(data.display_name || address).openPopup();
+        })
+        .catch(() => alert('Błąd geokodowania.'));
+}
+</script>
+{% endblock %}

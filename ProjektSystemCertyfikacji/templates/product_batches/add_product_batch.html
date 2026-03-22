@@ -1,408 +1,428 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodaj partię produktów - System Certyfikacji</title>
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        @keyframes pageEnter {
-            from { opacity: 0; transform: translateY(-18px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes revealDown {
-            from { opacity: 0; transform: translateY(-14px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pageExit {
-            from { opacity: 1; transform: translateY(0); }
-            to   { opacity: 0; transform: translateY(-12px); }
-        }
-        .page-wrapper {
-            animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .page-wrapper.exiting {
-            animation: pageExit 0.3s ease-in forwards;
-            pointer-events: none;
-        }
-        .stagger-child {
-            opacity: 0;
-            animation: revealDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            animation-delay: var(--delay, 0s);
-        }
+{% extends "base.html" %}
 
-        .container {
-            max-width: 800px;
-            margin: 64px auto 32px;
-            padding: 0 24px;
-        }
-        h1.main-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 12px;
-        }
-        p.main-subtitle {
-            font-size: 16px;
-            color: #757575;
-            margin-bottom: 32px;
-        }
-        .form-card {
-            background-color: #ffffff;
-            border: 1px solid #cac4d0;
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-        }
-        .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #1e1e1e;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cac4d0;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #1e1e1e;
-            box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #77c320;
-            box-shadow: 0 0 0 3px rgba(119,195,32,0.15);
-        }
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-            background-color: #77c320;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-submit:hover {
-            background-color: #5aa000;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.16);
-        }
-        .btn-cancel {
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-            background-color: #e0e0e0;
-            color: #1e1e1e;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 12px;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        .btn-cancel:hover {
-            background-color: #bdbdbd;
-            transform: translateY(-1px);
-        }
-        .btn-select-cert {
-            padding: 12px 24px;
-            background-color: #2c2c2c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-select-cert:hover { background-color: #1a1a1a; }
-        .messages { margin-bottom: 24px; }
-        .message {
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            opacity: 0;
-            animation: revealDown 0.35s ease-out 0.05s forwards;
-        }
-        .message.error   { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
-        .message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+{% block title %}Dodaj partię produktów - System Certyfikacji{% endblock %}
 
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        .modal-container {
-            background-color: white;
-            margin: 50px auto;
-            max-width: 1200px;
-            border-radius: 12px;
-            padding: 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        .modal-header {
-            padding: 24px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-header h2 { margin: 0; font-size: 24px; color: #1e1e1e; }
-        .modal-close {
-            background: none; border: none;
-            font-size: 28px; cursor: pointer;
-            color: #666; padding: 0;
-            width: 32px; height: 32px; line-height: 1;
-        }
-        .modal-close:hover { color: #000; }
-        .modal-body {
-            padding: 24px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        .cert-item {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 16px;
-        }
-        .cert-item:hover { border-color: #77c320; background-color: #f9fdf5; }
-        .cert-header { display: flex; justify-content: space-between; align-items: start; }
-        .cert-number { font-weight: 600; font-size: 16px; color: #1e1e1e; margin-bottom: 8px; }
-        .cert-info { color: #757575; font-size: 14px; margin-bottom: 4px; }
-        .cert-status {
-            background-color: #d4edda; color: #155724;
-            padding: 6px 12px; border-radius: 16px;
-            font-size: 13px; font-weight: 600;
-        }
-        .loading { text-align: center; padding: 40px; color: #757575; }
-        .error-message { text-align: center; padding: 40px; color: #842029; }
-    </style>
-</head>
-<body>
-    {% if user.company_user %}
-        {% include "navbars/company_navbar.html" %}
-    {% elif user.certifying_unit %}
-        {% include "navbars/certifying_unit_navbar.html" %}
-    {% elif user.is_superuser %}
-        {% include "navbars/admin_navbar.html" %}
-    {% endif %}
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-    <main class="main-content centered">
-        <div class="page-wrapper">
-            <div class="container">
-                {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="message {{ message.tags }}">{{ message }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5.5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
 
-                <h1 class="main-title stagger-child" style="--delay:.08s">Dodaj nową partię produktów</h1>
-                <p class="main-subtitle stagger-child" style="--delay:.16s">Uzupełnij dane partii produktów, aby dodać ją do systemu</p>
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
 
-                <div class="form-card stagger-child" style="--delay:.26s">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="certificate_display">Certyfikat *</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="text" id="certificate_display" readonly
-                                       placeholder="Kliknij 'Wybierz', aby wybrać certyfikat"
-                                       style="flex: 1; background-color: #f5f5f5; cursor: not-allowed;">
-                                <input type="hidden" id="certificate_id" name="certificate_id" required>
-                                <button type="button" onclick="openCertificateModal()" class="btn-select-cert">
-                                    Wybierz certyfikat
-                                </button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Nazwa *</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="category">Kategoria *</label>
-                            <input type="text" id="category" name="category" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cn_code">Kod CN *</label>
-                            <input type="text" id="cn_code" name="cn_code" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="quantity">Ilość *</label>
-                            <input type="number" step="0.01" id="quantity" name="quantity" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="unit_of_measure">Jednostka miary *</label>
-                            <select id="unit_of_measure" name="unit_of_measure" required>
-                                <option value="">Wybierz jednostkę</option>
-                                <option value="kg">Kilogram (kg)</option>
-                                <option value="g">Gram (g)</option>
-                                <option value="l">Liter (l)</option>
-                                <option value="ml">Mililitr (ml)</option>
-                                <option value="p">Sztuki (szt)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="storage_conditions">Warunki przechowywania</label>
-                            <textarea id="storage_conditions" name="storage_conditions"
-                                      placeholder="np. Przechowywać w temperaturze pokojowej, z dala od światła słonecznego"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="transport_temperature">Temperatura transportu (°C)</label>
-                            <input type="number" step="0.01" id="transport_temperature" name="transport_temperature" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="production_date">Data produkcji *</label>
-                            <input type="date" id="production_date" name="production_date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="expiration_date">Data ważności *</label>
-                            <input type="date" id="expiration_date" name="expiration_date" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Dodaj partię</button>
-                        <a href="{% url 'list_product_batches' %}" class="btn-cancel">Anuluj</a>
-                    </form>
-                </div>
+    .page-header {
+        margin-bottom: 32px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #4d8b4d;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: color 0.2s;
+    }
+    .back-link:hover { color: #77c320; }
+
+    .messages-container { margin-bottom: 24px; }
+    .alert {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        position: relative;
+        padding-right: 48px;
+    }
+    .alert-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .alert-error,
+    .alert-danger  { background-color: #f8d7da; border: 1px solid #f5c2c7; color: #842029; }
+    .alert-warning { background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; }
+    .alert-close {
+        position: absolute; top: 12px; right: 12px;
+        background: none; border: none; font-size: 20px; cursor: pointer;
+        color: inherit; opacity: 0.7; padding: 0; width: 24px; height: 24px; line-height: 1;
+    }
+    .alert-close:hover { opacity: 1; }
+
+    .form-card {
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        padding: 36px 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(119,195,32,0.15);
+        max-width: 700px;
+    }
+
+    .form-section-title {
+        font-family: 'Caveat', cursive;
+        font-size: 1.8rem;
+        color: #1a3a1a;
+        font-weight: 700;
+        margin: 28px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid rgba(119,195,32,0.3);
+    }
+    .form-section-title:first-child { margin-top: 0; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        color: #2a4a2a;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 11px 16px;
+        border: 2px solid #c0ccb0;
+        border-radius: 16px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        background-color: rgba(255,255,255,0.9);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        color: #1e3a1e;
+        box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #77c320;
+        box-shadow: 0 0 0 3px rgba(119,195,32,0.1);
+        outline: none;
+        background-color: #ffffff;
+    }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+
+    .form-group input[readonly] {
+        background-color: #f0f4eb;
+        color: #6b8a6b;
+        cursor: not-allowed;
+    }
+
+    .cert-select-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .cert-select-row input { flex: 1; }
+
+    .btn-select-cert {
+        padding: 11px 20px;
+        background-color: #1e3a1e;
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        transition: background-color 0.2s, transform 0.1s;
+        flex-shrink: 0;
+    }
+    .btn-select-cert:hover { background-color: #2f5a2f; transform: translateY(-1px); }
+
+    .form-actions { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+
+    .btn-submit {
+        padding: 14px 28px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #77c320;
+        color: white;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+        width: 100%;
+    }
+    .btn-submit:hover {
+        background-color: #8fd43b;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+        padding: 14px 28px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: 2px solid #c0ccb0;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: rgba(255,255,255,0.8);
+        color: #4d6b4d;
+        font-weight: 600;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        transition: border-color 0.2s, background-color 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .btn-cancel:hover { border-color: #77c320; background-color: #ffffff; }
+
+    /* Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.55);
+        z-index: 1000;
+        overflow-y: auto;
+        backdrop-filter: blur(2px);
+    }
+    .modal-container {
+        background-color: white;
+        margin: 50px auto;
+        max-width: 860px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        padding: 24px 28px;
+        background-color: #1e3a1e;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-header h2 {
+        margin: 0;
+        font-family: 'Caveat', cursive;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .modal-close {
+        background: none; border: none;
+        font-size: 28px; cursor: pointer;
+        color: rgba(255,255,255,0.7);
+        padding: 0; width: 32px; height: 32px; line-height: 1;
+        transition: color 0.2s;
+    }
+    .modal-close:hover { color: white; }
+    .modal-body { padding: 24px; max-height: 560px; overflow-y: auto; }
+
+    .cert-item {
+        border: 2px solid #d8e8c8;
+        border-radius: 16px;
+        padding: 18px;
+        cursor: pointer;
+        transition: border-color 0.2s, background-color 0.2s, transform 0.1s;
+        margin-bottom: 12px;
+    }
+    .cert-item:hover {
+        border-color: #77c320;
+        background-color: #f4faf0;
+        transform: translateY(-1px);
+    }
+    .cert-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .cert-number { font-weight: 700; font-size: 16px; color: #1e3a1e; margin-bottom: 6px; }
+    .cert-info { color: #4d6b4d; font-size: 14px; margin-bottom: 3px; font-family: 'Inter', sans-serif; }
+    .cert-status {
+        background-color: #d4edda; color: #155724;
+        padding: 5px 14px; border-radius: 30px;
+        font-size: 13px; font-weight: 600; white-space: nowrap;
+        border: 1px solid #a3d9a5;
+    }
+    .modal-loading { text-align: center; padding: 40px; color: #4d6b4d; font-family: 'Inter', sans-serif; }
+    .modal-error   { text-align: center; padding: 40px; color: #842029; font-family: 'Inter', sans-serif; }
+
+    @media (max-width: 768px) {
+        .page-title  { font-size: 2.8rem; }
+        .page-subtitle { font-size: 1.4rem; }
+        .form-card { padding: 24px 20px; }
+        .cert-select-row { flex-direction: column; align-items: stretch; }
+        .btn-select-cert { text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{% url 'list_product_batches' %}" class="back-link">&larr; Powrót do listy</a>
+    <h1 class="page-title">Nowa Partia</h1>
+    <p class="page-subtitle">Uzupełnij dane, aby dodać partię do systemu</p>
+</div>
+
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="form-card">
+    <form method="post">
+        {% csrf_token %}
+
+        <p class="form-section-title">Certyfikat</p>
+        <div class="form-group">
+            <label for="certificate_display">Certyfikat *</label>
+            <div class="cert-select-row">
+                <input type="text" id="certificate_display" readonly
+                       placeholder="Kliknij 'Wybierz', aby wybrać certyfikat">
+                <input type="hidden" id="certificate_id" name="certificate_id" required>
+                <button type="button" onclick="openCertificateModal()" class="btn-select-cert">
+                    Wybierz certyfikat
+                </button>
             </div>
         </div>
-    </main>
 
-    <div id="certificateModal" class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h2>Wybierz certyfikat</h2>
-                <button onclick="closeCertificateModal()" class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="certificateList">
-                    <div class="loading">Ładowanie certyfikatów...</div>
-                </div>
+        <p class="form-section-title">Podstawowe informacje</p>
+        <div class="form-group">
+            <label for="name">Nazwa *</label>
+            <input type="text" id="name" name="name" required placeholder="Nazwa partii produktów">
+        </div>
+        <div class="form-group">
+            <label for="category">Kategoria *</label>
+            <input type="text" id="category" name="category" required placeholder="np. Warzywa, Owoce, Zboża">
+        </div>
+        <div class="form-group">
+            <label for="cn_code">Kod CN *</label>
+            <input type="text" id="cn_code" name="cn_code" required placeholder="np. 0701 90 50">
+        </div>
+
+        <p class="form-section-title">Ilość</p>
+        <div class="form-group">
+            <label for="quantity">Ilość *</label>
+            <input type="number" step="0.01" id="quantity" name="quantity" required placeholder="0.00">
+        </div>
+        <div class="form-group">
+            <label for="unit_of_measure">Jednostka miary *</label>
+            <select id="unit_of_measure" name="unit_of_measure" required>
+                <option value="">Wybierz jednostkę</option>
+                <option value="kg">Kilogram (kg)</option>
+                <option value="g">Gram (g)</option>
+                <option value="l">Liter (l)</option>
+                <option value="ml">Mililitr (ml)</option>
+                <option value="p">Sztuki (szt)</option>
+            </select>
+        </div>
+
+        <p class="form-section-title">Przechowywanie i transport</p>
+        <div class="form-group">
+            <label for="storage_conditions">Warunki przechowywania</label>
+            <textarea id="storage_conditions" name="storage_conditions"
+                      placeholder="np. Przechowywać w temperaturze pokojowej, z dala od światła słonecznego"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="transport_temperature">Temperatura transportu (°C)</label>
+            <input type="number" step="0.01" id="transport_temperature" name="transport_temperature" value="0">
+        </div>
+
+        <p class="form-section-title">Daty</p>
+        <div class="form-group">
+            <label for="production_date">Data produkcji *</label>
+            <input type="date" id="production_date" name="production_date" required>
+        </div>
+        <div class="form-group">
+            <label for="expiration_date">Data ważności *</label>
+            <input type="date" id="expiration_date" name="expiration_date" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">+ Dodaj partię</button>
+            <a href="{% url 'list_product_batches' %}" class="btn-cancel">Anuluj</a>
+        </div>
+    </form>
+</div>
+
+<!-- Modal wyboru certyfikatu -->
+<div id="certificateModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2>Wybierz certyfikat</h2>
+            <button onclick="closeCertificateModal()" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="certificateList">
+                <div class="modal-loading">Ładowanie certyfikatów…</div>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <footer class="footer top-margin-large">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="#" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-    function openCertificateModal() {
-        document.getElementById('certificateModal').style.display = 'block';
-        loadCertificates();
-    }
-    function closeCertificateModal() {
-        document.getElementById('certificateModal').style.display = 'none';
-    }
-    function loadCertificates() {
-        fetch('{% url "get_certificates_for_batch" %}')
-            .then(r => r.json())
-            .then(data => {
-                const container = document.getElementById('certificateList');
-                if (data.error) { container.innerHTML = `<div class="error-message">${data.error}</div>`; return; }
-                if (data.certificates.length === 0) { container.innerHTML = '<div class="error-message">Brak dostępnych certyfikatów</div>'; return; }
-                container.innerHTML = data.certificates.map(cert => `
-                    <div class="cert-item" onclick="selectCertificate('${cert.id}','${cert.number}','${cert.company}','${cert.valid_to}')">
-                        <div class="cert-header">
-                            <div>
-                                <div class="cert-number">${cert.number}</div>
-                                <div class="cert-info">Firma: ${cert.company}</div>
-                                <div class="cert-info">Jednostka: ${cert.issued_by}</div>
-                                <div class="cert-info">Ważny do: ${cert.valid_to}</div>
-                            </div>
-                            <span class="cert-status">${cert.status}</span>
+{% block extra_js %}
+<script>
+function openCertificateModal() {
+    document.getElementById('certificateModal').style.display = 'block';
+    loadCertificates();
+}
+function closeCertificateModal() {
+    document.getElementById('certificateModal').style.display = 'none';
+}
+function loadCertificates() {
+    fetch('{% url "get_certificates_for_batch" %}')
+        .then(r => r.json())
+        .then(data => {
+            const container = document.getElementById('certificateList');
+            if (data.error) { container.innerHTML = `<div class="modal-error">${data.error}</div>`; return; }
+            if (!data.certificates.length) { container.innerHTML = '<div class="modal-error">Brak dostępnych certyfikatów</div>'; return; }
+            container.innerHTML = data.certificates.map(cert => `
+                <div class="cert-item" onclick="selectCertificate('${cert.id}','${cert.number}','${cert.company}','${cert.valid_to}')">
+                    <div class="cert-header">
+                        <div>
+                            <div class="cert-number">${cert.number}</div>
+                            <div class="cert-info">Firma: ${cert.company}</div>
+                            <div class="cert-info">Jednostka: ${cert.issued_by}</div>
+                            <div class="cert-info">Ważny do: ${cert.valid_to}</div>
                         </div>
-                    </div>`).join('');
-            })
-            .catch(() => {
-                document.getElementById('certificateList').innerHTML = '<div class="error-message">Błąd ładowania certyfikatów</div>';
-            });
-    }
-    function selectCertificate(id, number, company, validTo) {
-        document.getElementById('certificate_id').value = id;
-        document.getElementById('certificate_display').value = `${number} - ${company} (ważny do: ${validTo})`;
-        closeCertificateModal();
-    }
-    window.onclick = function(e) {
-        const modal = document.getElementById('certificateModal');
-        if (e.target === modal) closeCertificateModal();
-    };
-
-    document.addEventListener('click', function(e) {
-        const link = e.target.closest('a[href]');
-        if (!link) return;
-        const href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('http') ||
-            href.startsWith('mailto') || link.target === '_blank') return;
-        e.preventDefault();
-        const wrapper = document.querySelector('.page-wrapper');
-        if (wrapper) {
-            wrapper.classList.add('exiting');
-            setTimeout(() => { window.location.href = href; }, 280);
-        } else {
-            window.location.href = href;
-        }
-    });
-    </script>
-</body>
-</html>
+                        <span class="cert-status">${cert.status}</span>
+                    </div>
+                </div>`).join('');
+        })
+        .catch(() => {
+            document.getElementById('certificateList').innerHTML = '<div class="modal-error">Błąd ładowania certyfikatów</div>';
+        });
+}
+function selectCertificate(id, number, company, validTo) {
+    document.getElementById('certificate_id').value = id;
+    document.getElementById('certificate_display').value = `${number} — ${company} (ważny do: ${validTo})`;
+    closeCertificateModal();
+}
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('certificateModal');
+    if (e.target === modal) closeCertificateModal();
+});
+</script>
+{% endblock %}
