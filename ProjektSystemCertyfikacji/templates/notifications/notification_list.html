@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5.5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .fraud-list-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .fraud-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        background: #ffffff;
+        border: 1px solid #d9e2d9;
+        border-radius: 10px;
+        padding: 18px 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .fraud-row:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .stagger .fraud-row {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: fadeInUp .45s ease forwards;
+        animation-delay: calc(var(--i) * 0.08s);
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fraud-row-left {
+        flex: 1;
+    }
+
+    .fraud-type {
+        margin: 0 0 6px 0;
+        font-size: 1.2rem;
+        color: #1a3a1a;
+    }
+
+    .fraud-desc {
+        margin: 0 0 10px 0;
+        color: #374151;
+    }
+
+    .fraud-meta {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      width: 95%;
+      margin-top: 6px;
+    }
+
+    .meta-left {
+      justify-self: start;
+    }
+
+    .meta-center {
+      justify-self: center;
+    }
+
+    .meta-right {
+      justify-self: end;
+    }
+
+    .fraud-status {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: 2px solid transparent;
+        display: inline-block;
+    }
+
+    .status-new {
+        border-color: #2196f3;
+        color: #0d47a1;
+        background: #e3f2fd;
+    }
+
+    .status-investigating {
+        border-color: #ff9800;
+        color: #e65100;
+        background: #fff3e0;
+    }
+
+    .status-resolved {
+        border-color: #4caf50;
+        color: #2e7d32;
+        background: #e8f5e9;
+    }
+
+    .status-rejected {
+        border-color: #f44336;
+        color: #b71c1c;
+        background: #ffebee;
+    }
+
+    .fraud-row-right {
+        display: flex;
+        align-items: center;
+    }
+
+    .fraud-detail-btn {
+        background: #1e3a1e;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background .2s ease, transform .15s ease;
+    }
+
+    .fraud-detail-btn:hover {
+        background-color: #2f5a2f;
+        box-shadow: 0 4px 10px rgba(30,58,30,0.2);
+        transform: translateY(-1px);
+    }
+
+    .pagination {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        margin-top: 24px;
+        padding: 10px 0;
+    }
+
+    .page-prev {
+        justify-self: start;
+        color: #0f766e;
+        text-decoration: none;
+        font-weight: 600;
+        color: #1e3a1e;
+    }
+
+    .page-next {
+        justify-self: end;
+        color: #0f766e;
+        text-decoration: none;
+        font-weight: 600;
+        color: #1e3a1e;
+    }
+
+    .page-info {
+        justify-self: center;
+        font-weight: 600;
+        color: #1a3a1a;
+    }
+
+    .placeholder {
+        visibility: hidden;
+    }
+
+    @media (max-width: 700px) {
+        .fraud-row {
+            flex-direction: column;
+            gap: 12px;
+        }
+            .fraud-row-right {
+            justify-content: flex-end;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Powiadomienia</h1>
+            <p class="page-subtitle">Zarządzaj powiadomieniami i obsłuż zgłoszenia.</p>
+        </div>
+    </div>
+    <div class="fraud-list-rows stagger">
+        {% for f in frauds %}
+            <article class="fraud-row" style="--i: {{ forloop.counter0 }};">
+                <div class="fraud-row-left">
+                    <h3 class="fraud-type">{{ f.get_fraud_type_display }}</h3>
+                    <p class="fraud-desc">{{ f.description|truncatechars:100 }}</p>
+                    <div class="fraud-meta">
+                        <span class="meta-left">
+                            <strong>Reporter:</strong> {{ f.reporter_email }}
+                        </span>
+                        <span class="fraud-status status-{{ f.status }}">
+                            <strong>Status:</strong> {{ f.get_status_display }}
+                        </span>
+                        <span class="meta-right">
+                            <strong>Data:</strong> {{ f.created_at|date:"d-m-Y H:i" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="fraud-row-right">
+                    <a href="{% url 'dashboard_fraud_detail' f.report_id %}" class="fraud-detail-btn">Szczegóły</a>
+                </div>
+
+            </article>
+            {% empty %}
+            <p class="fraud-empty">Brak zgłoszeń.</p>
+        {% endfor %}
+    </div>
+
+    <nav class="pagination">
+        {% if frauds.has_previous %}
+            <a href="?page={{ frauds.previous_page_number }}" class="page-prev">Poprzednia</a>
+        {% else %}
+            <span class="page-prev placeholder"></span>
+        {% endif %}
+
+        <span class="page-info">Strona {{ frauds.number }} z {{ frauds.paginator.num_pages }}</span>
+
+        {% if frauds.has_next %}
+            <a href="?page={{ frauds.next_page_number }}" class="page-next">Następna</a>
+        {% else %}
+            <span class="page-next placeholder"></span>
+        {% endif %}
+    </nav>
+{% endblock %}
+

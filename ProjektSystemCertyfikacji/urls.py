@@ -72,11 +72,11 @@ urlpatterns = [
     path('product-batches/<int:batch_id>/', product_views.product_batch_detail, name='product_batch_detail'),
     path('product-batches/<int:batch_id>/edit/', product_views.edit_product_batch, name='edit_product_batch'),
     path('product-batches/<int:batch_id>/delete/', product_views.delete_product_batch,name='delete_product_batch'),
-path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
+    path('product-batches/<int:batch_id>/recall/', product_views.recall_product_batch, name='recall_product_batch'),
     path('api/', include(router.urls)),
 
-# Dashboard
-        #path('dashboard/certificate/<int:certificate_id>/'),
+    # Dashboard
+    #path('dashboard/certificate/<int:certificate_id>/'),
     path('dashboard/', dashboard_views.control_dashboard, name='control_dashboard'),
     path('dashboard/certificate/<int:cert_id>/', dashboard_views.certificate_control_detail, name='certificate_control_detail'),
     path('dashboard/certificate/<int:cert_id>/revoke/', dashboard_views.revoke_certificate, name='revoke_certificate'),
