@@ -26,7 +26,11 @@ class RegisterForm(UserCreationForm):
                                 'required': 'To pole jest wymagane',
                                 'unique': 'Ten email jest już zajęty'
                             })
-    name = forms.CharField(max_length=200, label='Nazwa jednostki')
+    name = forms.CharField(required=True, max_length=200, label='Nazwa jednostki',
+                           error_messages={
+                               'unique': 'Ta nazwa jest już zajęta'
+                           })
+
     registration_code = forms.CharField(max_length=50, label='Kod weryfikacyjny')
     address = forms.CharField(max_length=500, label='Adres')
     certifying_unit_code = forms.CharField(max_length=50, label='Kod jednostki certyfikującej')

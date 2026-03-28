@@ -447,7 +447,9 @@
         <p class="page-subtitle">Zarządzaj certyfikatami w systemie</p>
     </div>
     <div class="page-actions">
+        {% if user.is_superuser or user.certifying_unit %}
         <a href="{% url 'add_cert' %}" class="add-button">+ Dodaj Certyfikat</a>
+        {% endif %}
     </div>
 </div>
 

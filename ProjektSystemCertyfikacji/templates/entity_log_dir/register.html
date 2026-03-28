@@ -211,7 +211,7 @@
         <div class="cert-unit-form-container" style="display: flex; align-items: flex-start; gap: 20px">
             <div class="register-form" style="flex: 1">
                 <div class="cert-unit-form">
-                    <form method="post" novalidate>
+                    <form method="post">
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
