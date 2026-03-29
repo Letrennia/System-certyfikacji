@@ -139,6 +139,10 @@ STATICFILES_DIRS = [
 ]
 
 
+LOGIN_URL = '/login/'          # redirect dla niezalogowanych
+LOGIN_REDIRECT_URL = '/'       # po poprawnym logowaniu wracamy na main page
+LOGOUT_REDIRECT_URL = '/'      # po wylogowaniu wracamy na main page
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
