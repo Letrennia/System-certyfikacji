@@ -237,10 +237,10 @@ WAŻNE:
     }
 
     .search-input:focus {
-        border-color: #77c320;
-        box-shadow: 0 0 0 3px rgba(119,195,32,0.1);
-        outline: none;
-        background-color: #ffffff;
+        border-color: #77c320 !important;
+        box-shadow: 0 0 0 4px rgba(119,195,32,0.18) !important;
+        outline: none !important;
+        background-color: #ffffff !important;
     }
 
     .search-label {
@@ -398,9 +398,9 @@ WAŻNE:
     }
 
     .wave-text {
-    display: inline-block;
-    font-size: 20px;
-    font-weight: 600;
+        display: inline-block;
+        font-size: 20px;
+        font-weight: 600;
     }
 
     .wave-text span {
@@ -412,13 +412,6 @@ WAŻNE:
     @keyframes wave {
         0%, 60%, 100% { transform: translateY(0); }
         30% { transform: translateY(-10px); }
-    }
-
-    .search-input:focus {
-        border-color: #77c320 !important;
-        box-shadow: 0 0 0 4px rgba(119,195,32,0.18) !important;
-        outline: none !important;
-        background-color: #ffffff !important;
     }
 
     @keyframes shake {
@@ -462,7 +455,6 @@ WAŻNE:
         align-items: center;
         justify-content: center;
         color: #8aaa8a;
-        transition: background 0.15s, color 0.15s;
         padding: 0;
         cursor: pointer;
         opacity: 0;
@@ -499,7 +491,7 @@ WAŻNE:
         position: absolute;
         bottom: calc(100% + 10px);
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateY(4px);
         background: #1a2e1a;
         color: #d0ffb0;
         font-size: 12px;
@@ -510,7 +502,6 @@ WAŻNE:
         border: 1px solid rgba(119,195,32,0.3);
         pointer-events: none;
         opacity: 0;
-        transform: translateX(-50%) translateY(4px);
         transition: opacity 0.2s, transform 0.2s;
         font-family: 'Inter', sans-serif;
     }
@@ -526,6 +517,36 @@ WAŻNE:
     .qr-tooltip-wrapper:hover .qr-tooltip {
         opacity: 1;
         transform: translateX(-50%) translateY(0);
+    }
+
+    .error-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 24px;
+        padding: 18px 28px;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #f0fae0, #e4f5cc);
+        border: 1.5px solid #a3d96a;
+        color: #2f5a0e;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.12);
+        animation: fadeInUp 0.3s ease both;
+    }
+
+    .error-message::before {
+        content: 'UWAGA';
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 </style>
 {% endblock %}
@@ -579,6 +600,7 @@ WAŻNE:
 
 {% block extra_js %}
 <script>
+    // ── Przyciski w polu input ──────────────────────────────────────────────
     function onInputChange() {
         const val = document.getElementById('certificate_number').value;
         const hasVal = val.length > 0;
@@ -596,12 +618,12 @@ WAŻNE:
     function copyInputValue() {
         const val = document.getElementById('certificate_number').value;
         if (!val) return;
-        navigator.clipboard.writeText(val).then(function() {
+        navigator.clipboard.writeText(val).then(function () {
             const btn = document.getElementById('btn-copy');
             btn.classList.add('copied');
             btn.title = 'Skopiowano!';
             btn.innerHTML = '<svg viewBox="0 0 24 24" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>';
-            setTimeout(function() {
+            setTimeout(function () {
                 btn.classList.remove('copied');
                 btn.title = 'Kopiuj numer';
                 btn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
@@ -609,6 +631,7 @@ WAŻNE:
         });
     }
 
+    // ── Helpers ────────────────────────────────────────────────────────────
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -650,6 +673,21 @@ WAŻNE:
         wrapper.addEventListener('animationend', () => wrapper.classList.remove('shake'), { once: true });
     }
 
+    function copyText(text, btn) {
+        navigator.clipboard.writeText(text).then(function () {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✓ Skopiowano!';
+            btn.style.color = '#77c320';
+            btn.style.borderColor = '#77c320';
+            setTimeout(function () {
+                btn.innerHTML = orig;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            }, 1800);
+        });
+    }
+
+    // ── Wyszukiwanie ───────────────────────────────────────────────────────
     function searchCertificate() {
         const number = document.getElementById('certificate_number').value.trim();
         const resultDiv = document.getElementById('result');
@@ -757,6 +795,13 @@ WAŻNE:
                     card.setAttribute('tabindex', '-1');
                     card.focus({ preventScroll: true });
                 }
+
+                // Zapisz stan w historii przeglądarki
+                history.pushState(
+                    { certificate_number: number },
+                    '',
+                    `?certificate=${encodeURIComponent(number)}`
+                );
             })
             .catch(err => {
                 console.error('Błąd:', err);
@@ -765,18 +810,47 @@ WAŻNE:
             });
     }
 
-    function copyText(text, btn) {
-        navigator.clipboard.writeText(text).then(function() {
-            const orig = btn.innerHTML;
-            btn.innerHTML = '✓ Skopiowano!';
-            btn.style.color = '#77c320';
-            btn.style.borderColor = '#77c320';
-            setTimeout(function() {
-                btn.innerHTML = orig;
-                btn.style.color = '';
-                btn.style.borderColor = '';
-            }, 1800);
-        });
-    }
+    // ── Historia przeglądarki ──────────────────────────────────────────────
+
+    // Obsługa przycisku wstecz/naprzód
+    window.addEventListener('popstate', function (event) {
+        if (event.state && event.state.certificate_number) {
+            document.getElementById('certificate_number').value = event.state.certificate_number;
+            onInputChange();
+            searchCertificate();
+        } else {
+            // Powrót do czystego formularza
+            document.getElementById('certificate_number').value = '';
+            document.getElementById('result').innerHTML = '';
+            onInputChange();
+        }
+    });
+
+    // Napraw stronę przywróconą z bfcache (przycisk wstecz z innej strony)
+    window.addEventListener('pageshow', function (event) {
+        const wrapper = document.querySelector('.page-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('exiting');
+            wrapper.style.animation = 'none';
+            void wrapper.offsetHeight; // wymuś reflow
+            wrapper.style.animation = '';
+        }
+    });
+
+    // Inicjalizacja przy załadowaniu strony
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const cert = params.get('certificate');
+
+        if (cert) {
+            // URL zawiera numer certyfikatu — wyszukaj od razu
+            document.getElementById('certificate_number').value = cert;
+            onInputChange();
+            searchCertificate();
+        } else {
+            // Zapisz stan początkowy żeby popstate działał przy powrocie
+            history.replaceState({ page: 'search' }, '', window.location.href);
+        }
+    });
 </script>
 {% endblock %}
