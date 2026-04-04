@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+    }
+
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5.5rem;
+        color: #1a3a1a;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .container {
+        max-width: 2000px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+
+    .toggle-buttons {
+        margin-bottom: 24px;
+    }
+
+    .toggle-buttons button {
+        padding: 14px 28px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .toggle-buttons button:hover {
+        transform: translateY(-2px);
+    }
+
+    .toggle-buttons button.active {
+        background-color: #77c320;
+        color: white;
+    }
+
+    .toggle-buttons button.inactive {
+        background-color: #e0e0e0;
+        color: #444;
+    }
+
+    .certificate-card {
+        background-color: white;
+        border: 2px solid #d9e2d9;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 16px;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .2s ease;
+    }
+
+    .certificate-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .expired { border-color: #dc3545; }
+    .expiring { border-color: #ffc107; }
+
+    /* Kontener daty i przycisku ustawiony w rzędzie i wyrównany do prawej */
+    .expiry-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px; /* odstęp między datą a przyciskiem */
+        min-width: 220px; /* minimalna szerokość dla ładnego wyrównania */
+    }
+
+    .expiry-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .expiry-badge.expired {
+        color: #dc3545;
+        border: 1px solid #dc3545;
+        background: #f8d7da;
+    }
+
+    .expiry-badge.expiring {
+        color: #856404;
+        border: 1px solid #ffc107;
+        background: #fff3cd;
+    }
+
+    .cert-header {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center; /* pionowe wyśrodkowanie */
+    }
+
+    .cert-number {
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .cert-details {
+        margin-top: 10px;
+        color: #444;
+    }
+
+    .empty-state {
+        background: #e8f5e9;
+        border: 2px solid #77c320;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .hidden { display: none; }
+
+    .details-button {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #1a3a1a;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background 0.2s ease, transform 0.15s ease;
+        white-space: nowrap;
+    }
+
+    .details-button:hover {
+        background-color: #0f2a0f;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Powiadomienia</h1>
+            <p class="page-subtitle">Informacje o statusie certyfikatów.</p>
+        </div>
+    </div>
+
+    <div class="toggle-buttons">
+        <button id="btn-expired" class="active">Wygasłe</button>
+        <button id="btn-expiring" class="inactive">Wygasające w ciągu 3 dni</button>
+    </div>
+
+    <div id="expired-section">
+        {% if expired %}
+            {% for c in expired %}
+                <div class="certificate-card expired">
+                    <div class="cert-header">
+                        <div class="cert-number">{{ c.certificate_number }}</div>
+                        <div class="expiry-container">
+                            <div class="expiry-badge expired">
+                                Wygasł: {{ c.valid_to|date:"d.m.Y" }}
+                            </div>
+                            <a href="{% url 'cert_detail' c.certificate_id %}" class="details-button">Szczegóły</a>
+                        </div>
+                    </div>
+                    <div class="cert-details">
+                        {% if not user.company_user %}
+                            <p><strong>Posiadacz:</strong> {{ c.holder_company_id.name }}</p>
+                        {% endif %}
+                        {% if not user.certifying_unit %}
+                            <p><strong>Jednostka:</strong> {{ c.issued_by_certifying_unit_id.name }}</p>
+                        {% endif %}
+                        <p><strong>Status:</strong> {{ c.get_status_display }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">Brak wygasłych certyfikatów.</div>
+        {% endif %}
+    </div>
+
+    <div id="expiring-section" class="hidden">
+        {% if expiring %}
+            {% for c in expiring %}
+                <div class="certificate-card expiring">
+                    <div class="cert-header">
+                        <div class="cert-number">{{ c.certificate_number }}</div>
+                        <div class="expiry-container">
+                            <div class="expiry-badge expiring">
+                                Wygasa: {{ c.valid_to|date:"d.m.Y" }}
+                            </div>
+                            <a href="{% url 'cert_detail' c.certificate_id %}" class="details-button">Szczegóły</a>
+                        </div>
+                    </div>
+                    <div class="cert-details">
+                        {% if not user.company_user %}
+                            <p><strong>Posiadacz:</strong> {{ c.holder_company_id.name }}</p>
+                        {% endif %}
+                        {% if not user.certifying_unit %}
+                            <p><strong>Jednostka:</strong> {{ c.issued_by_certifying_unit_id.name }}</p>
+                        {% endif %}
+                        <p><strong>Status:</strong> {{ c.get_status_display }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">Brak certyfikatów wygasających w ciągu 3 dni.</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const btnExpired = document.getElementById('btn-expired');
+    const btnExpiring = document.getElementById('btn-expiring');
+    const expiredSection = document.getElementById('expired-section');
+    const expiringSection = document.getElementById('expiring-section');
+
+    btnExpired.addEventListener('click', () => {
+        expiredSection.classList.remove('hidden');
+        expiringSection.classList.add('hidden');
+        btnExpired.classList.add('active');
+        btnExpired.classList.remove('inactive');
+        btnExpiring.classList.remove('active');
+        btnExpiring.classList.add('inactive');
+    });
+
+    btnExpiring.addEventListener('click', () => {
+        expiredSection.classList.add('hidden');
+        expiringSection.classList.remove('hidden');
+        btnExpired.classList.remove('active');
+        btnExpired.classList.add('inactive');
+        btnExpiring.classList.add('active');
+        btnExpiring.classList.remove('inactive');
+    });
+</script>
+{% endblock %}

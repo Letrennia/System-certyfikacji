@@ -453,5 +453,21 @@
         },
         "previous_hash": "4dde7e496af7635a284ef2eb171b5a598c98cf681f669c089fb15695988ec5ab",
         "hash": "f03c17212a26e71c8a1d4270f9a11f1c79df89b73ba921ae608f13a0f1559185"
+    },
+    {
+        "index": 29,
+        "timestamp": "2026-04-04T17:03:09.790151",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 82,
+            "certificate_number": "test_powiadomien",
+            "holder_entity_id": null,
+            "valid_from": "2026-04-02",
+            "valid_to": "2026-04-06",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "f03c17212a26e71c8a1d4270f9a11f1c79df89b73ba921ae608f13a0f1559185",
+        "hash": "31b8a87b87122d925d042ec986635a183214c9963f9a8e689bcecce2356edcbb"
     }
 ]
