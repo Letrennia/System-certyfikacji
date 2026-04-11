@@ -552,19 +552,28 @@
                     <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                         <a href="{% url 'home' %}">Strona główna</a>
                     </div>
-                    
+
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_product_batches' %}active{% endif %}">
                         <a href="{% url 'list_product_batches' %}">Produkty</a>
                     </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_cert' %}active{% endif %}">
                         <a href="{% url 'list_cert' %}">Certyfikaty</a>
                     </div>
-                {% else %}
+
+                {% elif user.company_user %}
                     <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                         <a href="{% url 'home' %}">Strona główna</a>
                     </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_product_batches' %}active{% endif %}">
                         <a href="{% url 'list_product_batches' %}">Produkty</a>
+                    </div>
+
+                {% elif user.certifying_unit %}
+                    <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'home' %}">Strona główna</a>
+                    </div>
+                    <div class="nav-item {% if request.resolver_match.url_name == 'list_cert' %}active{% endif %}">
+                        <a href="{% url 'list_cert' %}">Certyfikaty</a>
                     </div>
                 {% endif %}
             </div>
@@ -586,10 +595,25 @@
                     <div class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
                         <a href="{% url 'notifications' %}">Powiadomienia</a>
                     </div>
-                {% else %}
+
+                {% elif user.company_user %}
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_cert' %}active{% endif %}">
                         <a href="{% url 'list_cert' %}">Certyfikaty</a>
                     </div>
+                    <div class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                        <a href="{% url 'notifications' %}">Powiadomienia</a>
+                    </div>
+
+                {% elif user.certifying_unit %}
+                    <div class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                        <a href="{% url 'notifications' %}">Powiadomienia</a>
+                    </div>
+
+                {% elif not user.is_authenticated %}
+                    <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'home' %}">Strona główna</a>
+                    </div>
+
                 {% endif %}
 
                 <div class="auth-buttons">
