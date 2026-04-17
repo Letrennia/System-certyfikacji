@@ -469,5 +469,21 @@
         },
         "previous_hash": "f03c17212a26e71c8a1d4270f9a11f1c79df89b73ba921ae608f13a0f1559185",
         "hash": "31b8a87b87122d925d042ec986635a183214c9963f9a8e689bcecce2356edcbb"
+    },
+    {
+        "index": 30,
+        "timestamp": "2026-04-17T23:24:22.286396",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 93,
+            "certificate_number": "FALKE-145",
+            "holder_entity_id": null,
+            "valid_from": "2026-04-08",
+            "valid_to": "2026-05-06",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "31b8a87b87122d925d042ec986635a183214c9963f9a8e689bcecce2356edcbb",
+        "hash": "56b222a5e6ec4a483be78bc5155f6451609cef66175fa03c34872cce14f94c0d"
     }
 ]

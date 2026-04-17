@@ -15,7 +15,7 @@ from django.conf import settings
 from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
 from main_app import settings
 import qrcode
-from ProjektSystemCertyfikacji.utils.local_ip import get_local_ip
+# from ProjektSystemCertyfikacji.utils.local_ip import get_local_ip
 
 
 def encrypt_certificate_id(certificate_id):
@@ -176,18 +176,14 @@ class Certificate(models.Model):
         db_table = 'certificate'
         # manage = False
 
-    def get_app_host(self):
-        if hasattr(settings, 'APP_HOST'):
-            return settings.APP_HOST
-        ip = get_local_ip()
-        return f"http://{ip}:8000"
     
 
     def generate_qr(self):
         encrypt_id = encrypt_certificate_id(self.certificate_id)
         self.qr_code_data = encrypt_id
 
-        qr_url = f"/redirect/{encrypt_id}/"
+        # qr_url = f"/redirect/{encrypt_id}/"
+        qr_url = f"https://system-certyfikacji.onrender.com/certificates/{self.certificate_id}/"
 
         qr_path = os.path.join(
             settings.MEDIA_ROOT,
