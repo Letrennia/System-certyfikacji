@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+
+from django.conf.global_settings import SECRET_KEY
 from dotenv import load_dotenv
 # Do szyfrowania url
 from cryptography.fernet import Fernet 
@@ -21,11 +23,15 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+SECRET_KEY_ENV = os.getenv("SECRET_KEY_ENV")
+DATABASE_USER_ENV = os.getenv("DATABASE_USER_ENV")
+DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2*d9304&gcluo^!fw5c%be2r70ehyk@nt@pr9d(f&u*mrw2=jc'
+SECRET_KEY = SECRET_KEY_ENV
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -88,8 +94,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER': 'postgres.ishtnnvvtidrrydaakua',
-        'PASSWORD': 'p2To0up96PyIGaB3',
+        'USER': DATABASE_USER_ENV,
+        'PASSWORD': DATABASE_PASS_ENV,
         'HOST': 'aws-1-eu-west-1.pooler.supabase.com',
         'PORT': '6543',
         "OPTIONS": {
