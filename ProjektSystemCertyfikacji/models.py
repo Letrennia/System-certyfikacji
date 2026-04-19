@@ -15,7 +15,7 @@ from django.conf import settings
 from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
 from main_app import settings
 import qrcode
-# from ProjektSystemCertyfikacji.utils.local_ip import get_local_ip
+from ProjektSystemCertyfikacji.utils.local_ip import get_local_ip
 
 
 def encrypt_certificate_id(certificate_id):
@@ -176,14 +176,18 @@ class Certificate(models.Model):
         db_table = 'certificate'
         # manage = False
 
+    def get_app_host(self):
+        if hasattr(settings, 'APP_HOST'):
+            return settings.APP_HOST
+        ip = get_local_ip()
+        return f"http://{ip}:8000"
     
 
     def generate_qr(self):
         encrypt_id = encrypt_certificate_id(self.certificate_id)
         self.qr_code_data = encrypt_id
 
-        # qr_url = f"/redirect/{encrypt_id}/"
-        qr_url = f"https://system-certyfikacji.onrender.com/certificates/{self.certificate_id}/"
+        qr_url = f"/redirect/{encrypt_id}/"
 
         qr_path = os.path.join(
             settings.MEDIA_ROOT,
@@ -279,7 +283,7 @@ class Chain_event(models.Model):
     blockchain_hash = models.CharField(max_length=255, db_column='blockchain_hash')
     blockchain_tx_id = models.CharField(max_length=255, db_column='blockchain_tx_id')
 
-    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id')
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id', null=True, blank=True)
     area_id = models.ForeignKey('Activity_area', on_delete=models.CASCADE, db_column='area_id')
     company_id = models.ForeignKey('Company', on_delete=models.CASCADE, db_column='company_id')
     certificate_id = models.ForeignKey('Certificate', on_delete=models.CASCADE, db_column='certificate_id')
@@ -297,7 +301,7 @@ class Chain_event(models.Model):
 class Batch_certificate(models.Model):
     cp_id = models.AutoField(primary_key=True, db_column='cp_id')
 
-    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id')
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id', null=True, blank=True)
     certificate_id = models.ForeignKey('Certificate', on_delete=models.CASCADE, db_column='certificate_id')
 
     class Meta:
@@ -340,7 +344,7 @@ class Alert(models.Model):
     status = models.CharField(max_length=50, choices=STATUS, default='new', db_column='status')
 
     event_id = models.ForeignKey('Chain_event', on_delete=models.CASCADE, db_column='event_id',null=True, blank=True)
-    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id')
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id', null=True, blank=True)
 
     class Meta:
         db_table = 'alert'
@@ -366,7 +370,7 @@ class Consumer_verification(models.Model):
     consumer_ip = models.CharField(max_length=45, db_column='consumer_ip')
     device_info = models.CharField(max_length=255, db_column='device_info')
 
-    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id')
+    batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id', null=True, blank=True)
 
     class Meta:
         db_table = 'consumer_verification'
@@ -439,6 +443,7 @@ class Fraud_report(models.Model):
         ('other', 'Other')
     ]
     fraud_type = models.CharField(max_length=100, choices=TYPE, db_column='fraud_type')
+    reporter_name = models.CharField(max_length=200, db_column='reporter_name', blank=False, null=False, default='')
     reporter_email = models.CharField(max_length=100, db_column='reporter_email')
     description = models.CharField(max_length=1000, db_column='description')
     STATUS = [
@@ -448,7 +453,7 @@ class Fraud_report(models.Model):
         ('rejected', 'Odrzucone')
     ]
     status = models.CharField(max_length=50, choices=STATUS, default='new', db_column='status')
-    investigation_notes = models.CharField(max_length=1000, db_column='investigation_notes', blank=True, null=True)
+    investigation_notes = models.CharField(max_length=1000, db_column='investigation_notes', blank=True, null=True, default='')
 
     batch_id = models.ForeignKey('Product_batch', on_delete=models.CASCADE, db_column='batch_id', null=True, blank=True)
     certificate_id = models.ForeignKey('Certificate', on_delete=models.CASCADE, db_column='certificate_id', null=True, blank=True)

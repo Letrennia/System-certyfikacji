@@ -459,6 +459,11 @@
         <div class="card-footer">
             <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
             <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="history-button">Historia zmian</a>
+	    <a href="{% url 'report_fraud_form' certificate_id=cert.certificate_id %}" 
+   class="btn-report" 
+   style="padding: 12px 28px; border-radius: 40px; font-size: 15px; font-family: 'Inter', sans-serif; text-decoration: none; display: inline-block; font-weight: 600; letter-spacing: 0.5px; background-color: #dc3545; border: none; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: background-color 0.2s, transform 0.1s;">
+   🚨 Zgłoś oszustwo
+</a>
         </div>
     </div>
 </div>

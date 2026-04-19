@@ -10,6 +10,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ..models import Certificate_status_history, Certificate, Activity_area, Certifying_unit, Company, Product_batch
 from ProjektSystemCertyfikacji.utils.pdf_reader import extract_data
+from ..forms.report_form import FraudReportForm
 from datetime import datetime
 @login_required
 def add_cert(request):
@@ -177,9 +178,12 @@ def cert_detail(request, cert_id):
 
     batches = Product_batch.objects.filter(certificate_id=cert)
 
+    fraud_form = FraudReportForm()
+
     return render(request, 'certificates/cert_detail.html', {
         'cert': cert,
         'batches': batches,
+	'fraud_form': fraud_form,
     })
 
 

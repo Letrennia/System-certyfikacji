@@ -149,14 +149,16 @@
                 </div>
             {% endif %}
 
-            <form method="post" class="fraud-form">
+            <form method="post" class="fraud-form" action="{% url 'submit_fraud_report_html' certificate.certificate_id %}">
                 {% csrf_token %}
-
+		
+		<input type="hidden" name="certificate_id" value="{{ certificate.certificate_id }}">
+		
                 <div class="form-group">
-                    <label for="id_reporter_main">Imię i nazwisko:</label>
-                    {{ form.reporter_main }}
-                    {% if form.reporter_main.errors %}
-                        <div class="error-message">{{ form.reporter_main.errors }}</div>
+                    <label for="id_reporter_name">Imię i nazwisko:</label>
+                    {{ form.reporter_name }}
+                    {% if form.reporter_name.errors %}
+                        <div class="error-message">{{ form.reporter_name.errors }}</div>
                     {% endif %}
                 </div>
 
@@ -186,7 +188,7 @@
 
                 <div class="form-buttons">
                     <button type="submit" class="submit-button">Wyślij zgłoszenie</button>
-                    <a href="{% url 'certificate_view' token %}" class="button-link">Anuluj</a>
+                    <a href="{% url 'cert_detail' certificate.certificate_id %}" class="button-link">Anuluj</a>
                 </div>
 
                 <div class="info-note">

@@ -25,6 +25,8 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from .all_views import dashboard_views
 from .all_views.fraud_views import FraudReportViewSet
 from .all_views import fraud_views
+from .all_views.fraud_views import submit_fraud_report_html
+from .all_views.fraud_views import show_fraud_report_form, submit_fraud_report_html
 
 router = DefaultRouter()
 router.register(r'certificates', CertificateViewSet)
@@ -66,6 +68,9 @@ urlpatterns = [
     path('certificates/<int:cert_id>/history/export/', certificate_history_export, name='certificate_history_export'),
     path('api/certificates/<int:cert_id>/changes/', certificate_change_log_api, name='certificate_change_log_api'),
 
+    path('submit-fraud-report/<int:certificate_id>/', submit_fraud_report_html, name='submit_fraud_report_html'),
+    path('report-fraud/<int:certificate_id>/', show_fraud_report_form, name='report_fraud_form'),
+    path('submit-fraud-report/<int:certificate_id>/', submit_fraud_report_html, name='submit_fraud_report_html'),
 
     path('product-batches/', product_views.list_product_batches, name='list_product_batches'),
     path('product-batches/add/', product_views.add_product_batch, name='add_product_batch'),

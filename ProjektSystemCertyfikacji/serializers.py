@@ -80,6 +80,7 @@ class FraudReportSerializer(serializers.ModelSerializer):
             'report_id',
             'fraud_type',
             'fraud_type_display',
+	    'reporter_name', 
             'reporter_email',
             'description',
             'status',

@@ -235,7 +235,6 @@
     <h1>Zgłoszenie #{{ report.report_id }}</h1>
     <p class="subtitle">Szczegóły zgłoszenia oszustwa</p>
 
-    <!-- Informacje podstawowe -->
     <div class="card">
         <div class="card-header">
             <h2>Informacje podstawowe</h2>
@@ -252,7 +251,10 @@
             </div>
             <div class="info-row">
                 <div class="info-label">Zgłaszający</div>
-                <div class="info-value">{{ report.reporter_email }}</div>
+                <div class="info-value">
+                    <strong>{{ report.reporter_name|default:"Nie podano" }}</strong><br>
+                    <small style="color: #5a6e57;">{{ report.reporter_email }}</small>
+                </div>
             </div>
             <div class="info-row">
                 <div class="info-label">Opis</div>
@@ -276,7 +278,6 @@
         </div>
     </div>
 
-    <!-- Zmiana statusu -->
     <div class="card">
         <div class="card-header"><h2>Zmień status</h2></div>
         <div class="card-body">
@@ -292,7 +293,6 @@
         </div>
     </div>
 
-    <!-- Notatki śledcze -->
     <div class="card">
         <div class="card-header"><h2>Notatki śledcze</h2></div>
         <div class="card-body">

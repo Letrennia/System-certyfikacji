@@ -11,6 +11,13 @@ from django.utils.decorators import method_decorator
 from ..models import Fraud_report
 from ..serializers import FraudReportSerializer
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from ..forms.report_form import FraudReportForm
+from ..models import encrypt_certificate_id
+
 @method_decorator(csrf_exempt, name='dispatch')
 class FraudReportViewSet(viewsets.ModelViewSet):
     queryset = Fraud_report.objects.all().select_related('certificate_id', 'batch_id')
@@ -149,3 +156,70 @@ class FraudReportViewSet(viewsets.ModelViewSet):
             'message': 'Notatka dodana',
             'investigation_notes': report.investigation_notes
         })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def submit_fraud_report_html(request, certificate_id):
+    """
+    Widok obsługujący zgłoszenia oszustw z formularza HTML (nie API)
+    """
+    from ..models import Certificate
+    
+    try:
+        certificate = Certificate.objects.get(certificate_id=certificate_id)
+    except Certificate.DoesNotExist:
+        messages.error(request, 'Certyfikat nie istnieje')
+        return redirect('main_page')
+    
+    form = FraudReportForm(request.POST)
+    
+    if form.is_valid():
+        fraud_report = form.save(commit=False)
+        fraud_report.certificate_id = certificate
+        
+        # Zabezpieczenie przed NULL w investigation_notes
+        if not fraud_report.investigation_notes:
+            fraud_report.investigation_notes = ''
+        
+        fraud_report.save()
+        
+        # Sprawdzenie spamu
+        fraud_report.check_and_reject_spam()
+        
+        messages.success(
+            request, 
+            'Dziękujemy za zgłoszenie. Zostanie ono zweryfikowane przez odpowiednie służby.'
+        )
+        return redirect('cert_detail', cert_id=certificate.certificate_id)
+    else:
+        # Jeśli formularz nie jest ważny - wyświetl błędy
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f'{field}: {error}')
+        
+        return render(request, 'certificates/cert_detail.html', {
+            'cert': certificate,
+            'fraud_form': form,
+            'form_errors': form.errors
+        })
+
+def show_fraud_report_form(request, certificate_id):
+    """
+    Wyświetla formularz zgłoszenia oszustwa dla konkretnego certyfikatu
+    """
+    from ..models import Certificate
+    from ..models import encrypt_certificate_id 
+    
+    try:
+        certificate = Certificate.objects.get(certificate_id=certificate_id)
+    except Certificate.DoesNotExist:
+        messages.error(request, 'Certyfikat nie istnieje')
+        return redirect('main_page')
+    
+    form = FraudReportForm()
+    
+    return render(request, 'report_fraud.html', {
+        'form': form,
+        'certificate': certificate,
+        'token': encrypt_certificate_id(certificate_id)  
+    })
