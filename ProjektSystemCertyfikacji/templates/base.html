@@ -546,7 +546,7 @@
     <header class="header">
         <div class="header-inner">                
             
-                        <!-- @Michał=goy przypisywanie przycisków nevbar  -->
+                        <!--przypisywanie przycisków nevbar  -->
             <div class="nav-left">
                 {% if user.is_superuser %}
                     <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
@@ -575,6 +575,7 @@
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_cert' %}active{% endif %}">
                         <a href="{% url 'list_cert' %}">Certyfikaty</a>
                     </div>
+                
                 {% endif %}
             </div>
 
@@ -607,11 +608,6 @@
                 {% elif user.certifying_unit %}
                     <div class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
                         <a href="{% url 'notifications' %}">Powiadomienia</a>
-                    </div>
-
-                {% elif not user.is_authenticated %}
-                    <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                        <a href="{% url 'home' %}">Strona główna</a>
                     </div>
 
                 {% endif %}
