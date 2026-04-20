@@ -144,6 +144,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "ProjektSystemCertyfikacji" / "static",
 ]
 
+# żeby render działał lepiej (trust)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 LOGIN_URL = '/login/'          # redirect dla niezalogowanych
 LOGIN_REDIRECT_URL = '/'       # po poprawnym logowaniu wracamy na main page
