@@ -34,7 +34,7 @@ DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
 SECRET_KEY = SECRET_KEY_ENV
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #tymczasowe rozwiązanie
 ALLOWED_HOSTS = ['*']
