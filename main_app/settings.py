@@ -28,6 +28,7 @@ DATABASE_USER_ENV = os.getenv("DATABASE_USER_ENV")
 DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
 FERNET_KEY = os.getenv("FERNET_KEY_ENV")
 HOST_ENV = os.getenv("HOST_ENV")
+DEBUG_ENV = os.getenv("DEBUG_ENV")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -36,8 +37,8 @@ HOST_ENV = os.getenv("HOST_ENV")
 SECRET_KEY = SECRET_KEY_ENV
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
+# DEBUG = False
+DEBUG = DEBUG_ENV
 
 ALLOWED_HOSTS = [
     'system-certyfikacji.onrender.com',
