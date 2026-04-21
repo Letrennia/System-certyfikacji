@@ -147,7 +147,7 @@ STATICFILES_DIRS = [
 
 # żeby render działał lepiej (trust)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 LOGIN_URL = '/login/'          # redirect dla niezalogowanych
 LOGIN_REDIRECT_URL = '/'       # po poprawnym logowaniu wracamy na main page
