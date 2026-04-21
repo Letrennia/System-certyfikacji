@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
+
 import os
 
-from django.conf.global_settings import SECRET_KEY
+# from django.conf.global_settings import SECRET_KEY
 from dotenv import load_dotenv
 # Do szyfrowania url
 from cryptography.fernet import Fernet 
@@ -27,6 +27,7 @@ SECRET_KEY_ENV = os.getenv("SECRET_KEY_ENV")
 DATABASE_USER_ENV = os.getenv("DATABASE_USER_ENV")
 DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
 FERNET_KEY = os.getenv("FERNET_KEY_ENV")
+HOST_ENV = os.getenv("HOST_ENV")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -35,11 +36,19 @@ FERNET_KEY = os.getenv("FERNET_KEY_ENV")
 SECRET_KEY = SECRET_KEY_ENV
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-#tymczasowe rozwiązanie
-ALLOWED_HOSTS = ['*']
 
+ALLOWED_HOSTS = [
+    'system-certyfikacji.onrender.com',
+    '127.0.0.1',
+    'localhost']
+
+
+# do https przy deploy zmienic na true i odkomentować
+SECURE_SSL_REDIRECT = False
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # Application definition
 
@@ -98,7 +107,7 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': DATABASE_USER_ENV,
         'PASSWORD': DATABASE_PASS_ENV,
-        'HOST': 'aws-1-eu-west-1.pooler.supabase.com',
+        'HOST': HOST_ENV,
         'PORT': '6543',
         "OPTIONS": {
             "sslmode": "require",
