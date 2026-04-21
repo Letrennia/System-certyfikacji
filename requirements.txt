@@ -23,4 +23,3 @@ django-ratelimit==3.0.1
 pypdf==6.7.4
 
 gunicorn
-whitenoise
