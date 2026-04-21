@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
+
 import os
 
-from django.conf.global_settings import SECRET_KEY
+# from django.conf.global_settings import SECRET_KEY
 from dotenv import load_dotenv
 # Do szyfrowania url
 from cryptography.fernet import Fernet 
@@ -26,6 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY_ENV = os.getenv("SECRET_KEY_ENV")
 DATABASE_USER_ENV = os.getenv("DATABASE_USER_ENV")
 DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
+FERNET_KEY = os.getenv("FERNET_KEY_ENV")
+HOST_ENV = os.getenv("HOST_ENV")
+DEBUG_ENV = os.getenv("DEBUG_ENV")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -34,11 +37,19 @@ DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
 SECRET_KEY = SECRET_KEY_ENV
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = False
+DEBUG = DEBUG_ENV
 
-#tymczasowe rozwiązanie
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'system-certyfikacji.onrender.com',
+    '127.0.0.1',
+    'localhost']
 
+
+# do https przy deploy zmienic na true i odkomentować
+SECURE_SSL_REDIRECT = False
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 # Application definition
 
@@ -58,6 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -96,7 +108,7 @@ DATABASES = {
         'NAME': 'postgres',
         'USER': DATABASE_USER_ENV,
         'PASSWORD': DATABASE_PASS_ENV,
-        'HOST': 'aws-1-eu-west-1.pooler.supabase.com',
+        'HOST': HOST_ENV,
         'PORT': '6543',
         "OPTIONS": {
             "sslmode": "require",
@@ -139,11 +151,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "ProjektSystemCertyfikacji" / "static",
 ]
 
+# żeby render działał lepiej (trust)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 LOGIN_URL = '/login/'          # redirect dla niezalogowanych
 LOGIN_REDIRECT_URL = '/'       # po poprawnym logowaniu wracamy na main page
@@ -159,17 +174,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# ścieżka do pliku z kluczem szyfrowania
-FERNET_KEY_FILE = Path(BASE_DIR) / "fernet_key.txt"
 
-if FERNET_KEY_FILE.exists():
-    with open(FERNET_KEY_FILE, "rb") as f:
-        FERNET_KEY = f.read().strip()
-else:
-    FERNET_KEY = Fernet.generate_key()
-    with open(FERNET_KEY_FILE, "wb") as f:
-        f.write(FERNET_KEY)
-    print(f"Utworzono nowy klucz Fernet i zapisano w {FERNET_KEY_FILE}")
 
 
 
