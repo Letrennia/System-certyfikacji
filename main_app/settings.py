@@ -26,6 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY_ENV = os.getenv("SECRET_KEY_ENV")
 DATABASE_USER_ENV = os.getenv("DATABASE_USER_ENV")
 DATABASE_PASS_ENV = os.getenv("DATABASE_PASS_ENV")
+FERNET_KEY = os.getenv("FERNET_KEY_ENV")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -163,17 +164,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# ścieżka do pliku z kluczem szyfrowania
-FERNET_KEY_FILE = Path(BASE_DIR) / "fernet_key.txt"
 
-if FERNET_KEY_FILE.exists():
-    with open(FERNET_KEY_FILE, "rb") as f:
-        FERNET_KEY = f.read().strip()
-else:
-    FERNET_KEY = Fernet.generate_key()
-    with open(FERNET_KEY_FILE, "wb") as f:
-        f.write(FERNET_KEY)
-    print(f"Utworzono nowy klucz Fernet i zapisano w {FERNET_KEY_FILE}")
 
 
 
