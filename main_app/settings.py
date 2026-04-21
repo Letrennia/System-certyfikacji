@@ -36,7 +36,7 @@ HOST_ENV = os.getenv("HOST_ENV")
 SECRET_KEY = SECRET_KEY_ENV
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = [
