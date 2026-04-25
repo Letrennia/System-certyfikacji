@@ -559,6 +559,9 @@
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_cert' %}active{% endif %}">
                         <a href="{% url 'list_cert' %}">Certyfikaty</a>
                     </div>
+                    <div class="nav-item {% if request.resolver_match.url_name == 'account_dashboard' %}active{% endif %}">
+                        <a href="{% url 'account_dashboard' %}">Kody</a>
+                    </div>
 
                 {% elif user.company_user %}
                     <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">

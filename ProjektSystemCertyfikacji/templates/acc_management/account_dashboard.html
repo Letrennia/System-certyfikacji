@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kody</title>
+</head>
+<body>
+
+<h2>Lista kodów</h2>
+
+<form method="get">
+    <div>
+        Szukaj kodu:
+        <input type="text" name="search" value="{{ current_search }}">
+    </div>
+
+
+<div>
+    Status:
+    <select name="is_used">
+        <option value="">-- wszystkie --</option>
+        <option value="true" {% if current_is_used == "true" %}selected{% endif %}>użyte</option>
+        <option value="false" {% if current_is_used == "false" %}selected{% endif %}>nie użyte</option>
+    </select>
+</div>
+
+<div>
+    Sortowanie:
+    <select name="sort_order">
+        <option value="asc" {% if current_sort_order == "asc" %}selected{% endif %}>data rosnąco</option>
+        <option value="desc" {% if current_sort_order == "desc" %}selected{% endif %}>data malejąco</option>
+    </select>
+</div>
+
+<button type="submit">OK</button>
+
+
+</form>
+
+<hr>
+
+<h3>Dodaj nowy kod</h3>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add">
+
+    <input type="text" name="code" placeholder="Kod">
+    <button type="submit">Dodaj</button>
+</form>
+<br>
+
+{% for reg in registration_codes %}
+    <div>
+
+        <strong>{{ reg.code }}</strong>
+
+        <!-- STATUS -->
+        {% if reg.is_used %}
+            ✔ użyty
+        {% else %}
+            ❌ nieużyty
+        {% endif %}
+
+        <!-- DATA -->
+        | {{ reg.created_at }}
+
+        <!-- PRZYCISKI -->
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="pk" value="{{ reg.id }}">
+            <button type="submit">Usuń</button>
+        </form>
+
+        <!-- EDIT -->
+        <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="pk" value="{{ reg.id }}">
+
+            <input type="text" name="code" value="{{ reg.code }}">
+
+            <select name="is_used">
+                <option value="false" {% if not reg.is_used %}selected{% endif %}>nie</option>
+                <option value="true" {% if reg.is_used %}selected{% endif %}>tak</option>
+            </select>
+
+            <button type="submit">Edytuj</button>
+        </form>
+
+    </div>
+
+    <hr>
+{% endfor %}
+
+</body>
+</html>
