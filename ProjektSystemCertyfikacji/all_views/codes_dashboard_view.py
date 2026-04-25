@@ -6,7 +6,7 @@ from ProjektSystemCertyfikacji.models import RegistrationCode
 
 
 @login_required
-def account_dashboard(request):
+def code_dashboard(request):
     if not request.user.is_superuser:
         return render(request, 'product_all_accounts/error.html', {
             'msg': 'Brak uprawnień - dostęp tylko dla adminów'
@@ -57,7 +57,7 @@ def account_dashboard(request):
 
 
 
-    return render(request, 'acc_management/account_dashboard.html', {
+    return render(request, 'acc_management/code_dashboard.html', {
         'current_search': search,
         'registration_codes': registration_codes,
         'current_sort': sort_by,
