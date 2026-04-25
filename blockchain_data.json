@@ -485,5 +485,21 @@
         },
         "previous_hash": "31b8a87b87122d925d042ec986635a183214c9963f9a8e689bcecce2356edcbb",
         "hash": "56b222a5e6ec4a483be78bc5155f6451609cef66175fa03c34872cce14f94c0d"
+    },
+    {
+        "index": 31,
+        "timestamp": "2026-04-21T18:26:16.311170",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 97,
+            "certificate_number": "PT-ECO-019-CT.724-0024295.2026.023",
+            "holder_entity_id": null,
+            "valid_from": "2026-04-15",
+            "valid_to": "2026-04-29",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "56b222a5e6ec4a483be78bc5155f6451609cef66175fa03c34872cce14f94c0d",
+        "hash": "0960fc9079279140633cb5b6baef302a1de86aa3768a0b3873fdc9c10a4afcf1"
     }
 ]

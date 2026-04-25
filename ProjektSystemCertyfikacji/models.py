@@ -146,10 +146,10 @@ class Certificate(models.Model):
     #certificate_publisher = models.CharField(max_length=200, db_column='certificate_publisher')
     STATUS = [
         #('none', 'None'),
-        ('valid', 'Valid'),
-        ('expired', 'Expired'),
-        ('revoked', 'Revoked'),
-        ('pending', 'Pending')
+        ('valid', 'Ważny'),
+        ('expired', 'Wygasły'),
+        ('revoked', 'Unieważniony'),
+        ('pending', 'Oczekujący')
     ]
     status = models.CharField(max_length=50, choices=STATUS, default='valid', db_column='status')
     qr_code_data = models.CharField(max_length=500, db_column='qr_code_data')  # Podmieniono z certificate_url
