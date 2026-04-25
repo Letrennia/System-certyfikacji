@@ -21,7 +21,7 @@ def account_dashboard(request):
 
     if search:
         registration_codes = registration_codes.filter(code__icontains=search)
-    if is_used is not None:
+    if is_used != '':
         if is_used.lower() == 'true':
             registration_codes = registration_codes.filter(is_used=True)
         elif is_used.lower() == 'false':
@@ -51,7 +51,7 @@ def account_dashboard(request):
             new_code = request.POST.get("code", "").strip()
             is_used = request.POST.get("is_used") == 'true'
 
-            RegistrationCode.objects.filter(id==pk).update(code=new_code, is_used=is_used)
+            RegistrationCode.objects.filter(id=pk).update(code=new_code, is_used=is_used)
 
 
 
