@@ -1,241 +1,342 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zgłoś oszustwo - {{ certificate.certificate_number }}</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        .fraud-form {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+{% extends "base.html" %}
+{% load static %}
 
-        .form-group {
-            margin-bottom: 24px;
-        }
+{% block title %}Zgłoś oszustwo - {{ certificate.certificate_number }}{% endblock %}
 
-        .form-group label {
-            display: block;
-            font-size: 16px;
-            font-weight: 500;
-            color: #1e1e1e;
-            margin-bottom: 8px;
-        }
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #d9d9d9;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-            background-color: white;
-        }
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
 
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.8rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #2c2c2c;
-        }
+    .fraud-card {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        overflow: hidden;
+        margin-top: 32px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 4px;
-        }
+    .card-header {
+        background-color: #1e3a1e;
+        color: white;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
 
-        .alert-error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-        }
+    .card-header-icon {
+        font-size: 28px;
+        line-height: 1;
+        flex-shrink: 0;
+    }
 
-        .certificate-badge {
-            background-color: #f5f5f5;
-            padding: 16px 24px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 32px;
-        }
+    .card-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .certificate-badge strong {
-            font-size: 18px;
-            color: #1e1e1e;
-        }
+    .card-subtitle-text {
+        font-size: 13px;
+        color: rgba(255,255,255,0.6);
+        margin: 3px 0 0;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .form-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-top: 32px;
-        }
+    .card-body {
+        padding: 32px;
+    }
 
-        .button-link {
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            text-decoration: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #e3e3e3;
-            border: 1px solid #767676;
-            color: #1e1e1e;
-            display: inline-block;
-            transition: opacity 0.2s;
-        }
+    /* Badge certyfikatu */
+    .certificate-badge {
+        background-color: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.2);
+        border-radius: 14px;
+        padding: 16px 24px;
+        text-align: center;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
 
-        .button-link:hover {
-            opacity: 0.9;
-        }
+    .certificate-badge-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-        .submit-button {
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #2c2c2c;
-            color: #f5f5f5;
-            transition: opacity 0.2s;
-        }
+    .certificate-badge-number {
+        font-size: 17px;
+        font-weight: 700;
+        color: #1e3a1e;
+    }
 
-        .submit-button:hover {
-            opacity: 0.9;
-        }
+    /* Alert błędu */
+    .alert-error {
+        background-color: #f8d7da;
+        border: 1px solid #f1b0b7;
+        color: #842029;
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .info-note {
-            background-color: #f5f5f5;
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 24px;
-            font-size: 14px;
-            color: #757575;
-        }
-    </style>
-</head>
-<body class="white-bg">
-    {% include "navbars/customer_navbar.html" %}
-    <main class="main-content">
-        <div class="product-header">
-            <h1 class="page-title">Zgłoś podejrzenie oszustwa</h1>
-            <p class="page-subtitle">Pomóż nam utrzymać bezpieczeństwo systemu certyfikacji</p>
+    /* Pola formularza */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        background-color: white;
+        color: #1e3a1e;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #77c320;
+    }
+
+    .form-group textarea {
+        min-height: 140px;
+        resize: vertical;
+    }
+
+    .error-message {
+        color: #842029;
+        font-size: 13px;
+        margin-top: 5px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Separator */
+    .section-divider {
+        border: none;
+        border-top: 1px solid rgba(119,195,32,0.15);
+        margin: 0;
+    }
+
+    /* Nota informacyjna */
+    .info-note {
+        background-color: rgba(255,255,255,0.7);
+        border: 1px dashed rgba(119,195,32,0.3);
+        border-radius: 12px;
+        padding: 14px 18px;
+        text-align: center;
+        margin-top: 24px;
+        font-size: 13px;
+        color: #4d6b4d;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .info-note strong {
+        color: #1e3a1e;
+    }
+
+    /* Stopka karty z przyciskami */
+    .card-footer {
+        padding: 24px 32px;
+        background-color: rgba(245,247,240,0.5);
+        border-top: 1px solid rgba(119,195,32,0.15);
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .btn-cancel {
+        padding: 11px 26px;
+        border-radius: 40px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: border-color 0.2s, background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        background-color: rgba(255,255,255,0.8);
+        border: 1px solid #c0ccb0;
+        color: #4d6b4d;
+        cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+        border-color: #77c320;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(119,195,32,0.1);
+        transform: translateY(-1px);
+    }
+
+    .btn-submit {
+        padding: 11px 28px;
+        border-radius: 40px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        background-color: #dc3545;
+        color: white;
+        transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        box-shadow: 0 6px 14px rgba(220,53,69,0.2);
+    }
+
+    .btn-submit:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(220,53,69,0.3);
+    }
+
+    .btn-submit:active {
+        transform: translateY(1px);
+    }
+
+    @media (max-width: 768px) {
+        .page-title  { font-size: 3.5rem; }
+        .page-subtitle { font-size: 2.2rem; }
+        .card-body, .card-footer { padding-left: 20px; padding-right: 20px; }
+        .card-footer { justify-content: stretch; flex-direction: column; }
+        .btn-cancel, .btn-submit { width: 100%; text-align: center; }
+        .certificate-badge { flex-direction: column; gap: 4px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-header">
+    <h1 class="page-title">Zgłoś oszustwo</h1>
+    <p class="page-subtitle">Pomóż nam utrzymać bezpieczeństwo systemu certyfikacji</p>
+</div>
+
+<div class="fraud-card">
+
+    <div class="card-header">
+        <div class="card-header-icon">🚨</div>
+        <div>
+            <h2 class="card-title">Zgłoszenie podejrzenia oszustwa</h2>
+            <p class="card-subtitle-text">Twoje zgłoszenie zostanie przekazane do weryfikacji</p>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <div class="certificate-badge">
+            <span class="certificate-badge-label">Certyfikat</span>
+            <span class="certificate-badge-number">{{ certificate.certificate_number }}</span>
         </div>
 
-        <section class="certificate-section">
-            <div class="certificate-badge">
-                <span style="color: #757575; font-size: 16px;">Certyfikat:</span>
-                <strong>{{ certificate.certificate_number }}</strong>
+        {% if error %}
+        <div class="alert-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'submit_fraud_report_html' certificate.certificate_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="certificate_id" value="{{ certificate.certificate_id }}">
+
+            <div class="form-group">
+                <label for="id_reporter_name">Imię i nazwisko</label>
+                {{ form.reporter_name }}
+                {% if form.reporter_name.errors %}
+                    <div class="error-message">{{ form.reporter_name.errors }}</div>
+                {% endif %}
             </div>
 
-            {% if error %}
-                <div class="alert-error">
-                    {{ error }}
-                </div>
-            {% endif %}
-
-            <form method="post" class="fraud-form" action="{% url 'submit_fraud_report_html' certificate.certificate_id %}">
-                {% csrf_token %}
-		
-		<input type="hidden" name="certificate_id" value="{{ certificate.certificate_id }}">
-		
-                <div class="form-group">
-                    <label for="id_reporter_name">Imię i nazwisko:</label>
-                    {{ form.reporter_name }}
-                    {% if form.reporter_name.errors %}
-                        <div class="error-message">{{ form.reporter_name.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_reporter_email">Adres email:</label>
-                    {{ form.reporter_email }}
-                    {% if form.reporter_email.errors %}
-                        <div class="error-message">{{ form.reporter_email.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_fraud_type">Typ oszustwa:</label>
-                    {{ form.fraud_type }}
-                    {% if form.fraud_type.errors %}
-                        <div class="error-message">{{ form.fraud_type.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_description">Opis zgłoszenia:</label>
-                    {{ form.description }}
-                    {% if form.description.errors %}
-                        <div class="error-message">{{ form.description.errors }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="form-buttons">
-                    <button type="submit" class="submit-button">Wyślij zgłoszenie</button>
-                    <a href="{% url 'cert_detail' certificate.certificate_id %}" class="button-link">Anuluj</a>
-                </div>
-
-                <div class="info-note">
-                    <strong>Uwaga:</strong> Z jednego adresu email można zgłosić dany certyfikat tylko raz.
-                </div>
-            </form>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
+            <div class="form-group">
+                <label for="id_reporter_email">Adres email</label>
+                {{ form.reporter_email }}
+                {% if form.reporter_email.errors %}
+                    <div class="error-message">{{ form.reporter_email.errors }}</div>
+                {% endif %}
             </div>
 
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
+            <div class="form-group">
+                <label for="id_fraud_type">Typ oszustwa</label>
+                {{ form.fraud_type }}
+                {% if form.fraud_type.errors %}
+                    <div class="error-message">{{ form.fraud_type.errors }}</div>
+                {% endif %}
             </div>
 
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
+            <div class="form-group">
+                <label for="id_description">Opis zgłoszenia</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="error-message">{{ form.description.errors }}</div>
+                {% endif %}
             </div>
+
+            <div class="info-note">
+                <strong>Uwaga:</strong> Z jednego adresu email można zgłosić dany certyfikat tylko raz.
+            </div>
+
+        </div><!-- card-body -->
+
+        <hr class="section-divider">
+
+        <div class="card-footer">
+            <a href="{% url 'cert_detail' certificate.certificate_id %}" class="btn-cancel">Anuluj</a>
+            <button type="submit" class="btn-submit">🚨 Wyślij zgłoszenie</button>
         </div>
-    </footer>
-</body>
-</html>
+
+    </form>
+</div>
+{% endblock %}

@@ -1,99 +1,491 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
+{% load static %}
 
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Kody</title>
-</head>
-<body>
+{% block title %}Kody rejestracyjne - System Certyfikacji{% endblock %}
 
-<h2>Lista kodów</h2>
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-<form method="get">
-    <div>
-        Szukaj kodu:
-        <input type="text" name="search" value="{{ current_search }}">
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.8rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    /* ── Karta ogólna ── */
+    .dashboard-card {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .card-header {
+        background-color: #1e3a1e;
+        color: white;
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .card-header-icon { font-size: 22px; flex-shrink: 0; }
+
+    .card-header-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .card-body { padding: 24px 28px; }
+
+    /* ── Panel filtrów ── */
+    .filters-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .filter-group label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 10px 14px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        background-color: white;
+        color: #1e3a1e;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: #77c320;
+    }
+
+    .btn-filter {
+        padding: 10px 22px;
+        background-color: #77c320;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        white-space: nowrap;
+        box-shadow: 0 4px 10px rgba(119,195,32,0.2);
+    }
+
+    .btn-filter:hover { background-color: #8fd43b; transform: translateY(-1px); }
+    .btn-filter:active { transform: translateY(1px); }
+
+    /* ── Dodaj kod ── */
+    .add-code-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .add-code-row input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        background-color: white;
+        color: #1e3a1e;
+        transition: border-color 0.2s;
+    }
+
+    .add-code-row input:focus {
+        outline: none;
+        border-color: #77c320;
+    }
+
+    .btn-add-code {
+        padding: 10px 22px;
+        background-color: #1e3a1e;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s, transform 0.1s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+    }
+
+    .btn-add-code:hover { background-color: #2b5a2b; transform: translateY(-1px); }
+    .btn-add-code:active { transform: translateY(1px); }
+
+    /* ── Lista kodów ── */
+    .codes-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .code-row {
+        background-color: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.15);
+        border-radius: 16px;
+        padding: 18px 22px;
+        transition: box-shadow 0.2s, background-color 0.2s;
+    }
+
+    .code-row:hover {
+        background-color: #ffffff;
+        box-shadow: 0 4px 14px rgba(119,195,32,0.1);
+    }
+
+    /* Górna linia: kod + status + data */
+    .code-row-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .code-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e3a1e;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.5px;
+        flex: 1;
+        min-width: 0;
+        word-break: break-all;
+    }
+
+    .code-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .status-used {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #a3d9a5;
+    }
+
+    .status-unused {
+        background-color: #f8d7da;
+        color: #842029;
+        border: 1px solid #f1b0b7;
+    }
+
+    .code-date {
+        font-size: 13px;
+        color: #4d6b4d;
+        font-family: 'Inter', sans-serif;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Dolna linia: formularze akcji */
+    .code-row-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Edycja inline */
+    .edit-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex: 1;
+        flex-wrap: wrap;
+    }
+
+    .edit-form input[type="text"] {
+        flex: 1;
+        min-width: 120px;
+        padding: 7px 12px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        color: #1e3a1e;
+        background: white;
+        transition: border-color 0.2s;
+    }
+
+    .edit-form input[type="text"]:focus {
+        outline: none;
+        border-color: #77c320;
+    }
+
+    .edit-form select {
+        padding: 7px 10px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        color: #1e3a1e;
+        background: white;
+        transition: border-color 0.2s;
+    }
+
+    .edit-form select:focus {
+        outline: none;
+        border-color: #77c320;
+    }
+
+    .btn-edit {
+        padding: 7px 16px;
+        background-color: #77c320;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-edit:hover { background-color: #8fd43b; transform: translateY(-1px); }
+    .btn-edit:active { transform: translateY(1px); }
+
+    .btn-delete {
+        padding: 7px 14px;
+        background-color: transparent;
+        color: #842029;
+        border: 1px solid #f1b0b7;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+        flex-shrink: 0;
+    }
+
+    .btn-delete:hover {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete:active { transform: translateY(1px); }
+
+    /* Brak kodów */
+    .no-codes {
+        text-align: center;
+        color: #4d6b4d;
+        font-size: 15px;
+        padding: 48px 20px;
+        background-color: rgba(255,255,255,0.6);
+        border: 1px dashed rgba(119,195,32,0.3);
+        border-radius: 14px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Separator pionowy */
+    .action-divider {
+        width: 1px;
+        height: 28px;
+        background-color: rgba(119,195,32,0.2);
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 900px) {
+        .filters-grid { grid-template-columns: 1fr 1fr; }
+        .btn-filter { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 600px) {
+        .page-title { font-size: 3.5rem; }
+        .page-subtitle { font-size: 2rem; }
+        .filters-grid { grid-template-columns: 1fr; }
+        .card-body { padding: 18px 16px; }
+        .code-row { padding: 14px 16px; }
+        .code-row-top { gap: 8px; }
+        .code-row-actions { flex-direction: column; align-items: stretch; }
+        .edit-form { flex-direction: column; align-items: stretch; }
+        .action-divider { display: none; }
+        .btn-delete { text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="product-header">
+    <h1 class="page-title">Kody rejestracyjne</h1>
+    <p class="page-subtitle">Zarządzaj kodami dostępu do systemu</p>
+</div>
+
+<!-- ── Filtry ── -->
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">🔍</span>
+        <h2 class="card-header-title">Filtruj kody</h2>
     </div>
-
-
-<div>
-    Status:
-    <select name="is_used">
-        <option value="">-- wszystkie --</option>
-        <option value="true" {% if current_is_used == "true" %}selected{% endif %}>użyte</option>
-        <option value="false" {% if current_is_used == "false" %}selected{% endif %}>nie użyte</option>
-    </select>
+    <div class="card-body">
+        <form method="get">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="search">Szukaj kodu</label>
+                    <input type="text" id="search" name="search"
+                           value="{{ current_search }}" placeholder="Wpisz fragment kodu…">
+                </div>
+                <div class="filter-group">
+                    <label for="is_used">Status</label>
+                    <select id="is_used" name="is_used">
+                        <option value="">Wszystkie</option>
+                        <option value="true"  {% if current_is_used == "true"  %}selected{% endif %}>Użyte</option>
+                        <option value="false" {% if current_is_used == "false" %}selected{% endif %}>Nieużyte</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort_order">Sortowanie</label>
+                    <select id="sort_order" name="sort_order">
+                        <option value="asc"  {% if current_sort_order == "asc"  %}selected{% endif %}>Data rosnąco</option>
+                        <option value="desc" {% if current_sort_order == "desc" %}selected{% endif %}>Data malejąco</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-filter">Szukaj</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div>
-    Sortowanie:
-    <select name="sort_order">
-        <option value="asc" {% if current_sort_order == "asc" %}selected{% endif %}>data rosnąco</option>
-        <option value="desc" {% if current_sort_order == "desc" %}selected{% endif %}>data malejąco</option>
-    </select>
+<!-- ── Dodaj kod ── -->
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">➕</span>
+        <h2 class="card-header-title">Dodaj nowy kod</h2>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <div class="add-code-row">
+                <input type="text" name="code" placeholder="Wpisz nowy kod rejestracyjny…" required>
+                <button type="submit" class="btn-add-code">Dodaj kod</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<button type="submit">OK</button>
+<!-- ── Lista kodów ── -->
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">🗂</span>
+        <h2 class="card-header-title">
+            Lista kodów
+            {% if registration_codes %}
+                <span style="font-size: 14px; font-weight: 400; opacity: 0.7; margin-left: 8px;">({{ registration_codes|length }})</span>
+            {% endif %}
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if registration_codes %}
+        <div class="codes-list">
+            {% for reg in registration_codes %}
+            <div class="code-row">
 
+                <!-- Górna linia: kod, status, data -->
+                <div class="code-row-top">
+                    <span class="code-value">{{ reg.code }}</span>
+                    {% if reg.is_used %}
+                        <span class="code-status status-used">✔ użyty</span>
+                    {% else %}
+                        <span class="code-status status-unused">✗ nieużyty</span>
+                    {% endif %}
+                    <span class="code-date">{{ reg.created_at }}</span>
+                </div>
 
-</form>
+                <!-- Dolna linia: edycja + usunięcie -->
+                <div class="code-row-actions">
 
-<hr>
+                    <!-- Formularz edycji -->
+                    <form method="post" class="edit-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="pk" value="{{ reg.id }}">
+                        <input type="text" name="code" value="{{ reg.code }}" placeholder="Nowa wartość kodu">
+                        <select name="is_used">
+                            <option value="false" {% if not reg.is_used %}selected{% endif %}>Nieużyty</option>
+                            <option value="true"  {% if reg.is_used %}selected{% endif %}>Użyty</option>
+                        </select>
+                        <button type="submit" class="btn-edit">Zapisz</button>
+                    </form>
 
-<h3>Dodaj nowy kod</h3>
+                    <div class="action-divider"></div>
 
-<form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="add">
+                    <!-- Formularz usunięcia -->
+                    <form method="post"
+                          onsubmit="return confirm('Czy na pewno chcesz usunąć kod {{ reg.code }}?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="pk" value="{{ reg.id }}">
+                        <button type="submit" class="btn-delete">🗑 Usuń</button>
+                    </form>
 
-    <input type="text" name="code" placeholder="Kod">
-    <button type="submit">Dodaj</button>
-</form>
-<br>
-
-{% for reg in registration_codes %}
-    <div>
-
-        <strong>{{ reg.code }}</strong>
-
-        <!-- STATUS -->
-        {% if reg.is_used %}
-            ✔ użyty
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-            ❌ nieużyty
+        <div class="no-codes">
+            Brak kodów spełniających kryteria wyszukiwania.
+        </div>
         {% endif %}
-
-        <!-- DATA -->
-        | {{ reg.created_at }}
-
-        <!-- PRZYCISKI -->
-        <form method="post" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="pk" value="{{ reg.id }}">
-            <button type="submit">Usuń</button>
-        </form>
-
-        <!-- EDIT -->
-        <form method="post" style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="edit">
-            <input type="hidden" name="pk" value="{{ reg.id }}">
-
-            <input type="text" name="code" value="{{ reg.code }}">
-
-            <select name="is_used">
-                <option value="false" {% if not reg.is_used %}selected{% endif %}>nie</option>
-                <option value="true" {% if reg.is_used %}selected{% endif %}>tak</option>
-            </select>
-
-            <button type="submit">Edytuj</button>
-        </form>
-
     </div>
+</div>
 
-    <hr>
-{% endfor %}
-
-</body>
-</html>
+{% endblock %}
