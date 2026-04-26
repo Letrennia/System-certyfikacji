@@ -1,664 +1,709 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certyfikat {{ certificate.certificate_number }}</title>
-    {% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Inter|Roboto&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ProjektSystemCertyfikacji/styles.css' %}">
-    <style>
-        .certificate-details-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
-        }
+{% extends "base.html" %}
+{% load static %}
 
-        .detail-card {
-            background-color: white;
-            border: 1px solid #cac4d0;
-            border-radius: 8px;
-            padding: 16px;
-            transition: transform 180ms ease, box-shadow 180ms ease;
-            transform-origin: center top;
-            will-change: transform, box-shadow;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-            cursor: default;
-        }
+{% block title %}Certyfikat {{ certificate.certificate_number }}{% endblock %}
 
-        .detail-card:hover,
-        .detail-card:focus-within,
-        .detail-card:focus {
-            transform: scale(1.03);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            z-index: 2;
-        }
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-        .detail-card-label {
-            font-size: 14px;
-            color: #757575;
-            margin-bottom: 4px;
-        }
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
 
-        .detail-card-value {
-            font-size: 18px;
-            font-weight: 500;
-            color: #1e1e1e;
-            word-break: break-all;
-        }
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.8rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
 
-        .qr-code-container {
-            text-align: center;
-            background-color: white;
-            border: 1px solid #cac4d0;
-            border-radius: 8px;
-            padding: 24px;
-            margin: 32px 0;
-        }
+    .certificate-card {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        overflow: hidden;
+        margin-top: 32px;
+    }
 
-        .qr-code-container img {
-            max-width: 300px;
-            width: 100%;
-            height: auto;
-        }
+    .card-header {
+        background-color: #1e3a1e;
+        color: white;
+        padding: 24px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
 
-        .qr-code-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: #1e1e1e;
-            margin-bottom: 16px;
-        }
+    .card-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .alert-section {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 32px 0;
-            text-align: center;
-        }
+    .card-subtitle {
+        font-size: 14px;
+        color: rgba(255,255,255,0.65);
+        margin: 4px 0 0;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .alert-section h3 {
-            font-size: 20px;
-            color: #1e1e1e;
-            margin-bottom: 12px;
-        }
+    .card-body {
+        padding: 32px;
+    }
 
-        .alert-link {
-            display: inline-block;
-            padding: 10px 24px;
-            background-color: #ffc107;
-            color: #1e1e1e;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
 
-        .alert-link:hover {
-            opacity: 0.9;
-        }
+    .detail-item {
+        padding: 20px;
+        background-color: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        border: 1px solid rgba(119,195,32,0.15);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        transition: transform 180ms ease, box-shadow 180ms ease;
+        will-change: transform, box-shadow;
+    }
 
-        .rating-form {
-            background-color: #f5f5f5;
-            padding: 32px;
-            border-radius: 12px;
-            margin: 32px 0;
-        }
+    .detail-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+    }
 
-        .rating-form h3 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 24px;
-        }
+    .detail-label {
+        font-size: 12px;
+        color: #4d6b4d;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
 
-        .captcha-container {
-            background-color: white;
-            border: 2px solid #e3e3e3;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
+    .detail-value {
+        font-size: 17px;
+        font-weight: 600;
+        color: #1e3a1e;
+        word-break: break-all;
+    }
 
-        .captcha-container label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #757575;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    .full-width-item {
+        grid-column: 1 / -1;
+    }
 
-        .captcha-container img {
-            border: 1px solid #d9d9d9;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            max-width: 100%;
-            height: auto;
-            min-height: 80px;
-        }
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+    }
 
-        .captcha-container input {
-            max-width: 200px;
-            margin: 12px auto 0;
-            display: block;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: 2px;
-        }
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #a3d9a5;
+    }
 
-        .captcha-help-text {
-            font-size: 13px;
-            color: #757575;
-            margin-top: 8px;
-            font-style: italic;
-        }
+    .status-expired {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f1b0b7;
+    }
 
-        .captcha-error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 12px;
-            font-size: 14px;
-        }
+    .qr-code-container {
+        text-align: center;
+        background-color: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.2);
+        border-radius: 16px;
+        padding: 28px;
+        margin: 8px 0 24px;
+    }
 
-        .messages {
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-        }
+    .qr-code-container img {
+        max-width: 260px;
+        width: 100%;
+        height: auto;
+    }
 
-        .messages.success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
+    .qr-code-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+    }
 
-        .messages.error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c2c7;
-            color: #842029;
-        }
+    .certificate-pdf-button {
+        margin: 8px 0 0;
+    }
 
-        .messages.warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-        }
+    .pdf-button {
+        width: 100%;
+        text-align: center;
+        display: inline-block;
+        background: #1e3a1e;
+        color: #ffffff;
+        padding: 12px 20px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        letter-spacing: 0.3px;
+        box-sizing: border-box;
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    .pdf-button:hover {
+        background-color: #2b5a2b;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.1);
+    }
 
-        .form-group label {
-            display: block;
-            font-size: 16px;
-            font-weight: 500;
-            color: #1e1e1e;
-            margin-bottom: 8px;
-        }
+    .pdf-button:active { transform: translateY(1px); }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #d9d9d9;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-            background-color: white;
-        }
+    .section-divider {
+        border: none;
+        border-top: 1px solid rgba(119,195,32,0.15);
+        margin: 0 32px;
+    }
 
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
+    .alert-section {
+        padding: 28px 32px;
+        background-color: rgba(255,243,205,0.5);
+        border-top: 1px solid rgba(255,193,7,0.25);
+        border-bottom: 1px solid rgba(255,193,7,0.25);
+        text-align: center;
+    }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #2c2c2c;
-        }
+    .alert-section h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #856404;
+        margin: 0 0 14px;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .submit-rating-btn {
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            background-color: #2c2c2c;
-            color: #f5f5f5;
-            transition: opacity 0.2s;
-            width: 100%;
-        }
+    .alert-link {
+        display: inline-block;
+        padding: 10px 28px;
+        background-color: #ffc107;
+        color: #4d3900;
+        text-decoration: none;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        transition: background-color 0.2s, transform 0.1s;
+    }
 
-        .submit-rating-btn:hover {
-            opacity: 0.9;
-        }
+    .alert-link:hover {
+        background-color: #e6ac00;
+        transform: translateY(-1px);
+    }
 
-        .reviews-section {
-            margin-top: 48px;
-        }
+    .messages-wrapper {
+        padding: 0 32px;
+        margin: 24px 0 0;
+    }
 
-        .reviews-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e1e1e;
-            margin-bottom: 24px;
-            text-align: center;
-        }
+    .message-box {
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .reviews-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            font-size: 16px;
-            font-weight: 500;
-            gap: 16px;
-        }
+    .message-box.success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .message-box.error   { background-color: #f8d7da; border: 1px solid #f5c2c7; color: #842029; }
+    .message-box.warning { background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; }
 
-        .average-rating {
-            font-size: 16px;
-            font-weight: 500;
-        }
+    .rating-section { padding: 32px; }
 
-        .reviews-sort {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            font-size: 16px;
-        }
+    .section-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e3a1e;
+        margin: 0 0 24px;
+        font-family: 'Inter', sans-serif;
+    }
 
-        .reviews-sort span {
-            font-weight: 500;
-            margin-right: 8px;
-        }
+    .rating-form-inner {
+        background: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.15);
+        border-radius: 16px;
+        padding: 28px;
+    }
 
-        .sort-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid #77c320;
-            background-color: white;
-            color: #77c320;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
+    .form-group { margin-bottom: 18px; }
 
-        .sort-btn:hover {
-            background-color: #77c320;
-            color: white;
-        }
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
 
-        .sort-btn.active-sort {
-            background-color: #77c320;
-            color: white;
-        }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        background-color: white;
+        color: #1e3a1e;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+    }
 
-        .reviews-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #77c320;
+    }
 
-        .review-item {
-            background-color: white;
-            border: 1px solid #cac4d0;
-            border-radius: 8px;
-            padding: 20px;
-        }
+    .form-group textarea { min-height: 90px; resize: vertical; }
 
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+    .captcha-container {
+        background-color: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
 
-        .review-email {
-            font-weight: 600;
-            color: #1e1e1e;
-            font-size: 16px;
-        }
+    .captcha-container label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #4d6b4d;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-        .review-rating {
-            border: 1px solid #77c320;
-            border-radius: 16px;
-            padding: 4px 12px;
-            font-size: 14px;
-            display: flex;
-            gap: 2px;
-            background-color: transparent;
-        }
+    .captcha-container img {
+        border: 1px solid rgba(119,195,32,0.2);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        max-width: 100%;
+        height: auto;
+        min-height: 80px;
+    }
 
-        .leaf-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 1px;
-            vertical-align: middle;
-        }
+    .captcha-container input {
+        max-width: 200px;
+        margin: 8px auto 0;
+        display: block;
+        text-align: center;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 2px;
+    }
 
-        .review-comment {
-            color: #1e1e1e;
-            line-height: 1.5;
-            font-size: 15px;
-        }
+    .captcha-help-text { font-size: 12px; color: #4d6b4d; margin-top: 8px; font-style: italic; }
 
-        .no-reviews {
-            text-align: center;
-            color: #757575;
-            font-size: 16px;
-            padding: 40px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        }
+    .captcha-error {
+        background-color: #f8d7da;
+        border: 1px solid #f1b0b7;
+        color: #842029;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-size: 13px;
+    }
 
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 600;
-        }
+    .submit-btn {
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        background-color: #77c320;
+        color: white;
+        transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        width: 100%;
+    }
 
-        .status-active {
-            background-color: #d4edda;
-            color: #155724;
-        }
+    .submit-btn:hover {
+        background-color: #8fd43b;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 20px rgba(119,195,32,0.3);
+    }
 
-        .status-expired {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+    .submit-btn:active { transform: translateY(1px); }
 
-        .certificate-pdf-button { margin-top: 18px; }
+    .reviews-section { padding: 28px 32px 32px; }
 
-        .pdf-button {
-            width: 100%;
-            text-align: center;
-            display: inline-block;
-            background: #2b7a2b;
-            color: #ffffff;
-            padding: 10px 14px;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: filter 160ms ease, transform 160ms ease, box-shadow 160ms ease;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-            cursor: pointer;
-        }
+    .reviews-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 12px;
+    }
 
-        .pdf-button:hover {
-            filter: brightness(1.12);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-        }
+    .average-rating { font-size: 15px; font-weight: 600; color: #1e3a1e; }
 
+    .reviews-sort { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
-        @media (max-width: 768px) {
-            .certificate-details-grid {
-                grid-template-columns: 1fr;
-            }
+    .reviews-sort span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
 
-            .reviews-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-        }
-    </style>
-</head>
-<body class="white-bg">
-    {% include "navbars/customer_navbar.html" %}
-    <main class="main-content">
-        <div class="product-header">
-            <h1 class="page-title">{{ certificate.certificate_number }}</h1>
-            <p class="page-subtitle">Szczegóły certyfikatu produktu ekologicznego</p>
+    .sort-btn {
+        padding: 5px 14px;
+        border-radius: 40px;
+        border: 1px solid rgba(119,195,32,0.4);
+        background-color: rgba(255,255,255,0.8);
+        color: #3b6d11;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .sort-btn:hover,
+    .sort-btn.active-sort {
+        background-color: #77c320;
+        color: white;
+        border-color: #5a9918;
+    }
+
+    .reviews-list-wrapper { display: flex; flex-direction: column; gap: 12px; }
+
+    .review-item {
+        background-color: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.15);
+        border-radius: 14px;
+        padding: 18px 20px;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+    .review-item:hover {
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(119,195,32,0.1);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .review-email { font-weight: 600; color: #1e3a1e; font-size: 15px; }
+
+    .review-rating {
+        border: 1px solid rgba(119,195,32,0.4);
+        border-radius: 30px;
+        padding: 3px 10px;
+        font-size: 13px;
+        display: flex;
+        gap: 2px;
+        background-color: transparent;
+    }
+
+    .leaf-icon { width: 20px; height: 20px; vertical-align: middle; }
+
+    .review-comment { color: #2f4d2f; line-height: 1.55; font-size: 14px; }
+
+    .no-reviews {
+        text-align: center;
+        color: #4d6b4d;
+        font-size: 15px;
+        padding: 40px;
+        background-color: rgba(255,255,255,0.6);
+        border: 1px dashed rgba(119,195,32,0.3);
+        border-radius: 14px;
+    }
+
+    .card-footer {
+        padding: 24px 32px;
+        background-color: rgba(245,247,240,0.5);
+        border-top: 1px solid rgba(119,195,32,0.15);
+        display: flex;
+        gap: 12px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .btn-back {
+        padding: 11px 26px;
+        border-radius: 40px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: background-color 0.2s, border-color 0.2s, transform 0.1s, box-shadow 0.2s;
+        background-color: rgba(255,255,255,0.8);
+        border: 1px solid #c0ccb0;
+        color: #4d6b4d;
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        border-color: #77c320;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(119,195,32,0.1);
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .page-title  { font-size: 3.5rem; }
+        .page-subtitle { font-size: 2.2rem; }
+        .details-grid { grid-template-columns: 1fr; }
+        .card-header { flex-direction: column; align-items: flex-start; }
+        .card-body, .card-footer, .rating-section,
+        .reviews-section, .alert-section { padding-left: 20px; padding-right: 20px; }
+        .section-divider { margin: 0 20px; }
+        .card-footer { flex-direction: column; }
+        .btn-back { width: 100%; text-align: center; }
+        .reviews-header { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-header">
+    <h1 class="page-title">{{ certificate.certificate_number }}</h1>
+    <p class="page-subtitle">Szczegóły certyfikatu produktu ekologicznego</p>
+</div>
+
+<div class="certificate-card">
+
+    <div class="card-header">
+        <div>
+            <h2 class="card-title">{{ certificate.certificate_number }}</h2>
+            <p class="card-subtitle">Certyfikat ekologiczny</p>
         </div>
+    </div>
 
-        <section class="certificate-section">
-            <div class="certificate-details-grid">
-                <div class="detail-card">
-                    <div class="detail-card-label">Typ certyfikatu</div>
-                    <div class="detail-card-value">{{ certificate.get_subject_type_display }}</div>
-                </div>
-
-                <div class="detail-card">
-                    <div class="detail-card-label">Stan</div>
-                    <div class="detail-card-value">
-                        <span class="status-badge status-active">{{ certificate.get_status_display }}</span>
-                    </div>
-                </div>
-
-                <div class="detail-card">
-                    <div class="detail-card-label">Ważny od</div>
-                    <div class="detail-card-value">{{ certificate.valid_from }}</div>
-                </div>
-
-                <div class="detail-card">
-                    <div class="detail-card-label">Ważny do</div>
-                    <div class="detail-card-value">{{ certificate.valid_to }}</div>
-                </div>
-
-                <div class="detail-card" style="grid-column: 1 / -1;">
-                    <div class="detail-card-label">Adres blockchain</div>
-                    <div class="detail-card-value" style="font-size: 14px;">{{ certificate.blockchain_address }}</div>
+    <div class="card-body">
+        <div class="details-grid">
+            <div class="detail-item">
+                <div class="detail-label">Typ certyfikatu</div>
+                <div class="detail-value">{{ certificate.get_subject_type_display }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Stan</div>
+                <div class="detail-value">
+                    <span class="status-badge status-active">{{ certificate.get_status_display }}</span>
                 </div>
             </div>
-
-            {% if certificate.qr_code_img %}
-            <div class="qr-code-container">
-                <div class="qr-code-title">Kod QR certyfikatu</div>
-                <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
+            <div class="detail-item">
+                <div class="detail-label">Ważny od</div>
+                <div class="detail-value">{{ certificate.valid_from }}</div>
             </div>
-            {% endif %}
-
-            {% if certificate.pdf_file and token %}
-              <div class="certificate-pdf-button">
-                <a href="{% url 'certificate_pdf_download' token %}"
-                   class="pdf-button"
-                   target="_blank"
-                   rel="noopener"
-                   aria-label="Otwórz certyfikat PDF w nowej karcie">
-                  Otwórz certyfikat PDF
-                </a>
-              </div>
-            {% endif %}
-
-        </section>
-
-        <div class="alert-section">
-            <h3>Zauważyłeś problem z tym certyfikatem?</h3>
-            <a href="{% url 'report_fraud' token %}" class="alert-link">Zgłoś podejrzenie oszustwa</a>
+            <div class="detail-item">
+                <div class="detail-label">Ważny do</div>
+                <div class="detail-value">{{ certificate.valid_to }}</div>
+            </div>
+            <div class="detail-item full-width-item">
+                <div class="detail-label">Adres blockchain</div>
+                <div class="detail-value" style="font-size: 14px; font-weight: 400;">{{ certificate.blockchain_address }}</div>
+            </div>
         </div>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="messages {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
+        {% if certificate.qr_code_img %}
+        <div class="qr-code-container">
+            <div class="qr-code-title">Kod QR certyfikatu</div>
+            <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
+        </div>
         {% endif %}
 
+        {% if certificate.pdf_file and token %}
+        <div class="certificate-pdf-button">
+            <a href="{% url 'certificate_pdf_download' token %}"
+               class="pdf-button"
+               target="_blank"
+               rel="noopener"
+               aria-label="Otwórz certyfikat PDF w nowej karcie">
+                Otwórz certyfikat PDF
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="alert-section">
+        <h3>Zauważyłeś problem z tym certyfikatem?</h3>
+        <a href="{% url 'report_fraud' token %}" class="alert-link">Zgłoś podejrzenie oszustwa</a>
+    </div>
+
+    {% if messages or show_limit_message %}
+    <div class="messages-wrapper">
+        {% for message in messages %}
+            <div class="message-box {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
         {% if show_limit_message %}
-            <div class="messages error">
-                Przekroczono limit: 1 komentarz na 5 minut
-            </div>
+            <div class="message-box error">Przekroczono limit: 1 komentarz na 5 minut</div>
         {% endif %}
+    </div>
+    {% endif %}
 
-        <section class="rating-form">
+    <hr class="section-divider" style="margin-top: 24px;">
+
+    <div class="rating-section">
+        <h3 class="section-title">Dodaj swoją opinię</h3>
+        <div class="rating-form-inner">
             <form method="post">
                 {% csrf_token %}
-                <h3>Dodaj swoją opinię</h3>
 
                 {% if rating_form.captcha_field %}
                 <div class="captcha-container">
-                    <label for="{{ rating_form.captcha_field.id_for_label }}">
-                        Weryfikacja bezpieczeństwa
-                    </label>
+                    <label for="{{ rating_form.captcha_field.id_for_label }}">Weryfikacja bezpieczeństwa</label>
                     {{ rating_form.captcha_field }}
-                    <div class="captcha-help-text">
-                        Przepisz kod z obrazka powyżej
-                    </div>
+                    <div class="captcha-help-text">Przepisz kod z obrazka powyżej</div>
                     {% if rating_form.captcha_field.errors %}
-                        <div class="captcha-error">
-                            {{ rating_form.captcha_field.errors.0 }}
-                        </div>
+                        <div class="captcha-error">{{ rating_form.captcha_field.errors.0 }}</div>
                     {% endif %}
                 </div>
                 {% endif %}
 
                 <div class="form-group">
-                    <label for="id_consumer_email">Adres email:</label>
+                    <label for="id_consumer_email">Adres email</label>
                     {{ rating_form.consumer_email }}
                 </div>
-
                 <div class="form-group">
-                    <label for="id_rating">Ocena (1-5):</label>
+                    <label for="id_rating">Ocena (1–5)</label>
                     {{ rating_form.rating }}
                 </div>
-
                 <div class="form-group">
-                    <label for="id_comment">Komentarz:</label>
+                    <label for="id_comment">Komentarz</label>
                     {{ rating_form.comment }}
                 </div>
 
-                <button type="submit" name="submit_rating" class="submit-rating-btn">Dodaj ocenę</button>
+                <button type="submit" name="submit_rating" class="submit-btn">Dodaj ocenę</button>
             </form>
-        </section>
+        </div>
+    </div>
 
-        <section class="reviews-section">
-            <h2 class="reviews-title">Opinie konsumentów</h2>
-            <div class="reviews-header">
-                {% if average_rating %}
-                    <div class="average-rating">
-                        Średnia ocen: <strong>{{ average_rating }}/5</strong>
-                    </div>
-                {% else %}
-                    <div class="average-rating">
-                        Brak ocen
-                    </div>
-                {% endif %}
-                <div id="reviews-sort-container">
-                    <div class="reviews-sort">
-                        <span>Sortuj według:</span>
-                        <a href="#" class="sort-btn" data-sort="best">Najlepsze</a>
-                        <a href="#" class="sort-btn" data-sort="worst">Najgorsze</a>
-                        <a href="#" class="sort-btn" data-sort="latest">Najnowsze</a>
-                        <a href="#" class="sort-btn" data-sort="eldest">Najstarsze</a>
-                    </div>
-                </div>
-            </div>
-            <div id="reviews-container">
-                <div class="no-reviews">
-                    <p>Brak ocen dla tego certyfikatu.</p>
-                </div>
-            </div>
-        </section>
-    </main>
+    <hr class="section-divider">
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Produkty i certyfikaty</h3>
-                <div class="footer-links">
-                    <a href="/" class="footer-link">Wyszukaj produkt</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Producenci i przetwórcy</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
-                    <a href="#" class="footer-link">Historia produktu</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>System</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Moduły systemu</a>
-                    <a href="#" class="footer-link">Funkcje</a>
-                    <a href="#" class="footer-link">Transparentność</a>
-                    <a href="#" class="footer-link">Łańcuch dostaw</a>
-                    <a href="#" class="footer-link">Zarządzanie</a>
-                    <a href="#" class="footer-link">Platforma</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h3>Dokumentacja</h3>
-                <div class="footer-links">
-                    <a href="#" class="footer-link">Przepisy UE</a>
-                    <a href="https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001370" class="footer-link">Ustawa o rolnictwie ekologicznym</a>
-                    <a href="https://www.gov.pl/web/ijhars/rolnictwo-ekologiczne" class="footer-link">Standardy GIJHARS</a>
-                    <a href="https://agriculture.ec.europa.eu/farming/organic-farming/organic-logo_en" class="footer-link">EU Organic Label</a>
-                    <a href="faq.html" class="footer-link">FAQ</a>
-                    <a href="mailto:89207@student.pb.edu.pl?subject=Panie%20Jakubie%20popraw%20aplikacje" target="_blank" class="footer-link">Pomoc techniczna</a>
-                </div>
+    <div class="reviews-section">
+        <h3 class="section-title">Opinie konsumentów</h3>
+        <div class="reviews-header">
+            {% if average_rating %}
+                <div class="average-rating">Średnia ocen: <strong>{{ average_rating }}/5</strong></div>
+            {% else %}
+                <div class="average-rating" style="color: #4d6b4d; font-weight: 400;">Brak ocen</div>
+            {% endif %}
+            <div class="reviews-sort">
+                <span>Sortuj:</span>
+                <a href="#" class="sort-btn" data-sort="best">Najlepsze</a>
+                <a href="#" class="sort-btn" data-sort="worst">Najgorsze</a>
+                <a href="#" class="sort-btn" data-sort="latest">Najnowsze</a>
+                <a href="#" class="sort-btn" data-sort="eldest">Najstarsze</a>
             </div>
         </div>
-    </footer>
+        <div id="reviews-container">
+            <div class="no-reviews"><p>Brak ocen dla tego certyfikatu.</p></div>
+        </div>
+    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const container = document.getElementById('reviews-container');
-            const sortButtons = document.querySelectorAll('.sort-btn');
-            const defaultSort = 'best';
+    <div class="card-footer">
+        <a href="/" class="btn-back">Wróć do wyszukiwarki</a>
+    </div>
 
-            function loadRatings(sort='best') {
-                fetch(`/certificate/{{ token }}/ratings/?sort=${sort}`, {cache: 'no-store'})
-                    .then(res => res.json())
-                    .then(data => {
-                        container.innerHTML = '';
-                        if(data.ratings.length === 0) {
-                            container.innerHTML = `<div class="no-reviews"><p>Brak ocen dla tego certyfikatu.</p></div>`;
-                            return;
-                        }
-                        data.ratings.forEach(r => {
-                            const stars = Array.from({length: 5}, (_, i) =>
-                                i < r.rating ? '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_filled.png" %}" class="leaf-icon">' :
-                                '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_empty.jpg" %}" class="leaf-icon">').join('');
-                            const reviewHTML = `
-                                <div class="review-item">
-                                    <div class="review-header">
-                                        <span class="review-email">${r.consumer_email}</span>
-                                        <span class="review-rating">${stars}</span>
-                                    </div>
-                                    <div class="review-comment">${r.comment}</div>
-                                </div>`;
-                            container.insertAdjacentHTML('beforeend', reviewHTML);
-                        });
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById('reviews-container');
+        const sortButtons = document.querySelectorAll('.sort-btn');
+        const defaultSort = 'best';
+
+        function loadRatings(sort) {
+            fetch(`/certificate/{{ token }}/ratings/?sort=${sort}`, { cache: 'no-store' })
+                .then(res => res.json())
+                .then(data => {
+                    container.innerHTML = '';
+                    if (data.ratings.length === 0) {
+                        container.innerHTML = '<div class="no-reviews"><p>Brak ocen dla tego certyfikatu.</p></div>';
+                        return;
+                    }
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'reviews-list-wrapper';
+                    data.ratings.forEach(r => {
+                        const stars = Array.from({ length: 5 }, (_, i) =>
+                            i < r.rating
+                                ? '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_filled.png" %}" class="leaf-icon" alt="filled">'
+                                : '<img src="{% static "ProjektSystemCertyfikacji/images/leaf_empty.jpg" %}" class="leaf-icon" alt="empty">'
+                        ).join('');
+                        const item = document.createElement('div');
+                        item.className = 'review-item';
+                        item.innerHTML = `
+                            <div class="review-header">
+                                <span class="review-email">${r.consumer_email}</span>
+                                <span class="review-rating">${stars}</span>
+                            </div>
+                            <div class="review-comment">${r.comment}</div>`;
+                        wrapper.appendChild(item);
                     });
-            }
-
-            sortButtons.forEach(btn => {
-                if(btn.dataset.sort === defaultSort) {
-                    btn.classList.add('active-sort');
-                }
-            });
-
-            loadRatings(defaultSort);
-
-            sortButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    sortButtons.forEach(b => b.classList.remove('active-sort'));
-                    this.classList.add('active-sort');
-                    loadRatings(this.dataset.sort);
+                    container.appendChild(wrapper);
                 });
+        }
+
+        sortButtons.forEach(btn => {
+            if (btn.dataset.sort === defaultSort) btn.classList.add('active-sort');
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                sortButtons.forEach(b => b.classList.remove('active-sort'));
+                this.classList.add('active-sort');
+                loadRatings(this.dataset.sort);
             });
         });
-    </script>
-</body>
-</html>
+
+        loadRatings(defaultSort);
+    });
+</script>
+{% endblock %}
