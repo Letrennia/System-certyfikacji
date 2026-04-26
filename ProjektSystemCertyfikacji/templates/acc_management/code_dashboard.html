@@ -368,7 +368,6 @@
     <p class="page-subtitle">Zarządzaj kodami dostępu do systemu</p>
 </div>
 
-<!-- ── Filtry ── -->
 <div class="dashboard-card">
     <div class="card-header">
         <span class="card-header-icon">🔍</span>
@@ -403,7 +402,6 @@
     </div>
 </div>
 
-<!-- ── Dodaj kod ── -->
 <div class="dashboard-card">
     <div class="card-header">
         <span class="card-header-icon">➕</span>
@@ -421,7 +419,6 @@
     </div>
 </div>
 
-<!-- ── Lista kodów ── -->
 <div class="dashboard-card">
     <div class="card-header">
         <span class="card-header-icon">🗂</span>
@@ -438,7 +435,6 @@
             {% for reg in registration_codes %}
             <div class="code-row">
 
-                <!-- Górna linia: kod, status, data -->
                 <div class="code-row-top">
                     <span class="code-value">{{ reg.code }}</span>
                     {% if reg.is_used %}
@@ -449,10 +445,8 @@
                     <span class="code-date">{{ reg.created_at }}</span>
                 </div>
 
-                <!-- Dolna linia: edycja + usunięcie -->
                 <div class="code-row-actions">
 
-                    <!-- Formularz edycji -->
                     <form method="post" class="edit-form">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="edit">
@@ -467,7 +461,6 @@
 
                     <div class="action-divider"></div>
 
-                    <!-- Formularz usunięcia -->
                     <form method="post"
                           onsubmit="return confirm('Czy na pewno chcesz usunąć kod {{ reg.code }}?');">
                         {% csrf_token %}
