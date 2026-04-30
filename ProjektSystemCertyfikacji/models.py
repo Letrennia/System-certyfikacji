@@ -1,37 +1,17 @@
 from datetime import timedelta
-from urllib import request
-from django.urls import reverse
 from django.utils import timezone
 import os
 from django.db import models
 from django.contrib.auth.models import User
 
 from django.core.validators import MinValueValidator, MaxValueValidator
-
-from cryptography.fernet import Fernet
-import base64
 from django.conf import settings
 
 from ProjektSystemCertyfikacji.utils.qr_code_generator import generate_qr_code
 from main_app import settings
-import qrcode
-# from ProjektSystemCertyfikacji.utils.local_ip import get_local_ip
 
 
-def encrypt_certificate_id(certificate_id):
-    f = Fernet(settings.FERNET_KEY)
-    token = f.encrypt(str(certificate_id).encode())
-    return base64.urlsafe_b64encode(token).decode().rstrip('=')
 
-
-def decrypt_certificate_id(token_str):
-    f = Fernet(settings.FERNET_KEY)
-
-    padding = '=' * (-len(token_str) % 4)
-    token_bytes = base64.urlsafe_b64decode(token_str + padding)
-
-    decrypted_bytes = f.decrypt(token_bytes)
-    return int(decrypted_bytes.decode())
 
 
 class Company(models.Model):
@@ -176,13 +156,14 @@ class Certificate(models.Model):
         db_table = 'certificate'
         # manage = False
 
-    
+
 
     def generate_qr(self):
+        from ProjektSystemCertyfikacji.utils.redirect_certificate_url import encrypt_certificate_id
         encrypt_id = encrypt_certificate_id(self.certificate_id)
         self.qr_code_data = encrypt_id
 
-        qr_url = f"/redirect/{encrypt_id}/"
+        qr_url = f"https://system-certyfikacji.onrender.com/certificate/{encrypt_id}"
 
         qr_path = os.path.join(
             settings.MEDIA_ROOT,
@@ -527,7 +508,7 @@ class Company_certifying_unit(models.Model):
         return f"Company id: {self.company_id} | Certifying unit id: {self.certifying_unit_id}"
 
 
-# konto producentów
+# konto producentów TERAZ UŻYWA SIĘ COMPANY
 class Producer(models.Model):
     producent_id = models.AutoField(primary_key=True, db_column='producer_id')    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='producer_user')

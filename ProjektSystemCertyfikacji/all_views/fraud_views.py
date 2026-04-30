@@ -15,8 +15,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from ..forms.report_form import FraudReportForm
-from ..models import encrypt_certificate_id, Certifying_unit
-
+from ..models import Certifying_unit
+# from ..utils.redirect_certificate_url import encrypt_certificate_id
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FraudReportViewSet(viewsets.ModelViewSet):

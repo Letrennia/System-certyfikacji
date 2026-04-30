@@ -501,5 +501,53 @@
         },
         "previous_hash": "56b222a5e6ec4a483be78bc5155f6451609cef66175fa03c34872cce14f94c0d",
         "hash": "0960fc9079279140633cb5b6baef302a1de86aa3768a0b3873fdc9c10a4afcf1"
+    },
+    {
+        "index": 32,
+        "timestamp": "2026-04-30T15:14:33.895733",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 100,
+            "certificate_number": "LSTR-301",
+            "holder_entity_id": null,
+            "valid_from": "2026-03-30",
+            "valid_to": "2026-06-25",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "0960fc9079279140633cb5b6baef302a1de86aa3768a0b3873fdc9c10a4afcf1",
+        "hash": "ee7a91a7141c75012a0c7e4e6d6f0019dbfb5962c27c68886d2aa2357457f912"
+    },
+    {
+        "index": 33,
+        "timestamp": "2026-04-30T15:18:56.886853",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 101,
+            "certificate_number": "LSTR-3001",
+            "holder_entity_id": null,
+            "valid_from": "2026-01-08",
+            "valid_to": "2026-08-27",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "ee7a91a7141c75012a0c7e4e6d6f0019dbfb5962c27c68886d2aa2357457f912",
+        "hash": "c21406eea1f792c01265495681e3f3033aae04d840f8d6d2baddc7528e2605f2"
+    },
+    {
+        "index": 34,
+        "timestamp": "2026-04-30T15:25:53.718689",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 102,
+            "certificate_number": "LSTR-3002",
+            "holder_entity_id": null,
+            "valid_from": "2026-04-03",
+            "valid_to": "2026-12-02",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "c21406eea1f792c01265495681e3f3033aae04d840f8d6d2baddc7528e2605f2",
+        "hash": "fcf00b30e4efb5b8fca7bcd11796e1a884a7ed55625c5cb20a9bb5941c1e8118"
     }
 ]

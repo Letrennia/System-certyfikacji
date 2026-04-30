@@ -10,8 +10,9 @@ from ..models import (
 )
 from ..blockchain.core import get_blockchain
 from ..utils.qr_code_generator import generate_qr_code
-from ..utils.redirect_certificate_url import decrypt_certificate_id
-from ..models import encrypt_certificate_id
+from ..utils.redirect_certificate_url import encrypt_certificate_id
+# from ..models import encrypt_certificate_id
+
 from ..forms.rating_form import ConsumerRatingForm
 from ..forms.report_form import FraudReportForm
 

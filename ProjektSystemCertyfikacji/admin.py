@@ -27,7 +27,7 @@ from .models import (
     Company_certifying_unit,
     RegistrationCode,
     Producer,
-    encrypt_certificate_id
+    # encrypt_certificate_id
 )
 
 # admin.site.register(Certifying_unit)
