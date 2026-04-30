@@ -5,18 +5,16 @@
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
-    /* Tło strony – zgodne z list_cert.html */
     .main-content {
         position: relative;
         background-color: #f5f7f0;
         box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
     }
 
-    /* Nagłówki z czcionką Caveat – jeszcze większe */
     .page-title {
         font-family: 'Caveat', cursive;
         font-weight: 700;
-        font-size: 5rem;  /* zwiększone */
+        font-size: 5rem;
         color: #1a3a1a;
         text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
         margin-bottom: 0.2rem;
@@ -26,14 +24,13 @@
 
     .page-subtitle {
         font-family: 'Caveat', cursive;
-        font-size: 2.8rem;  /* zwiększone */
+        font-size: 2.8rem;
         color: #2f4d2f;
         font-weight: 400;
         margin-bottom: 0;
         text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
     }
 
-    /* Karta certyfikatu – styl jak filtr w list_cert.html */
     .certificate-card {
         background: rgba(255,255,255,0.7);
         backdrop-filter: blur(4px);
@@ -62,7 +59,6 @@
         font-family: 'Inter', sans-serif;
     }
 
-    /* Przyciski akcji w nagłówku (mniejsze, pasujące do ciemnego tła) */
     .header-actions {
         display: flex;
         gap: 12px;
@@ -147,7 +143,6 @@
         grid-column: 1 / -1;
     }
 
-    /* Status badge – zgodny z list_cert.html */
     .status-badge {
         display: inline-block;
         padding: 8px 16px;
@@ -160,7 +155,6 @@
         box-shadow: 0 2px 6px rgba(119,195,32,0.2);
     }
 
-    /* Sekcja partii – styl jak wiersze tabeli */
     .batches-section {
         padding: 0 32px 32px;
     }
@@ -218,7 +212,6 @@
     .batch-status-delivered { background-color: #cce5ff; color: #004085; border-color: #7abaff; }
     .batch-status-recalled { background-color: #f8d7da; color: #842029; border-color: #f1b0b7; }
 
-    /* Przycisk "Łańcuch dostaw" – styl jak .add-button z list_cert.html */
     .btn-chain {
         padding: 8px 20px;
         border-radius: 40px;
@@ -261,7 +254,6 @@
         margin: 0 32px;
     }
 
-    /* Przyciski w stopce (Powrót do listy, Historia zmian) – styl jak .clear-btn z list_cert.html */
     .back-button, .history-button {
         padding: 12px 28px;
         border-radius: 40px;
@@ -299,58 +291,19 @@
         justify-content: flex-start;
     }
 
-    /* Responsywność */
     @media (max-width: 768px) {
         .page-title { font-size: 3.5rem; }
         .page-subtitle { font-size: 2.2rem; }
-
-        .details-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .card-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .header-actions {
-            width: 100%;
-            justify-content: flex-start;
-        }
-
-        .card-header,
-        .card-body,
-        .card-footer {
-            padding: 20px;
-        }
-
-        .card-title {
-            font-size: 22px;
-        }
-
-        .card-footer {
-            flex-direction: column;
-        }
-
-        .back-button,
-        .history-button {
-            width: 100%;
-            text-align: center;
-        }
-
-        .batches-section {
-            padding: 0 20px 20px;
-        }
-
-        .batch-row {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .btn-chain {
-            width: 100%;
-            text-align: center;
-        }
+        .details-grid { grid-template-columns: 1fr; }
+        .card-header { flex-direction: column; align-items: flex-start; }
+        .header-actions { width: 100%; justify-content: flex-start; }
+        .card-header, .card-body, .card-footer { padding: 20px; }
+        .card-title { font-size: 22px; }
+        .card-footer { flex-direction: column; }
+        .back-button, .history-button { width: 100%; text-align: center; }
+        .batches-section { padding: 0 20px 20px; }
+        .batch-row { flex-direction: column; align-items: flex-start; }
+        .btn-chain { width: 100%; text-align: center; }
     }
 </style>
 {% endblock %}
@@ -366,10 +319,12 @@
         <div class="card-header">
             <h2 class="card-title">{{ cert.certificate_number }}</h2>
             <div class="header-actions">
-                <a href="/certificates/{{ cert.certificate_id }}/edit/" class="btn-edit-header">Edytuj</a>
-                <a href="/certificates/{{ cert.certificate_id }}/delete/"
-                   onclick="return confirm('Czy na pewno chcesz usunąć ten certyfikat?');"
-                   class="btn-delete-header">Usuń</a>
+                {% if can_edit %}
+                    <a href="/certificates/{{ cert.certificate_id }}/edit/" class="btn-edit-header">Edytuj</a>
+                    <a href="/certificates/{{ cert.certificate_id }}/delete/"
+                       onclick="return confirm('Czy na pewno chcesz usunąć ten certyfikat?');"
+                       class="btn-delete-header">Usuń</a>
+                {% endif %}
             </div>
         </div>
 
@@ -423,7 +378,9 @@
                 </div>
             </div>
         </div>
+
         <hr class="section-divider">
+
         <div class="batches-section">
             <h3 class="batches-title">
                 Partie produktów{% if batches %} ({{ batches.count }}){% endif %}
@@ -459,11 +416,10 @@
         <div class="card-footer">
             <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
             <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="history-button">Historia zmian</a>
-	    <a href="{% url 'report_fraud_form' certificate_id=cert.certificate_id %}" 
-   class="btn-report" 
-   style="padding: 12px 28px; border-radius: 40px; font-size: 15px; font-family: 'Inter', sans-serif; text-decoration: none; display: inline-block; font-weight: 600; letter-spacing: 0.5px; background-color: #dc3545; border: none; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: background-color 0.2s, transform 0.1s;">
-   🚨 Zgłoś oszustwo
-</a>
+            <a href="{% url 'report_fraud_form' certificate_id=cert.certificate_id %}"
+               class="btn-report"
+               style="padding: 12px 28px; border-radius: 40px; font-size: 15px; font-family: 'Inter', sans-serif; text-decoration: none; display: inline-block; font-weight: 600; letter-spacing: 0.5px; background-color: #dc3545; border: none; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: background-color 0.2s, transform 0.1s;">Zgłoś oszustwo
+            </a>
         </div>
     </div>
 </div>
