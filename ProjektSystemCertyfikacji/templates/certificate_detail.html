@@ -553,7 +553,9 @@
         {% if certificate.qr_code_img %}
         <div class="qr-code-container">
             <div class="qr-code-title">Kod QR certyfikatu</div>
-            <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">
+            <img src="/qr/{{ certificate.qr_code_data }}/" />
+
+<!--            <img src="{{ certificate.qr_code_img.url }}" alt="QR Code certyfikatu">-->
         </div>
         {% endif %}
 

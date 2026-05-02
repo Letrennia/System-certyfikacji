@@ -1,4 +1,6 @@
 import qrcode
+from io import BytesIO
+from django.http import HttpResponse
 
 def generate_qr_code(data, filepath):
     qr = qrcode.QRCode(
@@ -12,3 +14,13 @@ def generate_qr_code(data, filepath):
 
     img = qr.make_image(fill_color="black", back_color="white")
     img.save(filepath)
+
+def qr_code_view(request, token):
+    qr_url = f"https://system-certyfikacji.onrender.com/certificate/{token}"
+
+    qr = qrcode.make(qr_url)
+
+    buffer = BytesIO()
+    qr.save(buffer, format="PNG")
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")

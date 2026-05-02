@@ -27,6 +27,7 @@ from .all_views.fraud_views import FraudReportViewSet
 from .all_views import fraud_views
 from .all_views.fraud_views import submit_fraud_report_html
 from .all_views.fraud_views import show_fraud_report_form, submit_fraud_report_html
+from .utils.qr_code_generator import qr_code_view
 
 router = DefaultRouter()
 router.register(r'certificates', CertificateViewSet)
@@ -43,7 +44,9 @@ router.register(r'fraud-reports', FraudReportViewSet, basename='fraud-report')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
+
+    path('qr/<str:token>/', qr_code_view, name='qr_code'),
+
     path('certificates/add/', add_cert, name='add_cert'),
     path('certificates/success/<int:cert_id>/', cert_succes, name='cert_succes'),
     path('certificates/list/', list_cert, name='list_cert'),
