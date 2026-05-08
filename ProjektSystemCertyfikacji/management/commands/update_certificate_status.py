@@ -11,4 +11,4 @@ class Command(BaseCommand):
             status='valid'
         ).update(status='expired')
 
-        # self.stdout.write(f"Zaktualizowano {updated} certyfikatów")
+        self.stdout.write(f"Zaktualizowano {updated} certyfikatów")
