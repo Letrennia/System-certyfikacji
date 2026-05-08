@@ -50,6 +50,8 @@ ALLOWED_HOSTS = [
 SECURE_SSL_REDIRECT = False
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
+# OSM tile server wymaga Referer; ta polityka wysyła origin dla cross-origin.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Application definition
 
