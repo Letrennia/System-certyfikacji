@@ -31,4 +31,4 @@ jobs:
                 FERNET_KEY_ENV: ${{ secrets.FERNET_KEY_ENV }}
                 DEBUG_ENV: ${{ secrets.DEBUG_ENV }}
 
-              run: python manage.py update_certificates
+              run: python manage.py update_certificates_status
