@@ -1,0 +1,34 @@
+name: Update certificates
+
+on:
+    schedule:
+        - cron: '0 0 * * *'
+
+    workflow_dispatch:
+
+jobs:
+    update:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: '3.11'
+
+            - name: Install requirements
+              run: pip install -r requirements.txt
+
+            - name: Run Django command
+              env:
+                DATABASE_USER_ENV: ${{ secrets.DATABASE_USER_ENV }}
+                SECRET_KEY_ENV: ${{ secrets.SECRET_KEY_ENV }}
+                DATABASE_PASS_ENV: ${{ secrets.DATABASE_PASS_ENV }}
+                HOST_ENV: ${{ secrets.HOST_ENV }}
+                FERNET_KEY_ENV: ${{ secrets.FERNET_KEY_ENV }}
+                DEBUG_ENV: ${{ secrets.DEBUG_ENV }}
+
+              run: python manage.py update_certificate_status

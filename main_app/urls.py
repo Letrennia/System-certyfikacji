@@ -8,7 +8,11 @@ from django.views.generic import RedirectView
 from ProjektSystemCertyfikacji.all_views.codes_dashboard_view import code_dashboard
 from ProjektSystemCertyfikacji.all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail, edit_cert, delete_cert
 from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, choose_account_view, company_sign_up_view, notification_view
+<<<<<<< HEAD
 from ProjektSystemCertyfikacji.all_views.certifying_units_view import list_certifying_units
+=======
+from ProjektSystemCertyfikacji.utils.qr_code_generator import qr_code_view
+>>>>>>> ec08d3439a8956a40acd01a49d009ec1d449604e
 # from ProjektSystemCertyfikacji.utils import redirect_certificate_url
 from main_app import settings
 from ProjektSystemCertyfikacji.all_views import product_views
@@ -21,6 +25,7 @@ urlpatterns = [
     path('blockchain/', include('ProjektSystemCertyfikacji.blockchain.urls')),
     path('api/', include('ProjektSystemCertyfikacji.urls')),
     # path('redirect/<str:token>/', redirect_certificate_url.redirect_certificate, name='redirect_certificate'),
+    path('qr/<str:token>/', qr_code_view, name='qr_code'),
     path('certificate/<path:token>/ratings/', views_certificate.fetch_ratings, name='fetch_ratings'),
     path('certificate/<path:token>/pdf/', views_certificate.certificate_pdf_download, name='certificate_pdf_download'),
     path('certificate/<path:token>/', views_certificate.certificate_view, name='certificate_view'),
