@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Jednostki certyfikujące - System Certyfikacji{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        color: #1a3a1a;
+        margin: 0 0 8px;
+    }
+
+    .page-subtitle {
+        color: #4d6b4d;
+        margin: 0;
+    }
+
+    .units-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+
+    .unit-card {
+        background: #fff;
+        border: 1px solid #dce8d1;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .unit-name {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+        color: #1e3a1e;
+    }
+
+    .unit-meta {
+        margin: 4px 0;
+        color: #445c44;
+        font-size: 0.95rem;
+    }
+
+    .unit-label {
+        font-weight: 600;
+        color: #2e4a2e;
+    }
+
+    .empty-state {
+        background: #fff;
+        border: 1px dashed #b9d3a7;
+        border-radius: 14px;
+        padding: 20px;
+        color: #4d6b4d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Jednostki certyfikujące</h1>
+    <p class="page-subtitle">Widok tylko do odczytu dla użytkowników systemu.</p>
+</div>
+
+{% if certifying_units %}
+    <div class="units-grid">
+        {% for unit in certifying_units %}
+            <article class="unit-card">
+                <h2 class="unit-name">{{ unit.name }}</h2>
+                <p class="unit-meta"><span class="unit-label">Kod:</span> {{ unit.certifying_unit_code }}</p>
+                <p class="unit-meta"><span class="unit-label">Adres:</span> {{ unit.address }}</p>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        Brak aktywnych jednostek certyfikujących do wyświetlenia.
+    </div>
+{% endif %}
+{% endblock %}

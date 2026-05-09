@@ -664,9 +664,9 @@
                     <a href="{% url 'home' %}" class="footer-link">Strona główna</a>
                     <a href="{% url 'list_product_batches' %}" class="footer-link">Lista produktów</a>
                     <a href="{% url 'list_cert' %}" class="footer-link">Lista certyfikatów</a>
-                    <a href="#" class="footer-link">Certyfikaty BIO/EKO</a>
-                    <a href="#" class="footer-link">Jednostki certyfikujące</a>
-                    <a href="#" class="footer-link">Ścieżka produktu</a>
+                    <a href="{% url 'list_cert' %}" class="footer-link">Certyfikaty BIO/EKO</a>
+                    <a href="{% url 'list_certifying_units' %}" class="footer-link">Jednostki certyfikujące</a>
+                    <a href="{% url 'list_product_batches' %}" class="footer-link">Ścieżka produktu</a>
                 </div>
             </div>
             <div class="footer-section">
@@ -677,8 +677,8 @@
                     <a href="{% url 'dashboard_fraud_reports' %}" class="footer-link">Zgłoszenia fraudów</a>
                     {% endif %}
                     <a href="{% url 'notifications' %}" class="footer-link">Powiadomienia</a>
-                    <a class="footer-link">Track &amp; Trace</a>
-                    <a class="footer-link">Historia</a>
+                    <a href="{% url 'list_product_batches' %}" class="footer-link">Track &amp; Trace</a>
+                    <a href="{% url 'list_cert' %}" class="footer-link">Historia</a>
                 </div>
             </div>
             <div class="footer-section">
