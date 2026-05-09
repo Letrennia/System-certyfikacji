@@ -594,7 +594,10 @@
                         <a href="{% url 'control_dashboard' %}">Dashboard</a>
                     </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'dashboard_fraud_reports' %}active{% endif %}">
-                        <a href="{% url 'dashboard_fraud_reports' %}">Zgłoszenia fraudów</a>
+                        <a href="{% url 'dashboard_fraud_reports' %}">Zgłoszenia</a>
+                    </div>
+                    <div class="nav-item {% if request.resolver_match.url_name == 'acc_dashboard' %}active{% endif %}">
+                        <a href="{% url 'acc_dashboard' %}">Konta</a>
                     </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
                         <a href="{% url 'notifications' %}">Powiadomienia</a>

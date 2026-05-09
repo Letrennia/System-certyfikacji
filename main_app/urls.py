@@ -8,11 +8,11 @@ from django.views.generic import RedirectView
 from ProjektSystemCertyfikacji.all_views.codes_dashboard_view import code_dashboard
 from ProjektSystemCertyfikacji.all_views.certificates_views import add_cert, cert_succes, list_cert, cert_detail, edit_cert, delete_cert
 from ProjektSystemCertyfikacji.all_views import c_sign_in_view, c_sign_out_view, c_sign_up_view, main_page_view, choose_account_view, company_sign_up_view, notification_view
-<<<<<<< HEAD
+
 from ProjektSystemCertyfikacji.all_views.certifying_units_view import list_certifying_units
-=======
+
 from ProjektSystemCertyfikacji.utils.qr_code_generator import qr_code_view
->>>>>>> ec08d3439a8956a40acd01a49d009ec1d449604e
+from ProjektSystemCertyfikacji.all_views.acc_dashboard_view import acc_dashboard
 # from ProjektSystemCertyfikacji.utils import redirect_certificate_url
 from main_app import settings
 from ProjektSystemCertyfikacji.all_views import product_views
@@ -32,6 +32,7 @@ urlpatterns = [
     path('report_fraud/<path:token>/', views_certificate.report_fraud, name='report_fraud'),
 
     path('codes/', code_dashboard, name='code_dashboard'),
+    path('accounts/', acc_dashboard, name='acc_dashboard'),
 
     path('login/', c_sign_in_view.sign_in, name='login'),
     path('logout/', c_sign_out_view.sign_out, name='logout'),

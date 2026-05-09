@@ -549,5 +549,21 @@
         },
         "previous_hash": "c21406eea1f792c01265495681e3f3033aae04d840f8d6d2baddc7528e2605f2",
         "hash": "fcf00b30e4efb5b8fca7bcd11796e1a884a7ed55625c5cb20a9bb5941c1e8118"
+    },
+    {
+        "index": 35,
+        "timestamp": "2026-05-02T17:55:05.583896",
+        "data": {
+            "type": "certificate_registration",
+            "certificate_id": 103,
+            "certificate_number": "FALKE-7890",
+            "holder_entity_id": null,
+            "valid_from": "2026-04-17",
+            "valid_to": "2027-07-16",
+            "certificate_type": null,
+            "authority_id": null
+        },
+        "previous_hash": "fcf00b30e4efb5b8fca7bcd11796e1a884a7ed55625c5cb20a9bb5941c1e8118",
+        "hash": "edf53cf27b94813d020cefcbd69ea9750f01243290bdc802aec4191671c92ab2"
     }
 ]

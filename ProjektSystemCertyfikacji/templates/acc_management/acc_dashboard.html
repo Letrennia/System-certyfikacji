@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ACC Dashboard</title>
+</head>
+<body>
+
+<h1>ACC DASHBOARD</h1>
+
+
+<h2>Certifying Units</h2>
+
+<form method="get">
+
+    <input type="text"
+           name="cert_search"
+           placeholder="Szukaj po nazwie lub użytkowniku"
+           value="{{ cert_search }}">
+
+    <select name="cert_is_approved">
+
+        <option value="">Wszystkie</option>
+
+        <option value="true"
+            {% if cert_is_approved == "true" %}selected{% endif %}>
+            Aktywne
+        </option>
+
+        <option value="false"
+            {% if cert_is_approved == "false" %}selected{% endif %}>
+            Nieaktywne
+        </option>
+
+    </select>
+
+    <button type="submit">Filtruj</button>
+
+</form>
+
+<br>
+
+<table border="1" cellpadding="10">
+
+    <tr>
+        <th>Użytkownik</th>
+        <th>Nazwa</th>
+        <th>Adres</th>
+        <th>Kod</th>
+        <th>Status</th>
+        <th>Akcje</th>
+    </tr>
+
+    {% for unit in current_cert_units %}
+
+    <tr>
+
+        <td>{{ unit.user.username }}</td>
+
+        <td>{{ unit.name }}</td>
+
+        <td>{{ unit.address }}</td>
+
+        <td>{{ unit.certifying_unit_code }}</td>
+
+        <td>
+
+            {% if unit.is_approved %}
+                🟢 Aktywne
+            {% else %}
+                🔴 Nieaktywne
+            {% endif %}
+
+        </td>
+
+        <td>
+
+
+            <form method="post" style="display:inline;">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                       name="action"
+                       value="edit_cert">
+
+                <input type="hidden"
+                       name="pk"
+                       value="{{ unit.certifying_unit_id }}">
+
+                <input type="hidden"
+                       name="is_approved"
+                       value="{% if unit.is_approved %}false{% else %}true{% endif %}">
+
+                <button type="submit">
+
+                    {% if unit.is_approved %}
+                        Dezaktywuj
+                    {% else %}
+                        Aktywuj
+                    {% endif %}
+
+                </button>
+
+            </form>
+
+
+            <form method="post"
+                  style="display:inline;"
+                  onsubmit="return confirm('Czy na pewno usunąć konto?');">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                       name="action"
+                       value="delete_cert">
+
+                <input type="hidden"
+                       name="pk"
+                       value="{{ unit.certifying_unit_id }}">
+
+                <button type="submit">
+                    Usuń
+                </button>
+
+            </form>
+
+        </td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="6">Brak danych</td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<hr><hr>
+
+
+<h2>Companies</h2>
+
+<form method="get">
+
+    <input type="text"
+           name="company_search"
+           placeholder="Szukaj po nazwie lub użytkowniku"
+           value="{{ company_search }}">
+
+    <select name="company_is_approved">
+
+        <option value="">Wszystkie</option>
+
+        <option value="true"
+            {% if company_is_approved == "true" %}selected{% endif %}>
+            Aktywne
+        </option>
+
+        <option value="false"
+            {% if company_is_approved == "false" %}selected{% endif %}>
+            Nieaktywne
+        </option>
+
+    </select>
+
+    <button type="submit">Filtruj</button>
+
+</form>
+
+<br>
+
+<table border="1" cellpadding="10">
+
+    <tr>
+        <th>Użytkownik</th>
+        <th>Nazwa</th>
+        <th>Typ</th>
+        <th>Email</th>
+        <th>Kraj</th>
+        <th>Status</th>
+        <th>Akcje</th>
+    </tr>
+
+    {% for company in current_company_units %}
+
+    <tr>
+
+        <td>{{ company.user.username }}</td>
+
+        <td>{{ company.name }}</td>
+
+        <td>{{ company.company_type }}</td>
+
+        <td>{{ company.email }}</td>
+
+        <td>{{ company.country }}</td>
+
+        <td>
+
+            {% if company.is_approved %}
+                🟢 Aktywne
+            {% else %}
+                🔴 Nieaktywne
+            {% endif %}
+
+        </td>
+
+        <td>
+
+
+            <form method="post" style="display:inline;">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                       name="action"
+                       value="edit_company">
+
+                <input type="hidden"
+                       name="pk"
+                       value="{{ company.company_id }}">
+
+                <input type="hidden"
+                       name="is_approved"
+                       value="{% if company.is_approved %}false{% else %}true{% endif %}">
+
+                <button type="submit">
+
+                    {% if company.is_approved %}
+                        Dezaktywuj
+                    {% else %}
+                        Aktywuj
+                    {% endif %}
+
+                </button>
+
+            </form>
+
+            <form method="post"
+                  style="display:inline;"
+                  onsubmit="return confirm('Czy na pewno usunąć konto?');">
+
+                {% csrf_token %}
+
+                <input type="hidden"
+                       name="action"
+                       value="delete_company">
+
+                <input type="hidden"
+                       name="pk"
+                       value="{{ company.company_id }}">
+
+                <button type="submit">
+                    Usuń
+                </button>
+
+            </form>
+
+        </td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="7">Brak danych</td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+</body>
+</html>
