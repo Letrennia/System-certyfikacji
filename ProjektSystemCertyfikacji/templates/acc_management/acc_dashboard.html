@@ -1,277 +1,511 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ACC Dashboard</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% load static %}
 
-<h1>ACC DASHBOARD</h1>
+{% block title %}Account Dashboard - System Certyfikacji{% endblock %}
 
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
 
-<h2>Certifying Units</h2>
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
 
-<form method="get">
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.8rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
 
-    <input type="text"
-           name="cert_search"
-           placeholder="Szukaj po nazwie lub użytkowniku"
-           value="{{ cert_search }}">
+    .section-title {
+        font-family: 'Caveat', cursive;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1a3a1a;
+        margin: 40px 0 16px;
+        line-height: 1;
+    }
 
-    <select name="cert_is_approved">
+    .section-title:first-of-type { margin-top: 8px; }
 
-        <option value="">Wszystkie</option>
+    .dashboard-card {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(4px);
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        border: 1px solid rgba(119,195,32,0.15);
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
 
-        <option value="true"
-            {% if cert_is_approved == "true" %}selected{% endif %}>
-            Aktywne
-        </option>
+    .card-header {
+        background-color: #1e3a1e;
+        color: white;
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-        <option value="false"
-            {% if cert_is_approved == "false" %}selected{% endif %}>
-            Nieaktywne
-        </option>
+    .card-header-icon { font-size: 22px; flex-shrink: 0; }
 
-    </select>
+    .card-header-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+    }
 
-    <button type="submit">Filtruj</button>
+    .card-header-count {
+        font-size: 13px;
+        font-weight: 400;
+        opacity: 0.65;
+        margin-left: 8px;
+    }
 
-</form>
+    .card-body { padding: 20px 28px; }
 
-<br>
+    .filters-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
 
-<table border="1" cellpadding="10">
+    .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
 
-    <tr>
-        <th>Użytkownik</th>
-        <th>Nazwa</th>
-        <th>Adres</th>
-        <th>Kod</th>
-        <th>Status</th>
-        <th>Akcje</th>
-    </tr>
+    .filter-group label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #4d6b4d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Inter', sans-serif;
+    }
 
-    {% for unit in current_cert_units %}
+    .filter-group input,
+    .filter-group select {
+        padding: 9px 13px;
+        border: 1px solid rgba(119,195,32,0.25);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        background-color: white;
+        color: #1e3a1e;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+        width: 100%;
+    }
 
-    <tr>
+    .filter-group input:focus,
+    .filter-group select:focus { outline: none; border-color: #77c320; }
 
-        <td>{{ unit.user.username }}</td>
+    .btn-filter {
+        padding: 9px 22px;
+        background-color: #77c320;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        white-space: nowrap;
+        box-shadow: 0 4px 10px rgba(119,195,32,0.2);
+        align-self: flex-end;
+    }
 
-        <td>{{ unit.name }}</td>
+    .btn-filter:hover { background-color: #8fd43b; transform: translateY(-1px); }
+    .btn-filter:active { transform: translateY(1px); }
 
-        <td>{{ unit.address }}</td>
+    .data-table-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+        border: 1px solid rgba(119,195,32,0.12);
+        margin-top: 20px;
+    }
 
-        <td>{{ unit.certifying_unit_code }}</td>
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+    }
 
-        <td>
+    .data-table thead tr {
+        background-color: #1e3a1e;
+        color: white;
+    }
 
-            {% if unit.is_approved %}
-                🟢 Aktywne
-            {% else %}
-                🔴 Nieaktywne
+    .data-table thead th {
+        padding: 13px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .data-table thead th:first-child { border-radius: 0; }
+
+    .data-table tbody tr {
+        background-color: rgba(255,255,255,0.85);
+        border-bottom: 1px solid rgba(119,195,32,0.1);
+        transition: background-color 0.15s;
+    }
+
+    .data-table tbody tr:last-child { border-bottom: none; }
+
+    .data-table tbody tr:hover { background-color: #ffffff; }
+
+    .data-table tbody td {
+        padding: 13px 16px;
+        color: #1e3a1e;
+        vertical-align: middle;
+    }
+
+    .data-table tbody td.muted {
+        color: #4d6b4d;
+        font-size: 13px;
+    }
+
+    .data-table .no-data td {
+        text-align: center;
+        color: #4d6b4d;
+        padding: 32px;
+        font-size: 14px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #a3d9a5;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #842029;
+        border: 1px solid #f1b0b7;
+    }
+
+    .actions-cell {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-toggle-activate {
+        padding: 6px 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-toggle-activate.activate {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #a3d9a5;
+    }
+
+    .btn-toggle-activate.activate:hover {
+        background-color: #77c320;
+        color: white;
+        border-color: #5a9918;
+        transform: translateY(-1px);
+    }
+
+    .btn-toggle-activate.deactivate {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffc107;
+    }
+
+    .btn-toggle-activate.deactivate:hover {
+        background-color: #ffc107;
+        color: #4d3900;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        padding: 6px 12px;
+        background-color: transparent;
+        color: #842029;
+        border: 1px solid #f1b0b7;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+    }
+
+    .btn-delete:hover {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete:active,
+    .btn-toggle-activate:active { transform: translateY(1px); }
+
+    @media (max-width: 768px) {
+        .page-title   { font-size: 3.5rem; }
+        .page-subtitle { font-size: 2rem; }
+        .section-title { font-size: 2.2rem; }
+        .card-body    { padding: 16px; }
+        .actions-cell { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="product-header">
+    <h1 class="page-title">ACC Dashboard</h1>
+    <p class="page-subtitle">Zarządzanie jednostkami certyfikującymi i firmami</p>
+</div>
+
+<h2 class="section-title">Jednostki certyfikujące</h2>
+
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">🔍</span>
+        <h3 class="card-header-title">Filtruj jednostki</h3>
+    </div>
+    <div class="card-body">
+        <form method="get">
+            <input type="hidden" name="company_search"      value="{{ company_search }}">
+            <input type="hidden" name="company_is_approved" value="{{ company_is_approved }}">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="cert_search">Nazwa lub użytkownik</label>
+                    <input type="text" id="cert_search" name="cert_search"
+                           value="{{ cert_search }}" placeholder="Szukaj…">
+                </div>
+                <div class="filter-group">
+                    <label for="cert_is_approved">Status</label>
+                    <select id="cert_is_approved" name="cert_is_approved">
+                        <option value="">Wszystkie</option>
+                        <option value="true"  {% if cert_is_approved == "true"  %}selected{% endif %}>Aktywne</option>
+                        <option value="false" {% if cert_is_approved == "false" %}selected{% endif %}>Nieaktywne</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-filter">Filtruj</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">🏛</span>
+        <h3 class="card-header-title">
+            Jednostki certyfikujące
+            {% if current_cert_units %}
+                <span class="card-header-count">({{ current_cert_units|length }})</span>
             {% endif %}
+        </h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Użytkownik</th>
+                        <th>Nazwa</th>
+                        <th>Adres</th>
+                        <th>Kod</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in current_cert_units %}
+                    <tr>
+                        <td>{{ unit.user.username }}</td>
+                        <td><strong>{{ unit.name }}</strong></td>
+                        <td class="muted">{{ unit.address }}</td>
+                        <td class="muted">{{ unit.certifying_unit_code }}</td>
+                        <td>
+                            {% if unit.is_approved %}
+                                <span class="status-badge status-active">● Aktywne</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">● Nieaktywne</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action"      value="edit_cert">
+                                    <input type="hidden" name="pk"          value="{{ unit.certifying_unit_id }}">
+                                    <input type="hidden" name="is_approved" value="{% if unit.is_approved %}false{% else %}true{% endif %}">
+                                    {% if unit.is_approved %}
+                                        <button type="submit" class="btn-toggle-activate deactivate">Dezaktywuj</button>
+                                    {% else %}
+                                        <button type="submit" class="btn-toggle-activate activate">Aktywuj</button>
+                                    {% endif %}
+                                </form>
+                                <!-- Usuń -->
+                                <form method="post"
+                                      onsubmit="return confirm('Czy na pewno usunąć konto {{ unit.name }}?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_cert">
+                                    <input type="hidden" name="pk"     value="{{ unit.certifying_unit_id }}">
+                                    <button type="submit" class="btn-delete">🗑 Usuń</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr class="no-data">
+                        <td colspan="6">Brak jednostek certyfikujących spełniających kryteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        </td>
+<h2 class="section-title">Firmy</h2>
 
-        <td>
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">🔍</span>
+        <h3 class="card-header-title">Filtruj firmy</h3>
+    </div>
+    <div class="card-body">
+        <form method="get">
+            <input type="hidden" name="cert_search"      value="{{ cert_search }}">
+            <input type="hidden" name="cert_is_approved" value="{{ cert_is_approved }}">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="company_search">Nazwa lub użytkownik</label>
+                    <input type="text" id="company_search" name="company_search"
+                           value="{{ company_search }}" placeholder="Szukaj…">
+                </div>
+                <div class="filter-group">
+                    <label for="company_is_approved">Status</label>
+                    <select id="company_is_approved" name="company_is_approved">
+                        <option value="">Wszystkie</option>
+                        <option value="true"  {% if company_is_approved == "true"  %}selected{% endif %}>Aktywne</option>
+                        <option value="false" {% if company_is_approved == "false" %}selected{% endif %}>Nieaktywne</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-filter">Filtruj</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-
-            <form method="post" style="display:inline;">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                       name="action"
-                       value="edit_cert">
-
-                <input type="hidden"
-                       name="pk"
-                       value="{{ unit.certifying_unit_id }}">
-
-                <input type="hidden"
-                       name="is_approved"
-                       value="{% if unit.is_approved %}false{% else %}true{% endif %}">
-
-                <button type="submit">
-
-                    {% if unit.is_approved %}
-                        Dezaktywuj
-                    {% else %}
-                        Aktywuj
-                    {% endif %}
-
-                </button>
-
-            </form>
-
-
-            <form method="post"
-                  style="display:inline;"
-                  onsubmit="return confirm('Czy na pewno usunąć konto?');">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                       name="action"
-                       value="delete_cert">
-
-                <input type="hidden"
-                       name="pk"
-                       value="{{ unit.certifying_unit_id }}">
-
-                <button type="submit">
-                    Usuń
-                </button>
-
-            </form>
-
-        </td>
-
-    </tr>
-
-    {% empty %}
-
-    <tr>
-        <td colspan="6">Brak danych</td>
-    </tr>
-
-    {% endfor %}
-
-</table>
-
-<hr><hr>
-
-
-<h2>Companies</h2>
-
-<form method="get">
-
-    <input type="text"
-           name="company_search"
-           placeholder="Szukaj po nazwie lub użytkowniku"
-           value="{{ company_search }}">
-
-    <select name="company_is_approved">
-
-        <option value="">Wszystkie</option>
-
-        <option value="true"
-            {% if company_is_approved == "true" %}selected{% endif %}>
-            Aktywne
-        </option>
-
-        <option value="false"
-            {% if company_is_approved == "false" %}selected{% endif %}>
-            Nieaktywne
-        </option>
-
-    </select>
-
-    <button type="submit">Filtruj</button>
-
-</form>
-
-<br>
-
-<table border="1" cellpadding="10">
-
-    <tr>
-        <th>Użytkownik</th>
-        <th>Nazwa</th>
-        <th>Typ</th>
-        <th>Email</th>
-        <th>Kraj</th>
-        <th>Status</th>
-        <th>Akcje</th>
-    </tr>
-
-    {% for company in current_company_units %}
-
-    <tr>
-
-        <td>{{ company.user.username }}</td>
-
-        <td>{{ company.name }}</td>
-
-        <td>{{ company.company_type }}</td>
-
-        <td>{{ company.email }}</td>
-
-        <td>{{ company.country }}</td>
-
-        <td>
-
-            {% if company.is_approved %}
-                🟢 Aktywne
-            {% else %}
-                🔴 Nieaktywne
+<!-- Tabela firm -->
+<div class="dashboard-card">
+    <div class="card-header">
+        <span class="card-header-icon">🏢</span>
+        <h3 class="card-header-title">
+            Firmy
+            {% if current_company_units %}
+                <span class="card-header-count">({{ current_company_units|length }})</span>
             {% endif %}
+        </h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Użytkownik</th>
+                        <th>Nazwa</th>
+                        <th>Typ</th>
+                        <th>Email</th>
+                        <th>Kraj</th>
+                        <th>Status</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in current_company_units %}
+                    <tr>
+                        <td>{{ company.user.username }}</td>
+                        <td><strong>{{ company.name }}</strong></td>
+                        <td class="muted">{{ company.company_type }}</td>
+                        <td class="muted">{{ company.email }}</td>
+                        <td class="muted">{{ company.country }}</td>
+                        <td>
+                            {% if company.is_approved %}
+                                <span class="status-badge status-active">● Aktywne</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">● Nieaktywne</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action"      value="edit_company">
+                                    <input type="hidden" name="pk"          value="{{ company.company_id }}">
+                                    <input type="hidden" name="is_approved" value="{% if company.is_approved %}false{% else %}true{% endif %}">
+                                    {% if company.is_approved %}
+                                        <button type="submit" class="btn-toggle-activate deactivate">Dezaktywuj</button>
+                                    {% else %}
+                                        <button type="submit" class="btn-toggle-activate activate">Aktywuj</button>
+                                    {% endif %}
+                                </form>
+                                <form method="post"
+                                      onsubmit="return confirm('Czy na pewno usunąć firmę {{ company.name }}?');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_company">
+                                    <input type="hidden" name="pk"     value="{{ company.company_id }}">
+                                    <button type="submit" class="btn-delete">🗑 Usuń</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr class="no-data">
+                        <td colspan="7">Brak firm spełniających kryteria wyszukiwania.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        </td>
-
-        <td>
-
-
-            <form method="post" style="display:inline;">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                       name="action"
-                       value="edit_company">
-
-                <input type="hidden"
-                       name="pk"
-                       value="{{ company.company_id }}">
-
-                <input type="hidden"
-                       name="is_approved"
-                       value="{% if company.is_approved %}false{% else %}true{% endif %}">
-
-                <button type="submit">
-
-                    {% if company.is_approved %}
-                        Dezaktywuj
-                    {% else %}
-                        Aktywuj
-                    {% endif %}
-
-                </button>
-
-            </form>
-
-            <form method="post"
-                  style="display:inline;"
-                  onsubmit="return confirm('Czy na pewno usunąć konto?');">
-
-                {% csrf_token %}
-
-                <input type="hidden"
-                       name="action"
-                       value="delete_company">
-
-                <input type="hidden"
-                       name="pk"
-                       value="{{ company.company_id }}">
-
-                <button type="submit">
-                    Usuń
-                </button>
-
-            </form>
-
-        </td>
-
-    </tr>
-
-    {% empty %}
-
-    <tr>
-        <td colspan="7">Brak danych</td>
-    </tr>
-
-    {% endfor %}
-
-</table>
-
-</body>
-</html>
+{% endblock %}
