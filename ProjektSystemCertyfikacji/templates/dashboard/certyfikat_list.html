@@ -4,7 +4,34 @@
 {% block title %}Panel Kontrolny - Certyfikaty{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -13,11 +40,9 @@
         flex-wrap: wrap;
         gap: 20px;
     }
-    
-    .header-left {
-        flex: 1;
-    }
-    
+
+    .header-left { flex: 1; }
+
     .fraud-button {
         display: inline-flex;
         align-items: center;
@@ -33,14 +58,14 @@
         box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
         border: none;
     }
-    
+
     .fraud-button:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
         color: white;
         text-decoration: none;
     }
-    
+
     .table-wrapper {
         background: white;
         border-radius: 20px;
@@ -48,16 +73,16 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         margin-bottom: 32px;
     }
-    
+
     .certificates-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .certificates-table thead {
         background: linear-gradient(135deg, #1a2e1a 0%, #2c4a2c 100%);
     }
-    
+
     .certificates-table th {
         padding: 18px 16px;
         text-align: left;
@@ -67,31 +92,31 @@
         letter-spacing: 0.8px;
         color: white;
     }
-    
+
     .certificates-table tbody tr {
         border-bottom: 1px solid #eef2f0;
         transition: all 0.2s ease;
     }
-    
+
     .certificates-table tbody tr:hover {
         background: linear-gradient(90deg, #f8fff4 0%, #ffffff 100%);
         transform: scale(1.01);
     }
-    
+
     .certificates-table td {
         padding: 16px;
         color: #2c3e2c;
         font-size: 14px;
         vertical-align: middle;
     }
-    
+
     .cert-number {
         font-weight: 700;
         color: #1a2e1a;
         font-family: 'Roboto Mono', monospace;
         font-size: 13px;
     }
-    
+
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -99,47 +124,24 @@
         border-radius: 30px;
         font-size: 12px;
         font-weight: 600;
-        letter-spacing: 0.3px;
     }
-    
-    .status-valid {
-        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-        color: #155724;
-        border-left: 3px solid #28a745;
-    }
-    
-    .status-revoked {
-        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-        color: #721c24;
-        border-left: 3px solid #dc3545;
-    }
-    
-    .status-suspended {
+
+    .status-pending {
         background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
         color: #856404;
         border-left: 3px solid #ffc107;
     }
-    
-    .rating-display {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+
+    .status-revoked {
+        background: linear-gradient(135deg, #ffe0b3 0%, #ffcc80 100%);
+        color: #856404;
+        border-left: 3px solid #ff9800;
     }
-    
-    .rating-stars {
-        color: #ffc107;
-        font-weight: 700;
-        background: rgba(255, 193, 7, 0.1);
-        padding: 4px 8px;
-        border-radius: 20px;
-        font-size: 13px;
-    }
-    
-    .rating-count {
-        color: #6c757d;
-        font-size: 12px;
-    }
-    
+
+    .rating-display { display: flex; align-items: center; gap: 8px; }
+    .rating-stars { color: #ffc107; font-weight: 700; background: rgba(255,193,7,0.1); padding: 4px 8px; border-radius: 20px; font-size: 13px; }
+    .rating-count { color: #6c757d; font-size: 12px; }
+
     .btn-view {
         display: inline-flex;
         align-items: center;
@@ -152,55 +154,25 @@
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
     }
-    
+
     .btn-view:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(119, 195, 32, 0.4);
         color: white;
         text-decoration: none;
     }
-    
- 
-    .empty-state {
-        text-align: center;
-        padding: 80px 40px;
-        background: linear-gradient(135deg, #fafaf5 0%, #ffffff 100%);
-    }
-    
-    .empty-icon {
-        font-size: 72px;
-        margin-bottom: 20px;
-        opacity: 0.6;
-    }
-    
-    .empty-text {
-        font-size: 16px;
-        color: #6c757d;
-    }
-    
-    @media (max-width: 1024px) {
-        .table-wrapper {
-            overflow-x: auto;
-        }
-        
-        .certificates-table {
-            min-width: 1000px;
-        }
-    }
-    
+
+    .empty-state { text-align: center; padding: 80px 40px; background: #fafaf5; }
+    .empty-icon { font-size: 72px; margin-bottom: 20px; opacity: 0.6; }
+    .empty-text { font-size: 16px; color: #6c757d; }
+
+    @media (max-width: 1024px) { .table-wrapper { overflow-x: auto; } .certificates-table { min-width: 1000px; } }
     @media (max-width: 768px) {
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .fraud-button {
-            width: 100%;
-            justify-content: center;
-        }
+        .page-title { font-size: 2.8rem; }
+        .page-subtitle { font-size: 1.4rem; }
+        .dashboard-header { flex-direction: column; align-items: flex-start; }
+        .fraud-button { width: 100%; justify-content: center; }
     }
 </style>
 {% endblock %}
@@ -208,67 +180,32 @@
 {% block content %}
 <div class="dashboard-header">
     <div class="header-left">
-        <h1 class="page-title" style="text-align: left; margin-bottom: 8px;">Panel Kontrolny</h1>
-        <p class="page-subtitle" style="text-align: left; margin-bottom: 0; color: #6c757d;">Lista wszystkich certyfikatów w systemie</p>
+        <h1 class="page-title">Panel Kontrolny</h1>
+        <p class="page-subtitle">Lista wszystkich certyfikatów w systemie</p>
     </div>
-    <a href="{% url 'dashboard_fraud_reports' %}" class="fraud-button">
-        ⚠️ Zarządzaj zgłoszeniami fraudów
-    </a>
+    <a href="{% url 'dashboard_fraud_reports' %}" class="fraud-button">⚠️ Zarządzaj zgłoszeniami fraudów</a>
 </div>
 
 <div class="table-wrapper">
     <table class="certificates-table">
         <thead>
-            <tr>
-                <th>Numer certyfikatu</th>
-                <th>Status</th>
-                <th>Ważny od</th>
-                <th>Ważny do</th>
-                <th>Posiadacz</th>
-                <th>Jednostka wydająca</th>
-                <th>Średnia ocena</th>
-                <th>Liczba ocen</th>
-                <th>Akcje</th>
-            </tr>
+            <tr><th>Numer certyfikatu</th><th>Status</th><th>Ważny od</th><th>Ważny do</th><th>Posiadacz</th><th>Jednostka wydająca</th><th>Średnia ocena</th><th>Liczba ocen</th><th>Akcje</th></tr>
         </thead>
         <tbody>
             {% for cert in certificates %}
             <tr>
                 <td class="cert-number">{{ cert.certificate_number }}</td>
-                <td>
-                    <span class="status-badge {% if cert.status == 'valid' %}status-valid{% elif cert.status == 'revoked' %}status-revoked{% else %}status-suspended{% endif %}">
-                        {{ cert.get_status_display }}
-                    </span>
-                </td>
+                <td><span class="status-badge {% if cert.status == 'valid' %}status-pending{% else %}status-revoked{% endif %}">{% if cert.status == 'valid' %}Oczekujący{% else %}Unieważniony{% endif %}</span></td>
                 <td>{{ cert.valid_from|date:"d.m.Y" }}</td>
                 <td>{{ cert.valid_to|date:"d.m.Y" }}</td>
                 <td><strong>{{ cert.holder_company_id.name }}</strong></td>
                 <td>{{ cert.issued_by_certifying_unit_id.name }}</td>
-                <td>
-                    {% if cert.avg_rating %}
-                        <div class="rating-display">
-                            <span class="rating-stars">★ {{ cert.avg_rating|floatformat:1 }}/5</span>
-                        </div>
-                    {% else %}
-                        <span style="color: #adb5bd;">—</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <span class="rating-count">{{ cert.ratings_count }}</span>
-                </td>
-                <td>
-                    <a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn-view">Zobacz</a>
-                </td>
+                <td>{% if cert.avg_rating %}<div class="rating-display"><span class="rating-stars">★ {{ cert.avg_rating|floatformat:1 }}/5</span></div>{% else %}<span style="color:#adb5bd;">—</span>{% endif %}</td>
+                <td><span class="rating-count">{{ cert.ratings_count }}</span></td>
+                <td><a href="{% url 'certificate_control_detail' cert.certificate_id %}" class="btn-view">Zobacz</a></td>
             </tr>
             {% empty %}
-            <tr>
-                <td colspan="9">
-                    <div class="empty-state">
-                        <div class="empty-icon">📋</div>
-                        <div class="empty-text">Brak certyfikatów w systemie.</div>
-                    </div>
-                </td>
-            </tr>
+            <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Brak certyfikatów w systemie.</div></div></td></tr>
             {% endfor %}
         </tbody>
     </table>

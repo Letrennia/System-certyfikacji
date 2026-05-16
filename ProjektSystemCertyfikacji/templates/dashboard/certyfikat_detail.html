@@ -4,8 +4,35 @@
 {% block title %}Szczegóły Certyfikatu - {{ certificate.certificate_number }}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
+    .main-content {
+        position: relative;
+        background-color: #f5f7f0;
+        box-shadow: inset 0 15px 15px -15px rgba(0,0,0,0.25);
+    }
+
+    .page-title {
+        font-family: 'Caveat', cursive;
+        font-weight: 700;
+        font-size: 5rem;
+        color: #1a3a1a;
+        text-shadow: 4px 4px 0 rgba(119,195,32,0.1);
+        margin-bottom: 0.2rem;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-family: 'Caveat', cursive;
+        font-size: 2.4rem;
+        color: #2f4d2f;
+        font-weight: 400;
+        margin-bottom: 0;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
     .dashboard-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -73,6 +100,18 @@
         border-radius: 40px;
         font-size: 14px;
         font-weight: 600;
+    }
+    
+    .status-pending {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+        color: #856404;
+        border-left: 3px solid #ffc107;
+    }
+
+    .status-revoked {
+        background: linear-gradient(135deg, #ffe0b3 0%, #ffcc80 100%);
+        color: #856404;
+        border-left: 3px solid #ff9800;
     }
     
     .actions-bar {
@@ -195,6 +234,16 @@
         font-size: 14px;
     }
     
+    .status-batch {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #d4edda;
+        color: #155724;
+    }
+    
     .empty-state {
         text-align: center;
         padding: 60px 40px;
@@ -230,25 +279,13 @@
     }
     
     @media (max-width: 768px) {
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .table-wrapper {
-            overflow-x: auto;
-        }
-        
-        .batches-table {
-            min-width: 700px;
-        }
-        
-        .chart-wrapper {
-            min-height: 350px;
-        }
-        
-        #ratingsChart {
-            height: 350px !important;
-        }
+        .page-title { font-size: 3rem; }
+        .page-subtitle { font-size: 1.8rem; }
+        .info-grid { grid-template-columns: 1fr; }
+        .table-wrapper { overflow-x: auto; }
+        .batches-table { min-width: 700px; }
+        .chart-wrapper { min-height: 350px; }
+        #ratingsChart { height: 350px !important; }
     }
 </style>
 {% endblock %}
@@ -256,8 +293,8 @@
 {% block content %}
 <div class="dashboard-container">
     <div class="product-header">
-        <h1 class="page-title" style="margin-bottom: 8px;">{{ certificate.certificate_number }}</h1>
-        <p class="page-subtitle" style="margin-bottom: 0;">Szczegółowe informacje o certyfikacie</p>
+        <h1 class="page-title">{{ certificate.certificate_number }}</h1>
+        <p class="page-subtitle">Szczegółowe informacje o certyfikacie</p>
     </div>
 
     <section>
@@ -266,27 +303,23 @@
             <div class="info-card">
                 <div class="info-label">Status</div>
                 <div class="info-value">
-                    <span class="status-badge-large {% if certificate.status == 'valid' %}status-valid{% else %}status-revoked{% endif %}">
-                        {{ certificate.get_status_display }}
+                    <span class="status-badge-large {% if certificate.status == 'valid' %}status-pending{% else %}status-revoked{% endif %}">
+                        {% if certificate.status == 'valid' %}Oczekujący{% else %}Unieważniony{% endif %}
                     </span>
                 </div>
             </div>
-
             <div class="info-card">
                 <div class="info-label">Okres ważności</div>
                 <div class="info-value">{{ certificate.valid_from|date:"d.m.Y" }} — {{ certificate.valid_to|date:"d.m.Y" }}</div>
             </div>
-
             <div class="info-card">
                 <div class="info-label">Posiadacz</div>
                 <div class="info-value">{{ certificate.holder_company_id.name }}</div>
             </div>
-
             <div class="info-card">
                 <div class="info-label">Jednostka wydająca</div>
                 <div class="info-value">{{ certificate.issued_by_certifying_unit_id.name }}</div>
             </div>
-
             <div class="info-card">
                 <div class="info-label">Liczba partii produktów</div>
                 <div class="info-value">{{ batches_count }}</div>
@@ -317,14 +350,7 @@
         <div class="table-wrapper">
             <table class="batches-table">
                 <thead>
-                    <tr>
-                        <th>Nazwa partii</th>
-                        <th>Kategoria</th>
-                        <th>Ilość</th>
-                        <th>Jednostka</th>
-                        <th>Data produkcji</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Nazwa partii</th><th>Kategoria</th><th>Ilość</th><th>Jednostka</th><th>Data produkcji</th><th>Status</th></tr>
                 </thead>
                 <tbody>
                     {% for batch in batches %}
@@ -334,18 +360,10 @@
                         <td>{{ batch.quantity }}</td>
                         <td>{{ batch.get_unit_of_measure_display }}</td>
                         <td>{{ batch.production_date|date:"d.m.Y" }}</td>
-                        <td>
-                            <span class="status-badge status-valid" style="padding: 4px 12px;">
-                                {{ batch.get_status_display }}
-                            </span>
-                        </td>
+                        <td><span class="status-batch">{{ batch.get_status_display }}</span></td>
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                           Brak partii dla tego certyfikatu.
-                        </td>
-                    </tr>
+                    <tr><td colspan="6" class="empty-state">Brak partii dla tego certyfikatu.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -371,7 +389,6 @@
             const x = xScale.getPixelForValue(idx);
             const top = chart.chartArea.top;
             const bottom = chart.chartArea.bottom;
-
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(x, top);
@@ -389,60 +406,8 @@
     const ctx = document.getElementById('ratingsChart').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Ocena konsumentów',
-                data: values,
-                borderColor: '#77c320',
-                backgroundColor: 'rgba(119, 195, 32, 0.08)',
-                tension: 0.4,
-                fill: true,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                pointBackgroundColor: '#77c320',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 2,
-                pointHoverBackgroundColor: '#5d9b1a'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-                y: { 
-                    beginAtZero: true, 
-                    max: 5.5, 
-                    ticks: { stepSize: 1 },
-                    grid: { color: '#eef2f0' },
-                    title: {
-                        display: true,
-                        text: 'Ocena (1-5)',
-                        color: '#6c757d'
-                    }
-                },
-                x: { 
-                    grid: { display: false },
-                    title: {
-                        display: true,
-                        text: 'Data oceny',
-                        color: '#6c757d'
-                    }
-                }
-            },
-            plugins: {
-                legend: { 
-                    display: true, 
-                    position: 'top',
-                    labels: {
-                        font: { size: 12, weight: 'bold' },
-                        color: '#2c3e2c'
-                    }
-                },
-                tooltip: { enabled: false }
-            }
-        }
+        data: { labels: labels, datasets: [{ label: 'Ocena konsumentów', data: values, borderColor: '#77c320', backgroundColor: 'rgba(119, 195, 32, 0.08)', tension: 0.4, fill: true, pointRadius: 6, pointHoverRadius: 8, pointBackgroundColor: '#77c320', pointBorderColor: '#ffffff', pointBorderWidth: 2 }] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: true, max: 5.5, ticks: { stepSize: 1 }, grid: { color: '#eef2f0' } }, x: { grid: { display: false } } }, plugins: { legend: { display: true, position: 'top' }, tooltip: { enabled: false } } }
     });
 
     const canvas = document.getElementById('ratingsChart');
@@ -462,33 +427,16 @@
     }
 
     canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
         const idx = getNearestIndex(e.clientX);
-        
         chart._hoverIndex = idx;
         chart.draw();
-        
-        const xScale = chart.scales.x;
-        const xPos = xScale.getPixelForValue(idx);
-        
+        const xPos = chart.scales.x.getPixelForValue(idx);
         valueBox.style.display = 'block';
         valueBox.textContent = `${labels[idx]} | ${values[idx]}/5`;
-        
         valueBox.style.left = xPos + 'px';
-        const topPx = chart.chartArea.top - 12;
-        valueBox.style.top = topPx + 'px';
+        valueBox.style.top = (chart.chartArea.top - 12) + 'px';
     });
-    
-    canvas.addEventListener('mouseleave', () => {
-        chart._hoverIndex = null;
-        chart.draw();
-        valueBox.style.display = 'none';
-    });
-    
-    window.addEventListener('resize', () => {
-        chart._hoverIndex = null;
-        chart.resize();
-        valueBox.style.display = 'none';
-    });
+    canvas.addEventListener('mouseleave', () => { chart._hoverIndex = null; chart.draw(); valueBox.style.display = 'none'; });
+    window.addEventListener('resize', () => { chart._hoverIndex = null; chart.resize(); valueBox.style.display = 'none'; });
 </script>
 {% endblock %}
