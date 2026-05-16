@@ -66,7 +66,6 @@
         transform: translateY(-1px);
     }
 
-    /* Messages */
     .messages-container { margin-bottom: 24px; }
     .alert { padding: 16px; border-radius: 12px; margin-bottom: 12px; position: relative; padding-right: 48px; }
     .alert-success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
@@ -78,7 +77,6 @@
     }
     .alert-close:hover { opacity: 1; }
 
-    /* Batch info card */
     .batch-info-card {
         background: rgba(255,255,255,0.85);
         backdrop-filter: blur(4px);
@@ -106,7 +104,6 @@
     .status-delivered      { background-color: #d4edda; color: #155724; border-color: #a3d9a5; }
     .status-recalled       { background-color: #f8d7da; color: #721c24; border-color: #f1b0b7; }
 
-    /* Blockchain widget */
     .blockchain-widget {
         background: rgba(255,255,255,0.85);
         backdrop-filter: blur(4px);
@@ -154,7 +151,6 @@
     }
     .blockchain-meta-item strong { color: #1e3a1e; }
 
-    /* Map */
     .map-section {
         background: rgba(255,255,255,0.85);
         backdrop-filter: blur(4px);
@@ -173,18 +169,34 @@
     }
     #map { height: 320px; border-radius: 16px; border: 1px solid rgba(119,195,32,0.2); }
 
-    /* Timeline */
-    .timeline { position: relative; padding-left: 44px; }
+    .timeline {
+        position: relative;
+        padding-left: 0;
+        width: 100%;
+    }
     .timeline::before {
-        content: ''; position: absolute; left: 16px; top: 0; bottom: 0;
+        content: '';
+        position: absolute;
+        left: 16px;
+        top: 0;
+        bottom: 0;
         width: 2px;
         background: linear-gradient(to bottom, #77c320, rgba(119,195,32,0.1));
     }
-    .timeline-item { position: relative; margin-bottom: 20px; }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        margin-left: 44px;
+    }
     .timeline-dot {
-        position: absolute; left: -35px; top: 20px;
-        width: 14px; height: 14px; border-radius: 50%;
-        background-color: #77c320; border: 3px solid #f5f7f0;
+        position: absolute;
+        left: -35px;
+        top: 20px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: #77c320;
+        border: 3px solid #f5f7f0;
         box-shadow: 0 0 0 2px #77c320;
     }
     .event-card {
@@ -195,43 +207,144 @@
         border: 1px solid rgba(119,195,32,0.12);
         box-shadow: 0 6px 20px rgba(0,0,0,0.04);
         transition: transform 0.2s, box-shadow 0.2s;
+        width: 100%;
+        box-sizing: border-box;
     }
     .event-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); }
-    .event-header {
-        display: flex; justify-content: space-between; align-items: flex-start;
-        flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
-    }
-    .event-area { font-size: 16px; font-weight: 700; color: #1e3a1e; font-family: 'Inter', sans-serif; }
-    .event-timestamp { font-size: 13px; color: #6b8a6b; font-family: 'Inter', sans-serif; }
-    .event-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-    .event-meta-item { font-size: 14px; color: #4d6b4d; font-family: 'Inter', sans-serif; }
-    .event-meta-item span { color: #6b8a6b; font-size: 12px; display: block; }
-    .event-actions { margin-top: 14px; display: flex; gap: 8px; }
 
-    .area-badge {
-        display: inline-flex; align-items: center;
-        padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
-        background-color: #d4edda; color: #155724; border: 1px solid #a3d9a5;
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+    .event-area {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e3a1e;
         font-family: 'Inter', sans-serif;
     }
+    .event-timestamp {
+        font-size: 13px;
+        color: #6b8a6b;
+        font-family: 'Inter', sans-serif;
+        text-align: right;
+    }
+    .event-number {
+        font-family: 'Caveat', cursive;
+        font-size: 2.9rem;
+        font-weight: 700;
+        color: #1e3a1e;
+        line-height: 1;
+        margin-top: 4px;
+        text-align: right;
+    }
+    .event-meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+    }
 
+    .event-hash {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(119,195,32,0.15);
+    }
+    .event-hash span:first-child {
+        display: block;
+        color: #6b8a6b;
+        font-weight: 500;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 6px;
+    }
+    .event-hash .value {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 4px;
+    }
+    .event-hash code {
+        display: inline-block;
+        white-space: pre;
+    }
+
+    .event-meta-item {
+        font-size: 14px;
+        color: #1e3a1e;
+        font-family: 'Inter', sans-serif;
+        word-break: break-word;
+    }
+    .event-meta-item span:first-child {
+        display: block;
+        color: #6b8a6b;
+        font-weight: 500;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 6px;
+    }
+    .event-meta-item .value {
+        font-weight: 500;
+        word-break: break-word;
+    }
+    .event-meta-item code {
+        background: none;
+        padding: 0;
+        font-size: 12px;
+        color: #4d6b4d;
+        word-break: break-all;
+    }
+    .area-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #a3d9a5;
+        font-family: 'Inter', sans-serif;
+    }
+    .event-actions {
+        margin-top: 18px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
     .btn-detail {
-        padding: 7px 18px; background-color: #1e3a1e; color: white !important;
-        border: none; border-radius: 20px; font-size: 13px; font-weight: 500;
-        cursor: pointer; text-decoration: none; transition: background-color 0.2s, transform 0.1s;
+        padding: 7px 18px;
+        background-color: #1e3a1e;
+        color: white !important;
+        border: none;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s, transform 0.1s;
         font-family: 'Inter', sans-serif;
     }
     .btn-detail:hover { background-color: #2f5a2f; transform: translateY(-1px); }
-
     .btn-delete-sm {
-        padding: 7px 18px; background-color: #f8d7da; color: #721c24 !important;
-        border: 1px solid #f1b0b7; border-radius: 20px; font-size: 13px; font-weight: 500;
-        cursor: pointer; text-decoration: none; transition: background-color 0.2s, transform 0.1s;
+        padding: 7px 18px;
+        background-color: #f8d7da;
+        color: #721c24 !important;
+        border: 1px solid #f1b0b7;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s, transform 0.1s;
         font-family: 'Inter', sans-serif;
     }
     .btn-delete-sm:hover { background-color: #f1aeb5; transform: translateY(-1px); }
 
-    /* Empty state */
     .empty-state {
         background: rgba(255,255,255,0.7);
         backdrop-filter: blur(4px);
@@ -242,15 +355,27 @@
     }
     .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
     .empty-title {
-        font-family: 'Caveat', cursive; font-size: 2.5rem; font-weight: 700;
-        color: #1a3a1a; margin-bottom: 12px;
+        font-family: 'Caveat', cursive;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a3a1a;
+        margin-bottom: 12px;
     }
     .empty-message { font-size: 16px; color: #4d6b4d; margin-bottom: 24px; font-family: 'Inter', sans-serif; }
     .empty-action {
-        padding: 12px 32px; border-radius: 40px; font-size: 15px; border: none;
-        cursor: pointer; font-family: 'Inter', sans-serif; background-color: #77c320;
-        color: white; text-decoration: none; display: inline-block; font-weight: 600;
-        box-shadow: 0 8px 16px rgba(119,195,32,0.2); transition: background-color 0.2s, transform 0.1s;
+        padding: 12px 32px;
+        border-radius: 40px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+        background-color: #77c320;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        box-shadow: 0 8px 16px rgba(119,195,32,0.2);
+        transition: background-color 0.2s, transform 0.1s;
     }
     .empty-action:hover { background-color: #8fd43b; transform: translateY(-1px); }
 
@@ -258,6 +383,13 @@
         .page-title { font-size: 2.8rem; }
         .page-subtitle { font-size: 1.4rem; }
         .page-header { flex-direction: column; align-items: flex-start; }
+        .event-meta {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .event-number { font-size: 1.8rem; text-align: left; }
+        .event-header { flex-direction: column; align-items: flex-start; }
+        .event-timestamp { text-align: left; }
     }
 </style>
 {% endblock %}
@@ -327,29 +459,31 @@
                         <span class="area-badge">{{ event.area_id.get_name_display }}</span>
                         &nbsp;{{ event.company_id.name }}
                     </div>
-                    <div class="event-timestamp">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
+                    <div>
+                        <div class="event-timestamp">{{ event.event_timestamp|date:"d.m.Y H:i" }}</div>
+                        <div class="event-number">#{{ forloop.counter }}</div>
+                    </div>
                 </div>
                 <div class="event-meta">
-                    {% if event.location %}
                     <div class="event-meta-item">
                         <span>Lokalizacja</span>
-                        {{ event.location }}
+                        <div class="value">{{ event.location|default:"—" }}</div>
                     </div>
-                    {% endif %}
                     <div class="event-meta-item">
                         <span>Typ firmy</span>
-                        {{ event.company_id.get_company_type_display }}
+                        <div class="value">{{ event.company_id.get_company_type_display }}</div>
                     </div>
                     <div class="event-meta-item">
                         <span>Certyfikat</span>
-                        {{ event.certificate_id.certificate_number }}
+                        <div class="value">{{ event.certificate_id.certificate_number }}</div>
                     </div>
-                    {% if event.blockchain_hash %}
                     <div class="event-meta-item">
-                        <span>Hash blockchain</span>
-                        <code style="font-size:12px; color:#4d6b4d;">{{ event.blockchain_hash|slice:":18" }}…</code>
+
                     </div>
-                    {% endif %}
+                    <div class="event-hash">
+                        <span>Hash blockchain</span>
+                        <div class="value"><code>{{ event.blockchain_hash|default:"—" }}</code></div>
+                    </div>
                 </div>
                 <div class="event-actions">
                     <a href="{% url 'chain_event_detail' event_id=event.event_id %}" class="btn-detail">Szczegóły</a>

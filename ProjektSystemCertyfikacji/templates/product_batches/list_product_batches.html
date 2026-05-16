@@ -190,7 +190,7 @@
     .table-container {
         background-color: white;
         border-radius: 20px;
-        overflow: hidden;
+        overflow-x: auto;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         border: 1px solid rgba(119,195,32,0.15);
     }
@@ -198,6 +198,8 @@
     .batch-table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: auto;
+
     }
 
     .batch-table thead {
@@ -206,7 +208,7 @@
     }
 
     .batch-table th {
-        padding: 14px 12px;
+        padding: 16px 18px;
         text-align: left;
         font-weight: 600;
         font-size: 13px;
@@ -224,10 +226,11 @@
     .batch-table tbody tr:last-child { border-bottom: none; }
 
     .batch-table td {
-        padding: 14px 12px;
+        padding: 16px 18px;
         color: #1e3a1e;
         font-size: 15px;
     }
+
 
     /* Status badges */
     .status-badge {
@@ -251,7 +254,7 @@
     .action-links {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 8px;
         align-items: center;
     }
 
@@ -546,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sel.addEventListener('change', () => form.submit());
     });
     form.querySelectorAll('input[type="text"]').forEach(inp => {
-        inp.addEventListener('input', debounce(() => form.submit(), 500));
+        inp.addEventListener('input', debounce(() => form.submit(), 5000));
         inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); form.submit(); } });
     });
 
