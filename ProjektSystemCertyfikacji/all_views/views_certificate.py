@@ -118,7 +118,6 @@ def report_fraud(request, token):
         return render(request, 'certificate_error.html', {
             'message': 'Nieprawidłowy link zgłoszenia.'
         })
-    
     if request.method == 'POST':
         form = FraudReportForm(request.POST)
         
@@ -174,6 +173,7 @@ def report_fraud(request, token):
         'certificate': certificate,
         'token': token
     })
+
 def certificate_pdf_download(request, token):
     certificate_id = decrypt_token(token)
     certificate = get_object_or_404(Certificate, certificate_id=certificate_id)

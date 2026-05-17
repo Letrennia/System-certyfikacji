@@ -254,7 +254,7 @@
         margin: 0 32px;
     }
 
-    .back-button, .history-button {
+    .back-button, .history-button, .report-button{
         padding: 12px 28px;
         border-radius: 40px;
         font-size: 15px;
@@ -271,14 +271,20 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.02);
     }
 
-    .back-button:hover, .history-button:hover {
+    .back-button:hover, .history-button:hover, .report-button:hover {
         border-color: #77c320;
         background-color: #ffffff;
         box-shadow: 0 6px 14px rgba(119,195,32,0.1);
         transform: translateY(-1px);
     }
 
-    .back-button:active, .history-button:active {
+    .report-button:hover{
+        border-color: #d10202;
+        box-shadow: 0 6px 14px rgba(209,2,2,0.1);
+        color: #d10202;
+    }
+
+    .back-button:active, .history-button:active, .report-button:active {
         transform: translateY(1px);
     }
 
@@ -300,7 +306,7 @@
         .card-header, .card-body, .card-footer { padding: 20px; }
         .card-title { font-size: 22px; }
         .card-footer { flex-direction: column; }
-        .back-button, .history-button { width: 100%; text-align: center; }
+        .back-button, .history-button, .report-button:active { width: 100%; text-align: center; }
         .batches-section { padding: 0 20px 20px; }
         .batch-row { flex-direction: column; align-items: flex-start; }
         .btn-chain { width: 100%; text-align: center; }
@@ -412,14 +418,10 @@
                 </div>
             {% endif %}
         </div>
-
         <div class="card-footer">
             <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
             <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="history-button">Historia zmian</a>
-            <a href="{% url 'report_fraud_form' certificate_id=cert.certificate_id %}"
-               class="btn-report"
-               style="padding: 12px 28px; border-radius: 40px; font-size: 15px; font-family: 'Inter', sans-serif; text-decoration: none; display: inline-block; font-weight: 600; letter-spacing: 0.5px; background-color: #dc3545; border: none; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: background-color 0.2s, transform 0.1s;">Zgłoś oszustwo
-            </a>
+            <a href="{% url 'report_fraud' token %}" class="report-button">Zgłoś nieprawidłowość</a>
         </div>
     </div>
 </div>

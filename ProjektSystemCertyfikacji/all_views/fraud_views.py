@@ -16,6 +16,8 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from ..forms.report_form import FraudReportForm
 from ..models import Certifying_unit
+from ..utils.redirect_certificate_url import encrypt_certificate_id
+
 # from ..utils.redirect_certificate_url import encrypt_certificate_id
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -197,7 +199,14 @@ def submit_fraud_report_html(request, certificate_id):
             request,
             'Dziękujemy za zgłoszenie. Zostanie ono zweryfikowane przez odpowiednie służby.'
         )
-        return redirect('cert_detail', cert_id=certificate.certificate_id)
+        token = encrypt_certificate_id(certificate.certificate_id)
+        if not request.user.is_authenticated:
+            return redirect('certificate_view', token=token)
+
+        return render(request, 'certificates/cert_detail.html', {
+            'cert': certificate,
+            'token': token,
+        })
 
     else:
         for field, errors in form.errors.items():
