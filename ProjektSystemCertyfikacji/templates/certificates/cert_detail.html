@@ -421,7 +421,7 @@
         <div class="card-footer">
             <a href="{% url 'list_cert' %}" class="back-button">Powrót do listy</a>
             <a href="{% url 'certificate_history' cert_id=cert.certificate_id %}" class="history-button">Historia zmian</a>
-            <a href="{% url 'report_fraud' token %}" class="report-button">Zgłoś nieprawidłowość</a>
+            <a href="{% url 'report_fraud_form' certificate_id=cert.certificate_id %}" class="report-button">Zgłoś nieprawidłowość</a>
         </div>
     </div>
 </div>

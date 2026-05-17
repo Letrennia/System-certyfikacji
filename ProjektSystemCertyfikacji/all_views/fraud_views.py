@@ -233,13 +233,9 @@ def show_fraud_report_form(request, certificate_id):
         messages.error(request, 'Certyfikat nie istnieje')
         return redirect('main_page')
 
-    batches = Product_batch.objects.filter(certificate_id=certificate)
     form = FraudReportForm()
 
-    return render(request, 'certificates/cert_detail.html', {
-        'cert': certificate,
-        'batches': batches,
-        'fraud_form': form,
-        'can_edit': _get_can_edit(request, certificate),
-        'show_fraud_modal': True,
+    return render(request, 'report_fraud.html', {
+        'certificate': certificate,
+        'form': form,
     })
