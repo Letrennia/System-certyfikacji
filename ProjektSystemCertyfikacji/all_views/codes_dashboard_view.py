@@ -51,9 +51,10 @@ def code_dashboard(request):
             new_code = request.POST.get("code", "").strip()
             is_used = request.POST.get("is_used") == 'true'
 
-            RegistrationCode.objects.filter(id=pk).update(code=new_code, is_used=is_used)
-
-
+            code_obj = RegistrationCode.objects.get(id=pk)
+            code_obj.code = new_code
+            code_obj.is_used = is_used
+            code_obj.save()
 
 
 
