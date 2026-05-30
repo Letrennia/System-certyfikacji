@@ -38,6 +38,7 @@ def certificate_view(request, token):
     try:
         certificate_id = decrypt_token(token)
         certificate = get_object_or_404(Certificate, certificate_id=certificate_id)
+        batches = Product_batch.objects.filter(certificate_id=certificate)
         ratings = certificate.consumer_rating_set.filter(is_verified=1)
         average_rating = ratings.aggregate(avg=Avg('rating'))['avg']
         average_rating = round(average_rating, 2) if average_rating else None
@@ -66,6 +67,7 @@ def certificate_view(request, token):
             'average_rating': average_rating,
             'rating_form': rating_form,
             'ratings': ratings,
+            'batches': batches,
             'show_limit_message': show_limit_message
         })
 

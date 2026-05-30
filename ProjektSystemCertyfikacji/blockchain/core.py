@@ -289,7 +289,7 @@ class SupplyChainSubchain:
         # Geokodowanie adresów na współrzędne geograficzne (jeśli włączone)
         if geocode:
             try:
-                from .geocoding import geocode_address
+                from ..utils.geocoding import geocode_address
                 import time
                 
                 for waypoint in waypoints:

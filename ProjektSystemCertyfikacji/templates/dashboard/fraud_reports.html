@@ -69,7 +69,7 @@
         background: white;
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(46,61,43,0.1);
-        overflow: hidden;
+        overflow-x: auto;   /* tabela szersza niż kontener -> poziomy scroll zamiast ucinania przycisku */
         margin-bottom: 28px;
     }
 
@@ -102,7 +102,7 @@
 
     thead th {
         background: #f7faf3;
-        padding: 12px 16px;
+        padding: 11px 10px;
         text-align: left;
         font-weight: 600;
         font-size: 0.8rem;
@@ -114,7 +114,8 @@
     }
 
     thead th:last-child {
-        min-width: 200px;
+        min-width: 0;
+        width: 1%;          /* kolumna akcji tylko tak szeroka jak przyciski */
     }
 
     tbody tr {
@@ -126,7 +127,7 @@
     tbody tr:last-child { border-bottom: none; }
 
     td {
-        padding: 12px 16px;
+        padding: 11px 10px;
         vertical-align: middle;
         color: var(--text-color);
     }
@@ -336,7 +337,7 @@
                     <th>Email</th>
                     <th>Certyfikat</th>
                     <th>Zmień status</th>
-                    <th style="min-width:200px"></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -351,7 +352,7 @@
                         <div style="display:flex;gap:6px;align-items:center">
                             <select class="status-select" id="sel-{{ report.report_id }}">
                                 <option value="new"           {% if report.status == "new" %}selected{% endif %}>Nowe</option>
-                                <option value="investigating"  {% if report.status == "investigating" %}selected{% endif %}>W trakcie weryfikacji</option>
+                                <option value="investigating"  {% if report.status == "investigating" %}selected{% endif %}>W trakcie</option>
                                 <option value="resolved"      {% if report.status == "resolved" %}selected{% endif %}>Rozwiązane</option>
                                 <option value="rejected"      {% if report.status == "rejected" %}selected{% endif %}>Odrzucone</option>
                             </select>
@@ -361,7 +362,7 @@
                     <td style="white-space:nowrap">
                         <div style="display:flex;gap:6px;align-items:center">
                             <button class="btn-expand" id="expand-{{ report.report_id }}" onclick="toggleDetail({{ report.report_id }})">↓</button>
-                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn-detail">Szczegóły</a>
+                            <a href="{% url 'dashboard_fraud_detail' report.report_id %}" class="btn-detail">Info</a>
                         </div>
                     </td>
                 </tr>

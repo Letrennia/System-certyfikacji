@@ -184,8 +184,6 @@ def get_supply_chain_map(request, batch_id):
         geocode_enabled = geocode_param in ('true', '1', 'yes')
         
         blockchain = get_blockchain()
-        map_data = blockchain.get_batch_supply_chain_map_data(batch_id, geocode=geocode_enabled)
-
         subchain = blockchain.get_subchain(batch_id)
         if subchain is None:
             return JsonResponse({"success": False, "error": "Subchain not found"}, status=404)
@@ -203,26 +201,17 @@ def get_supply_chain_map(request, batch_id):
             entity_id = waypoint.get("entity_id")
             if entity_id:
                 try:
-                    if waypoint.get("entity_type") == "producer":
-                        from ..models import Certifying_unit
-                        entity = Certifying_unit.objects.get(certifying_unit_id=entity_id)
-                        enriched_waypoint["entity_info"] = {
-                            "id": entity.certifying_unit_id,
-                            "name": entity.name,
-                            "address": entity.address,
-                            "type": "certifying_unit"
-                        }
-                    else:
-                        entity = Company.objects.get(company_id=entity_id)
-                        enriched_waypoint["entity_info"] = {
-                            "id": entity.company_id,
-                            "name": entity.name,
-                            "address": entity.address,
-                            "country": entity.country,
-                            "email": entity.email,
-                            "phone": entity.phone,
-                            "type": entity.company_type
-                        }
+                    # Wszystkie etapy (producent/przetwórca/dystrybutor/sklep) to firmy.
+                    entity = Company.objects.get(company_id=entity_id)
+                    enriched_waypoint["entity_info"] = {
+                        "id": entity.company_id,
+                        "name": entity.name,
+                        "address": entity.address,
+                        "country": entity.country,
+                        "email": entity.email,
+                        "phone": entity.phone,
+                        "type": entity.company_type
+                    }
                 except Exception:
                     enriched_waypoint["entity_info"] = None
             

@@ -48,6 +48,7 @@
         display: flex;
         justify-content: space-between;
         align-items: stretch;
+        gap: 16px;
         background: #ffffff;
         border: 1px solid #d9e2d9;
         border-radius: 10px;
@@ -81,6 +82,7 @@
 
     .fraud-row-left {
         flex: 1;
+        min-width: 0;   /* pozwala kolumnie się kurczyć, by nie ścinać przycisku */
     }
 
     .fraud-type {
@@ -149,6 +151,7 @@
     .fraud-row-right {
         display: flex;
         align-items: center;
+        flex-shrink: 0;   /* przycisk "Szczegóły" nigdy się nie kurczy ani nie ścina */
     }
 
     .fraud-detail-btn {

@@ -37,7 +37,8 @@ def register_batch_to_blockchain(sender, instance, created, **kwargs):
             "name": instance.name,
             "category": instance.category,
             "production_date": instance.production_date.isoformat(),
-            "producer_id": instance.certifying_unit_id_id,
+            # producent = firma będąca posiadaczem certyfikatu (spójnie z chain_events_views)
+            "producer_id": instance.certificate_id.holder_company_id_id,
             "amount": float(instance.quantity),
             "unit": instance.unit_of_measure
         }
@@ -75,3 +76,7 @@ def register_batch_to_blockchain(sender, instance, created, **kwargs):
                     "transport_temperature": float(instance.transport_temperature) if instance.transport_temperature else None
                 }
             )
+
+            # Trwały zapis – add_block w podłańcuchu nie zapisuje sam z siebie,
+            # bez tego blok produkcji ginie po przeładowaniu blockchaina z pliku.
+            save_blockchain()

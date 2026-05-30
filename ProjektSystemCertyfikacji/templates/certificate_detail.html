@@ -5,6 +5,10 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+{% if batches %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endif %}
 <style>
     .main-content {
         position: relative;
@@ -494,6 +498,90 @@
         transform: translateY(-1px);
     }
 
+    /* ── Sekcja pochodzenia / łańcuch dostaw ───────────────────────────── */
+    .origin-section { padding: 32px; }
+
+    .batch-origin {
+        background: rgba(255,255,255,0.9);
+        border: 1px solid rgba(119,195,32,0.15);
+        border-radius: 16px;
+        padding: 22px 24px;
+        margin-bottom: 18px;
+    }
+
+    .batch-origin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .batch-origin-name { font-size: 17px; font-weight: 700; color: #1e3a1e; }
+    .batch-origin-meta { font-size: 13px; color: #4d6b4d; margin-top: 4px; }
+
+    .origin-btn {
+        padding: 9px 22px;
+        border-radius: 40px;
+        border: none;
+        cursor: pointer;
+        background-color: #77c320;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+    .origin-btn:hover { background-color: #8fd43b; transform: translateY(-1px); }
+    .origin-btn:disabled { background-color: #a9c98a; cursor: default; transform: none; }
+
+    .origin-content { margin-top: 18px; display: none; }
+    .origin-content.open { display: block; }
+
+    .origin-map {
+        height: 300px;
+        border-radius: 14px;
+        border: 1px solid rgba(119,195,32,0.2);
+        margin-bottom: 16px;
+    }
+
+    .origin-timeline { display: flex; flex-direction: column; gap: 10px; }
+
+    .origin-stage {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background-color: rgba(245,247,240,0.7);
+        border: 1px solid rgba(119,195,32,0.15);
+        border-radius: 12px;
+        padding: 12px 16px;
+    }
+    .origin-stage-num {
+        flex: 0 0 28px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #77c320;
+        color: white;
+        font-weight: 700;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .origin-stage-label { font-weight: 700; color: #1e3a1e; font-size: 15px; }
+    .origin-stage-info { font-size: 13px; color: #4d6b4d; margin-top: 2px; }
+
+    .origin-empty {
+        text-align: center;
+        color: #4d6b4d;
+        font-size: 14px;
+        padding: 20px;
+        background-color: rgba(255,255,255,0.6);
+        border: 1px dashed rgba(119,195,32,0.3);
+        border-radius: 12px;
+    }
+
     @media (max-width: 768px) {
         .page-title  { font-size: 3.5rem; }
         .page-subtitle { font-size: 2.2rem; }
@@ -571,6 +659,34 @@
         </div>
         {% endif %}
     </div>
+
+    {% if batches %}
+    <hr class="section-divider">
+
+    <div class="origin-section">
+        <h3 class="section-title">Pochodzenie produktu — od pola do stołu</h3>
+        {% for batch in batches %}
+        <div class="batch-origin" data-batch-id="{{ batch.batch_id }}">
+            <div class="batch-origin-header">
+                <div>
+                    <div class="batch-origin-name">{{ batch.name }}</div>
+                    <div class="batch-origin-meta">
+                        Kategoria: {{ batch.category }}
+                        {% if batch.production_date %} &nbsp;|&nbsp; Data produkcji: {{ batch.production_date }}{% endif %}
+                    </div>
+                </div>
+                <button type="button" class="origin-btn" data-batch-id="{{ batch.batch_id }}">
+                    Pokaż trasę dostaw
+                </button>
+            </div>
+            <div class="origin-content" id="origin-content-{{ batch.batch_id }}">
+                <div class="origin-map" id="origin-map-{{ batch.batch_id }}"></div>
+                <div class="origin-timeline" id="origin-timeline-{{ batch.batch_id }}"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <hr class="section-divider">
 
@@ -706,6 +822,106 @@
         });
 
         loadRatings(defaultSort);
+    });
+</script>
+
+<script>
+    // Łańcuch dostaw – leniwe ładowanie mapy i osi czasu po kliknięciu przycisku.
+    document.addEventListener("DOMContentLoaded", function () {
+        const loaded = {};   // batch_id -> true (żeby nie inicjować mapy dwa razy)
+
+        function renderStages(timelineEl, waypoints) {
+            timelineEl.innerHTML = '';
+            waypoints.forEach((wp, i) => {
+                const entity = wp.entity_info ? wp.entity_info.name : '';
+                const parts = [];
+                if (wp.location && wp.location !== 'Unknown') parts.push(wp.location);
+                if (wp.date) parts.push(wp.date);
+                const stage = document.createElement('div');
+                stage.className = 'origin-stage';
+                stage.innerHTML = `
+                    <div class="origin-stage-num">${i + 1}</div>
+                    <div>
+                        <div class="origin-stage-label">${wp.stage_label || wp.stage || 'Etap'}${entity ? ' — ' + entity : ''}</div>
+                        <div class="origin-stage-info">${parts.join(' • ') || 'Brak szczegółów lokalizacji'}</div>
+                    </div>`;
+                timelineEl.appendChild(stage);
+            });
+        }
+
+        function renderMap(mapEl, waypoints) {
+            const points = waypoints
+                .filter(wp => wp.coordinates && wp.coordinates.latitude && wp.coordinates.longitude)
+                .map(wp => ({
+                    lat: wp.coordinates.latitude,
+                    lng: wp.coordinates.longitude,
+                    label: wp.stage_label || wp.stage,
+                    name: wp.coordinates.display_name || wp.location
+                }));
+
+            if (typeof L === 'undefined' || points.length === 0) {
+                mapEl.style.display = 'none';
+                return;
+            }
+
+            const map = L.map(mapEl);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            const bounds = [];
+            points.forEach((p, i) => {
+                L.marker([p.lat, p.lng]).addTo(map)
+                    .bindPopup(`<b>${i + 1}. ${p.label}</b><br>${p.name}`);
+                bounds.push([p.lat, p.lng]);
+            });
+            if (points.length > 1)
+                L.polyline(bounds, { color: '#77c320', weight: 3, dashArray: '6,6' }).addTo(map);
+            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
+        }
+
+        document.querySelectorAll('.origin-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const batchId = this.dataset.batchId;
+                const content = document.getElementById(`origin-content-${batchId}`);
+
+                // Drugie kliknięcie zwija sekcję.
+                if (content.classList.contains('open')) {
+                    content.classList.remove('open');
+                    this.textContent = 'Pokaż trasę dostaw';
+                    return;
+                }
+                content.classList.add('open');
+                this.textContent = 'Ukryj trasę dostaw';
+
+                if (loaded[batchId]) return;   // już załadowane
+
+                const timelineEl = document.getElementById(`origin-timeline-${batchId}`);
+                const mapEl = document.getElementById(`origin-map-${batchId}`);
+                timelineEl.innerHTML = '<div class="origin-empty">Ładowanie trasy…</div>';
+                this.disabled = true;
+
+                fetch(`/blockchain/api/blockchain/supply-chain/${batchId}/map/?geocode=true`, { cache: 'no-store' })
+                    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                    .then(({ ok, data }) => {
+                        this.disabled = false;
+                        loaded[batchId] = true;
+                        const waypoints = ok && data.success && data.map_data ? (data.map_data.waypoints || []) : [];
+                        if (!ok || !data.success || waypoints.length === 0) {
+                            mapEl.style.display = 'none';
+                            timelineEl.innerHTML = '<div class="origin-empty">Brak zarejestrowanej trasy dostaw dla tej partii.</div>';
+                            return;
+                        }
+                        renderStages(timelineEl, waypoints);
+                        renderMap(mapEl, waypoints);
+                    })
+                    .catch(() => {
+                        this.disabled = false;
+                        mapEl.style.display = 'none';
+                        timelineEl.innerHTML = '<div class="origin-empty">Nie udało się pobrać trasy dostaw.</div>';
+                    });
+            });
+        });
     });
 </script>
 {% endblock %}
