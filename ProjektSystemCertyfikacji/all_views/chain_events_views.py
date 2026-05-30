@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from ..models import Chain_event, Product_batch, Activity_area, Certificate, Company
 from ..utils.geocoding import geocode_address
+from ..compliance import check_certificate_conditions, create_alert
 from datetime import datetime
 
 def _get_user_company(user):
@@ -179,6 +180,19 @@ def add_chain_event(request, batch_id):
             else:
                 company = _get_user_company(request.user)
 
+            violations = check_certificate_conditions(batch.certificate_id, area, company)
+
+            hard_violations = [v for v in violations if v['hard']]
+            if hard_violations:
+                for v in hard_violations:
+                    create_alert(v['type'], v['severity'], v['msg'], batch=batch)
+                messages.error(request, "Nie można zarejestrować etapu: " + hard_violations[0]['msg'])
+                return render(request, 'chain_events/add_chain_event.html', {
+                    'batch': batch,
+                    'activity_areas': activity_areas,
+                    'companies': companies,
+                })
+
             event = Chain_event(
                 location=location,
                 blockchain_hash='',
@@ -195,6 +209,12 @@ def add_chain_event(request, batch_id):
                 event.blockchain_hash  = block_hash
                 event.blockchain_tx_id = block_hash[:32]
                 event.save(update_fields=['blockchain_hash', 'blockchain_tx_id'])
+
+            soft_violations = [v for v in violations if not v['hard']]
+            for v in soft_violations:
+                create_alert(v['type'], v['severity'], v['msg'], event=event, batch=batch)
+            if soft_violations:
+                messages.warning(request, "Etap zarejestrowano, ale wykryto niezgodności — sprawdź dashboard alertów.")
 
             messages.success(request, f'Zdarzenie "{area.get_name_display()}" zostało zarejestrowane'
                              + (' i zapisane w blockchain.' if block_hash else ' (blockchain niedostępny).'))

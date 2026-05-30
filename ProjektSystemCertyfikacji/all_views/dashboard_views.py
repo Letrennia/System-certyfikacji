@@ -4,7 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db.models import Avg, Q, Count
 from ..models import Certificate, Consumer_rating, Product_batch, Certifying_unit, Certificate_status_history
-from ..models import Fraud_report
+from ..models import Fraud_report, Alert
 from django.utils import timezone
 from datetime import timedelta
 
@@ -150,6 +150,31 @@ def dashboard_fraud_reports(request):
         'pending_reports': pending_reports,
         'recent_reports':  recent_reports,
     })
+
+@staff_member_required
+def alerts_dashboard(request):
+    alerts = Alert.objects.select_related('event_id', 'batch_id').order_by('-alert_id')
+
+    for filter_key in ('severity', 'status', 'alert_type'):
+        filter_value = request.GET.get(filter_key)
+        if filter_value:
+            alerts = alerts.filter(**{filter_key: filter_value})
+
+    stats = {
+        'total':    Alert.objects.count(),
+        'new':      Alert.objects.filter(status='new').count(),
+        'critical': Alert.objects.filter(severity='critical').count(),
+        'open':     Alert.objects.filter(status__in=['new', 'waiting', 'realising']).count(),
+    }
+
+    return render(request, 'dashboard/alerts.html', {
+        'alerts': alerts,
+        'stats': stats,
+        'severity_choices': Alert.SEVERITY,
+        'status_choices': Alert.STATUS,
+        'type_choices': Alert.ALERT_TYPE,
+    })
+
 
 @staff_member_required
 def dashboard_fraud_detail(request, report_id):

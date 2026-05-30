@@ -89,6 +89,7 @@ urlpatterns = [
     path('dashboard/certificate/<int:cert_id>/', dashboard_views.certificate_control_detail, name='certificate_control_detail'),
     path('dashboard/certificate/<int:cert_id>/revoke/', dashboard_views.revoke_certificate, name='revoke_certificate'),
 
+    path('dashboard/alerts/', dashboard_views.alerts_dashboard, name='alerts_dashboard'),
     path('dashboard/fraud-reports/', dashboard_views.dashboard_fraud_reports, name='dashboard_fraud_reports'),
     path('dashboard/fraud-reports/<int:report_id>/', dashboard_views.dashboard_fraud_detail, name='dashboard_fraud_detail'),
 ]

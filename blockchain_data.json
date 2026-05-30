@@ -565,5 +565,35 @@
         },
         "previous_hash": "fcf00b30e4efb5b8fca7bcd11796e1a884a7ed55625c5cb20a9bb5941c1e8118",
         "hash": "edf53cf27b94813d020cefcbd69ea9750f01243290bdc802aec4191671c92ab2"
+    },
+    {
+        "index": 36,
+        "timestamp": "2026-05-31T01:18:04.762035",
+        "data": {
+            "type": "batch_registration",
+            "batch_id": 17,
+            "certificate_id": 101,
+            "name": "PZPN",
+            "category": "Wiejska 45",
+            "production_date": "2006-03-12",
+            "producer_id": 3,
+            "amount": 34.0,
+            "unit": "p"
+        },
+        "previous_hash": "edf53cf27b94813d020cefcbd69ea9750f01243290bdc802aec4191671c92ab2",
+        "hash": "3c0d97523122fd77edd621fcbbf547562b757be3d5ee10bc544038bfb4149d23"
+    },
+    {
+        "index": 37,
+        "timestamp": "2026-05-31T01:18:04.763812",
+        "data": {
+            "type": "subchain_creation",
+            "batch_id": 17,
+            "certificate_id": 101,
+            "subchain_address": "36b1970c8c4171d8009590d828ef9571a07df8fe1f4af5c683663f7b2dc5c526",
+            "producer_id": 3
+        },
+        "previous_hash": "3c0d97523122fd77edd621fcbbf547562b757be3d5ee10bc544038bfb4149d23",
+        "hash": "dfb575ca1d71683ad3a0f0122775826ae1e9ed6ab6df1224afafc178079a4c68"
     }
 ]

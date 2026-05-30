@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from ..models import Product_batch, Company, Certificate
+from ..compliance import create_alert
 from datetime import datetime
 from django.http import JsonResponse
 
@@ -93,6 +94,11 @@ def add_product_batch(request):
             try:
                 certificate = Certificate.objects.get(certificate_id=certificate_id, status='valid')
             except Certificate.DoesNotExist:
+                create_alert(
+                    'compliance_breach',
+                    'high',
+                    f"Próba rejestracji partii '{request.POST.get('name', '?')}' na nieważnym lub nieistniejącym certyfikacie (ID={certificate_id}).",
+                )
                 messages.error(request, 'Wybrany certyfikat nie istnieje lub jest nieważny')
                 return render(request, 'product_batches/add_product_batch.html')
 
