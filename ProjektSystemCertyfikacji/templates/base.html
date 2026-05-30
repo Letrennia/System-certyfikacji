@@ -549,10 +549,6 @@
                         <!--przypisywanie przycisków nevbar  -->
             <div class="nav-left">
                 {% if user.is_superuser %}
-                    <div class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                        <a href="{% url 'home' %}">Strona główna</a>
-                    </div>
-
                     <div class="nav-item {% if request.resolver_match.url_name == 'list_product_batches' %}active{% endif %}">
                         <a href="{% url 'list_product_batches' %}">Produkty</a>
                     </div>
@@ -561,6 +557,9 @@
                     </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'code_dashboard' %}active{% endif %}">
                         <a href="{% url 'code_dashboard' %}">Kody</a>
+                    </div>
+                    <div class="nav-item {% if request.resolver_match.url_name == 'control_dashboard' %}active{% endif %}">
+                        <a href="{% url 'control_dashboard' %}">Dashboard</a>
                     </div>
 
                 {% elif user.company_user %}
@@ -590,11 +589,11 @@
 
             <div class="nav-right">
                 {% if user.is_superuser %}
-                    <div class="nav-item {% if request.resolver_match.url_name == 'control_dashboard' %}active{% endif %}">
-                        <a href="{% url 'control_dashboard' %}">Dashboard</a>
-                    </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'dashboard_fraud_reports' %}active{% endif %}">
                         <a href="{% url 'dashboard_fraud_reports' %}">Zgłoszenia</a>
+                    </div>
+                    <div class="nav-item {% if request.resolver_match.url_name == 'alerts_dashboard' %}active{% endif %}">
+                        <a href="{% url 'alerts_dashboard' %}">Alerty</a>
                     </div>
                     <div class="nav-item {% if request.resolver_match.url_name == 'acc_dashboard' %}active{% endif %}">
                         <a href="{% url 'acc_dashboard' %}">Konta</a>
